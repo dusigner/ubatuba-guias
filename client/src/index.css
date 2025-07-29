@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+
+  /* Ubatuba Theme Colors */
+  --ocean: hsl(188, 85%, 37%);
+  --tropical: hsl(158, 84%, 37%);
+  --sunset: hsl(24, 95%, 53%);
+  --sand: hsl(60, 29%, 96%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(188, 85%, 37%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+
+  /* Dark mode theme colors */
+  --ocean: hsl(188, 85%, 47%);
+  --tropical: hsl(158, 84%, 47%);
+  --sunset: hsl(24, 95%, 63%);
+  --sand: hsl(240, 5%, 11%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-ocean {
+    color: var(--ocean);
+  }
+  
+  .text-tropical {
+    color: var(--tropical);
+  }
+  
+  .text-sunset {
+    color: var(--sunset);
+  }
+  
+  .text-sand {
+    color: var(--sand);
+  }
+  
+  .bg-ocean {
+    background-color: var(--ocean);
+  }
+  
+  .bg-tropical {
+    background-color: var(--tropical);
+  }
+  
+  .bg-sunset {
+    background-color: var(--sunset);
+  }
+  
+  .bg-sand {
+    background-color: var(--sand);
+  }
+  
+  .border-ocean {
+    border-color: var(--ocean);
+  }
+  
+  .border-tropical {
+    border-color: var(--tropical);
+  }
+  
+  .border-sunset {
+    border-color: var(--sunset);
+  }
+  
+  .border-sand {
+    border-color: var(--sand);
+  }
+
+  .hover\:bg-ocean\/90:hover {
+    background-color: hsl(from var(--ocean) h s l / 0.9);
+  }
+  
+  .hover\:bg-tropical\/90:hover {
+    background-color: hsl(from var(--tropical) h s l / 0.9);
+  }
+  
+  .hover\:bg-sunset\/90:hover {
+    background-color: hsl(from var(--sunset) h s l / 0.9);
+  }
+  
+  .hover\:text-ocean\/80:hover {
+    color: hsl(from var(--ocean) h s l / 0.8);
+  }
+  
+  .hover\:text-tropical\/80:hover {
+    color: hsl(from var(--tropical) h s l / 0.8);
+  }
+
+  .ocean\/10 {
+    background-color: hsl(from var(--ocean) h s l / 0.1);
+  }
+  
+  .tropical\/10 {
+    background-color: hsl(from var(--tropical) h s l / 0.1);
+  }
+  
+  .sunset\/10 {
+    background-color: hsl(from var(--sunset) h s l / 0.1);
+  }
+
+  .ocean\/5 {
+    background-color: hsl(from var(--ocean) h s l / 0.05);
+  }
+  
+  .tropical\/5 {
+    background-color: hsl(from var(--tropical) h s l / 0.05);
+  }
+  
+  .sunset\/5 {
+    background-color: hsl(from var(--sunset) h s l / 0.05);
+  }
+
+  .ocean\/20 {
+    background-color: hsl(from var(--ocean) h s l / 0.2);
+  }
+  
+  .tropical\/20 {
+    background-color: hsl(from var(--tropical) h s l / 0.2);
+  }
+  
+  .sunset\/20 {
+    background-color: hsl(from var(--sunset) h s l / 0.2);
+  }
+
+  .ocean\/80 {
+    background-color: hsl(from var(--ocean) h s l / 0.8);
+  }
+  
+  .tropical\/80 {
+    background-color: hsl(from var(--tropical) h s l / 0.8);
+  }
+  
+  .sunset\/80 {
+    background-color: hsl(from var(--sunset) h s l / 0.8);
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}

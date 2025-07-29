@@ -13,38 +13,10 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Sparkles, MapPin, Clock, Calendar, Users, Utensils, Mountain, Camera, Loader2, ChevronRight } from "lucide-react";
-
-interface ItineraryDay {
-  day: number;
-  title: string;
-  activities: {
-    time: string;
-    activity: string;
-    location: string;
-    description: string;
-    duration: string;
-    difficulty?: string;
-    tips: string[];
-  }[];
-}
-
-interface GeneratedItinerary {
-  title: string;
-  summary: string;
-  totalDays: number;
-  estimatedCost: string;
-  bestTimeToVisit: string;
-  days: ItineraryDay[];
-  generalTips: string[];
-  whatToBring: string[];
-}
+import { Sparkles, Loader2, MapPin, Clock, Star, Wand2 } from "lucide-react";
 
 interface AIItineraryProps {
   children: React.ReactNode;
@@ -55,27 +27,27 @@ export default function AIItinerary({ children }: AIItineraryProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState<'preferences' | 'generating' | 'result'>('preferences');
-  const [generatedItinerary, setGeneratedItinerary] = useState<GeneratedItinerary | null>(null);
-
-  // Form state
-  const [experienceTypes, setExperienceTypes] = useState<string[]>(['aventura']);
-  const [duration, setDuration] = useState<string>('');
-  const [styles, setStyles] = useState<string[]>(['aventureiro']);
-  const [specialRequests, setSpecialRequests] = useState<string>('');
+  const [step, setStep] = useState<'input' | 'generating' | 'result'>('input');
+  const [generatedItinerary, setGeneratedItinerary] = useState<any>(null);
+  const [userInput, setUserInput] = useState<string>('');
 
   const generateMutation = useMutation({
-    mutationFn: async (preferences: any) => {
-      const response = await apiRequest('POST', '/api/itinerary/generate', preferences);
-      return response.json();
+    mutationFn: async (userInput: string) => {
+      // Primeiro analisa as preferências
+      const analyzeResponse = await apiRequest('POST', '/api/itineraries/analyze', { userInput });
+      const preferences = await analyzeResponse.json();
+      
+      // Depois gera o roteiro
+      const generateResponse = await apiRequest('POST', '/api/itineraries/generate', { preferences });
+      return generateResponse.json();
     },
     onSuccess: (data) => {
       setGeneratedItinerary(data);
       setStep('result');
       queryClient.invalidateQueries({ queryKey: ['/api/itineraries'] });
       toast({
-        title: "Roteiro criado com sucesso!",
-        description: "Seu roteiro personalizado foi gerado pela IA.",
+        title: "✨ Roteiro criado com Gemini AI!",
+        description: "Seu roteiro personalizado foi gerado com inteligência artificial gratuita.",
       });
     },
     onError: (error) => {
@@ -90,390 +62,205 @@ export default function AIItinerary({ children }: AIItineraryProps) {
         }, 500);
         return;
       }
+      
       toast({
         title: "Erro ao gerar roteiro",
-        description: "Houve um problema ao gerar seu roteiro. Tente novamente.",
+        description: "Não foi possível gerar o roteiro. Tente novamente.",
         variant: "destructive",
       });
-      setStep('preferences');
+      setStep('input');
     },
   });
 
-  const handleExperienceTypeChange = (type: string, checked: boolean) => {
-    if (checked) {
-      setExperienceTypes([...experienceTypes, type]);
-    } else {
-      setExperienceTypes(experienceTypes.filter(t => t !== type));
-    }
-  };
-
-  const handleStyleChange = (style: string, checked: boolean) => {
-    if (checked) {
-      setStyles([...styles, style]);
-    } else {
-      setStyles(styles.filter(s => s !== style));
-    }
-  };
-
-  const handleGenerate = () => {
-    if (experienceTypes.length === 0 || !duration || styles.length === 0) {
+  const handleGenerateItinerary = () => {
+    if (!userInput.trim()) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
+        title: "Descreva sua viagem",
+        description: "Por favor, conte-nos o que você gostaria de fazer em Ubatuba.",
         variant: "destructive",
       });
       return;
     }
 
     setStep('generating');
-    generateMutation.mutate({
-      experienceTypes,
-      duration,
-      styles,
-      specialRequests,
-    });
+    generateMutation.mutate(userInput);
   };
 
   const handleClose = () => {
     setIsOpen(false);
-    setStep('preferences');
+    setStep('input');
     setGeneratedItinerary(null);
-    // Reset form
-    setExperienceTypes(['aventura']);
-    setDuration('');
-    setStyles(['aventureiro']);
-    setSpecialRequests('');
+    setUserInput('');
   };
 
-  const experienceOptions = [
-    { value: 'aventura', label: 'Aventura', icon: Mountain },
-    { value: 'família', label: 'Família', icon: Users },
-    { value: 'praia', label: 'Praia', icon: '🏖️' },
-    { value: 'trilhas', label: 'Trilhas', icon: '🥾' },
-  ];
+  const renderContent = () => {
+    switch (step) {
+      case 'input':
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-gradient-to-r from-blue-500 to-green-500 p-3 rounded-full">
+                  <Wand2 className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                Powered by Google Gemini AI 🚀
+              </h3>
+              <p className="text-muted-foreground">
+                Roteiros personalizados com IA gratuita e inteligente
+              </p>
+            </div>
 
-  const styleOptions = [
-    { value: 'relaxante', label: 'Relaxante', icon: '😌' },
-    { value: 'aventureiro', label: 'Aventureiro', icon: '🏃‍♂️' },
-    { value: 'cultural', label: 'Cultural', icon: '🏛️' },
-    { value: 'gastronômico', label: 'Gastronômico', icon: Utensils },
-  ];
+            <Card className="border-2 border-dashed border-primary/20">
+              <CardContent className="p-6">
+                <Label htmlFor="travel-description" className="text-lg font-semibold">
+                  Conte-nos sobre sua viagem dos sonhos em Ubatuba:
+                </Label>
+                <Textarea
+                  id="travel-description"
+                  placeholder="Ex: Quero passar 3 dias em Ubatuba com minha família. Gostamos de praias, trilhas leves e boa comida. Temos orçamento médio e gostaríamos de conhecer o melhor da região..."
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  className="mt-3 min-h-[120px] resize-none"
+                />
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Locais específicos
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Duração da viagem
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4" />
+                    Seus interesses
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Estilo de viagem
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Button 
+              onClick={handleGenerateItinerary}
+              className="w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white text-lg py-6"
+              size="lg"
+            >
+              <Sparkles className="h-5 w-5 mr-2" />
+              Criar Roteiro com Gemini AI
+            </Button>
+          </div>
+        );
+
+      case 'generating':
+        return (
+          <div className="text-center py-12">
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <div className="bg-gradient-to-r from-blue-500 to-green-500 p-4 rounded-full animate-pulse">
+                  <Wand2 className="h-10 w-10 text-white" />
+                </div>
+                <Loader2 className="absolute -top-2 -right-2 h-6 w-6 text-primary animate-spin" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-foreground mb-2">
+              Gemini AI está criando seu roteiro...
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Analisando suas preferências e criando um roteiro personalizado para Ubatuba
+            </p>
+            <div className="bg-muted/30 rounded-lg p-4 text-sm text-muted-foreground">
+              <p>✨ Usando inteligência artificial gratuita do Google</p>
+              <p>🔍 Analisando lugares específicos de Ubatuba</p>
+              <p>📝 Criando roteiro detalhado dia por dia</p>
+            </div>
+          </div>
+        );
+
+      case 'result':
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-green-500 p-3 rounded-full">
+                  <Sparkles className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                Seu Roteiro Está Pronto! 🎉
+              </h3>
+              <p className="text-muted-foreground">
+                Criado com Gemini AI especialmente para você
+              </p>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Roteiro Personalizado para Ubatuba
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <div 
+                    className="whitespace-pre-wrap text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: generatedItinerary?.content?.replace(/\n/g, '<br>') || 'Roteiro não disponível'
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => {
+                  setStep('input');
+                  setUserInput('');
+                  setGeneratedItinerary(null);
+                }}
+                variant="outline"
+                className="flex-1"
+              >
+                Criar Novo Roteiro
+              </Button>
+              <Button 
+                onClick={handleClose}
+                className="flex-1"
+              >
+                Salvar e Fechar
+              </Button>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild onClick={() => setIsOpen(true)}>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-2xl">
-            <Sparkles className="h-6 w-6 text-sunset mr-2" />
-            Roteiro Personalizado com IA
+          <DialogTitle className="flex items-center gap-2">
+            <Sparkles className="h-6 w-6 text-primary" />
+            Roteiro Inteligente com Gemini AI
           </DialogTitle>
           <DialogDescription>
-            Nossa inteligência artificial irá criar um roteiro único baseado nas suas preferências
+            Crie roteiros personalizados para Ubatuba usando inteligência artificial gratuita
           </DialogDescription>
         </DialogHeader>
-
-        {step === 'preferences' && (
-          <div className="space-y-6">
-            <Card className="bg-gradient-to-br from-ocean/5 to-tropical/5">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">Configure seu roteiro personalizado</h3>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-6">
-                    {/* Experience Types */}
-                    <div>
-                      <Label className="text-sm font-semibold text-slate-700 mb-3 block">
-                        Tipo de experiência *
-                      </Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {experienceOptions.map((option) => {
-                          const IconComponent = typeof option.icon === 'string' ? null : option.icon;
-                          return (
-                            <div key={option.value} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`experience-${option.value}`}
-                                checked={experienceTypes.includes(option.value)}
-                                onCheckedChange={(checked) => 
-                                  handleExperienceTypeChange(option.value, checked === true)
-                                }
-                              />
-                              <Label 
-                                htmlFor={`experience-${option.value}`}
-                                className="flex items-center cursor-pointer"
-                              >
-                                {IconComponent ? (
-                                  <IconComponent className="h-4 w-4 mr-1" />
-                                ) : (
-                                  <span className="mr-1">{option.icon as string}</span>
-                                )}
-                                {option.label}
-                              </Label>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Duration */}
-                    <div>
-                      <Label className="text-sm font-semibold text-slate-700 mb-2 block">
-                        Tempo disponível *
-                      </Label>
-                      <Select value={duration} onValueChange={setDuration}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a duração" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1 dia">1 dia</SelectItem>
-                          <SelectItem value="2-3 dias">2-3 dias</SelectItem>
-                          <SelectItem value="4-7 dias">4-7 dias</SelectItem>
-                          <SelectItem value="mais de 1 semana">Mais de 1 semana</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Styles */}
-                    <div>
-                      <Label className="text-sm font-semibold text-slate-700 mb-3 block">
-                        Estilo de passeio *
-                      </Label>
-                      <div className="space-y-2">
-                        {styleOptions.map((option) => {
-                          const IconComponent = typeof option.icon === 'string' ? null : option.icon;
-                          return (
-                            <div key={option.value} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`style-${option.value}`}
-                                checked={styles.includes(option.value)}
-                                onCheckedChange={(checked) => 
-                                  handleStyleChange(option.value, checked === true)
-                                }
-                              />
-                              <Label 
-                                htmlFor={`style-${option.value}`}
-                                className="flex items-center cursor-pointer"
-                              >
-                                {IconComponent ? (
-                                  <IconComponent className="h-4 w-4 mr-1" />
-                                ) : (
-                                  <span className="mr-1">{option.icon as string}</span>
-                                )}
-                                {option.label}
-                              </Label>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Special Requests */}
-                    <div>
-                      <Label className="text-sm font-semibold text-slate-700 mb-2 block">
-                        Pedidos especiais (opcional)
-                      </Label>
-                      <Textarea
-                        placeholder="Descreva qualquer preferência especial ou restrição..."
-                        value={specialRequests}
-                        onChange={(e) => setSpecialRequests(e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-6">
-                    <h4 className="font-bold text-slate-800 mb-4">
-                      <Sparkles className="inline h-5 w-5 text-sunset mr-2" />
-                      Prévia do Roteiro IA
-                    </h4>
-                    <div className="space-y-4 text-sm">
-                      {experienceTypes.includes('aventura') && (
-                        <div className="border-l-4 border-tropical pl-4">
-                          <div className="font-semibold text-tropical">Manhã - Aventura</div>
-                          <div className="text-slate-600">Trilha com vista panorâmica + Atividades outdoor</div>
-                        </div>
-                      )}
-                      {experienceTypes.includes('praia') && (
-                        <div className="border-l-4 border-ocean pl-4">
-                          <div className="font-semibold text-ocean">Tarde - Praia</div>
-                          <div className="text-slate-600">Praia paradisíaca + Esportes aquáticos</div>
-                        </div>
-                      )}
-                      {styles.includes('gastronômico') && (
-                        <div className="border-l-4 border-sunset pl-4">
-                          <div className="font-semibold text-sunset">Noite - Gastronomia</div>
-                          <div className="text-slate-600">Restaurante local + Culinária caiçara</div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <Button 
-                      onClick={handleGenerate}
-                      disabled={generateMutation.isPending}
-                      className="w-full bg-gradient-to-r from-ocean to-tropical text-white hover:opacity-90 mt-6"
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Gerar Roteiro Completo
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {step === 'generating' && (
-          <div className="text-center py-12">
-            <div className="mb-6">
-              <Loader2 className="h-16 w-16 text-ocean animate-spin mx-auto" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-800 mb-4">
-              Criando seu roteiro personalizado...
-            </h3>
-            <p className="text-slate-600 mb-8 max-w-md mx-auto">
-              Nossa IA está analisando suas preferências e criando o roteiro perfeito para sua aventura em Ubatuba.
-            </p>
-            <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
-              <Sparkles className="h-4 w-4 animate-pulse text-sunset" />
-              <span>Isso pode levar alguns segundos...</span>
-            </div>
-          </div>
-        )}
-
-        {step === 'result' && generatedItinerary && (
-          <div className="space-y-6">
-            {/* Header */}
-            <Card className="bg-gradient-to-r from-ocean/10 to-tropical/10">
-              <CardContent className="p-6">
-                <h3 className="text-2xl font-bold text-slate-800 mb-2">
-                  {generatedItinerary.title}
-                </h3>
-                <p className="text-slate-600 mb-4">{generatedItinerary.summary}</p>
-                
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="flex items-center">
-                    <Calendar className="h-5 w-5 text-ocean mr-2" />
-                    <div>
-                      <div className="font-semibold text-slate-800">{generatedItinerary.totalDays} dias</div>
-                      <div className="text-xs text-slate-600">Duração</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-lg mr-2">💰</span>
-                    <div>
-                      <div className="font-semibold text-slate-800">{generatedItinerary.estimatedCost}</div>
-                      <div className="text-xs text-slate-600">Custo estimado</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-lg mr-2">🌤️</span>
-                    <div>
-                      <div className="font-semibold text-slate-800">{generatedItinerary.bestTimeToVisit}</div>
-                      <div className="text-xs text-slate-600">Melhor época</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Daily Itinerary */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-bold text-slate-800">Roteiro Detalhado</h4>
-              {generatedItinerary.days.map((day) => (
-                <Card key={day.day}>
-                  <CardContent className="p-6">
-                    <h5 className="text-xl font-bold text-slate-800 mb-4">
-                      Dia {day.day} - {day.title}
-                    </h5>
-                    <div className="space-y-4">
-                      {day.activities.map((activity, index) => (
-                        <div key={index} className="flex items-start space-x-4 p-4 bg-slate-50 rounded-lg">
-                          <div className="text-sm font-semibold text-ocean min-w-[60px]">
-                            {activity.time}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h6 className="font-semibold text-slate-800">{activity.activity}</h6>
-                              {activity.difficulty && (
-                                <Badge variant="outline" className="text-xs">
-                                  {activity.difficulty}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center text-sm text-slate-600 mb-2">
-                              <MapPin className="h-4 w-4 mr-1" />
-                              {activity.location}
-                              <Clock className="h-4 w-4 ml-4 mr-1" />
-                              {activity.duration}
-                            </div>
-                            <p className="text-sm text-slate-600 mb-2">{activity.description}</p>
-                            {activity.tips.length > 0 && (
-                              <div className="space-y-1">
-                                {activity.tips.map((tip, tipIndex) => (
-                                  <div key={tipIndex} className="flex items-start text-xs text-slate-500">
-                                    <span className="text-tropical mr-1">💡</span>
-                                    {tip}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Tips and What to Bring */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {generatedItinerary.generalTips.length > 0 && (
-                <Card>
-                  <CardContent className="p-6">
-                    <h5 className="font-bold text-slate-800 mb-4">Dicas Gerais</h5>
-                    <ul className="space-y-2">
-                      {generatedItinerary.generalTips.map((tip, index) => (
-                        <li key={index} className="flex items-start text-sm text-slate-600">
-                          <ChevronRight className="h-4 w-4 text-tropical mr-2 mt-0.5 flex-shrink-0" />
-                          {tip}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
-              
-              {generatedItinerary.whatToBring.length > 0 && (
-                <Card>
-                  <CardContent className="p-6">
-                    <h5 className="font-bold text-slate-800 mb-4">O que levar</h5>
-                    <ul className="space-y-2">
-                      {generatedItinerary.whatToBring.map((item, index) => (
-                        <li key={index} className="flex items-start text-sm text-slate-600">
-                          <ChevronRight className="h-4 w-4 text-ocean mr-2 mt-0.5 flex-shrink-0" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            <div className="flex justify-end space-x-4 pt-6">
-              <Button variant="outline" onClick={handleClose}>
-                Fechar
-              </Button>
-              <Button className="bg-gradient-to-r from-ocean to-tropical text-white hover:opacity-90">
-                <span className="mr-2">📱</span>
-                Salvar no Celular
-              </Button>
-            </div>
-          </div>
-        )}
+        
+        {renderContent()}
       </DialogContent>
     </Dialog>
   );

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateItinerary } from "./openai";
+import { generateItinerary, analyzeUserPreferences } from "./gemini";
 import { 
   insertEventSchema, 
   insertGuideSchema, 
@@ -190,6 +190,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erro ao criar guia:", error);
       res.status(500).json({ message: "Falha ao criar guia" });
+    }
+  });
+
+  // Analyze user preferences from text
+  app.post('/api/itineraries/analyze', authMiddleware, async (req, res) => {
+    try {
+      const { userInput } = req.body;
+      
+      if (!userInput) {
+        return res.status(400).json({ message: "Texto de entrada é obrigatório" });
+      }
+
+      const preferences = await analyzeUserPreferences(userInput);
+      res.json(preferences);
+    } catch (error) {
+      console.error("Erro ao analisar preferências:", error);
+      res.status(500).json({ message: "Falha ao analisar preferências" });
     }
   });
 

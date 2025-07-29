@@ -25,7 +25,7 @@ Preferred communication style: Simple, everyday language.
 - **API Pattern**: RESTful API with structured route handlers
 - **Authentication**: Replit Auth (OIDC) with session management
 - **Session Storage**: PostgreSQL-based session store
-- **AI Integration**: OpenAI API for itinerary generation
+- **AI Integration**: Google Gemini API for itinerary generation (free alternative)
 
 ### Database Architecture
 - **Database**: PostgreSQL (via Neon)
@@ -42,10 +42,13 @@ Preferred communication style: Simple, everyday language.
 - **Authorization**: Route-level protection with middleware
 
 ### AI-Powered Itinerary Generation
-- **Service**: OpenAI GPT-4o integration
-- **Input**: User preferences (experience types, duration, styles, special requests)
+- **Service**: Google Gemini AI integration (free alternative to OpenAI)
+- **Models**: gemini-2.5-flash for generation, gemini-2.5-pro for analysis
+- **Input**: Natural language descriptions of travel preferences
+- **Processing**: Two-step process (analyze preferences → generate itinerary)
 - **Output**: Detailed multi-day itineraries with activities, times, and tips
 - **Language**: Portuguese (pt-BR) responses
+- **Benefits**: Free API with generous limits (15 req/min, 1M tokens/min, 1500 req/day)
 
 ### Core Modules
 1. **Trails Module**: Hiking trails with difficulty ratings, distances, and reviews

@@ -55,12 +55,16 @@ GRANT ALL PRIVILEGES ON DATABASE ubatuba_tourism TO ubatuba_user;
 
 ### 4. Configurar Projeto
 ```bash
+# Se você baixou do Replit, renomeie os arquivos:
+mv package-local.json package.json
+mv vite.config.local.ts vite.config.ts
+
 # Instalar dependências
 npm install
 
-# OU se você baixou do Replit, renomeie os arquivos:
-mv package-local.json package.json
-mv vite.config.local.ts vite.config.ts
+# Se der erro de módulos, limpe o cache:
+rm -rf node_modules package-lock.json
+npm install
 ```
 
 ### 5. Variáveis de Ambiente
@@ -131,12 +135,20 @@ lsof -i :5000
 kill -9 <PID>
 ```
 
-### Erro de Dependências
+### Erro de Dependências (como @neondatabase/serverless)
 ```bash
 # Limpar cache e reinstalar
 rm -rf node_modules package-lock.json
 npm install
+
+# Se ainda der erro, verificar se o package.json foi renomeado corretamente
+# Deve existir package.json (não package-local.json) na raiz
 ```
+
+### Erro "Cannot find module"
+- Certifique-se que renomeou `package-local.json` para `package.json`
+- Execute `npm install` após renomear
+- Verifique se está na pasta raiz do projeto
 
 ## Scripts Úteis
 

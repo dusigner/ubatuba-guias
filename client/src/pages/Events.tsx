@@ -80,8 +80,7 @@ export default function Events() {
   const canCreateEvent = user?.userType === 'event_producer';
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navigation />
+    <div className="min-h-screen bg-background">
       
       {/* Header */}
       <section className="bg-gradient-to-br from-sunset/10 to-ocean/10 py-16">

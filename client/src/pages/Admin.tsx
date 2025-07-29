@@ -51,8 +51,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navigation />
+    <div className="min-h-screen bg-background">
       
       {/* Header */}
       <section className="bg-gradient-to-br from-slate-900 to-slate-700 py-16">

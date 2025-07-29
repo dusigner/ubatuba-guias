@@ -1,33 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Compass, Mountain, Umbrella, Ship, Calendar, Users, Sparkles, Play, Award, Leaf, Heart } from "lucide-react";
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="bg-white shadow-lg sticky top-0 z-50">
+      <nav className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2">
-              <Compass className="h-8 w-8 text-ocean" />
-              <span className="text-2xl font-bold text-slate-800">UbatubaIA</span>
+              <Compass className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-foreground">UbatubaIA</span>
             </div>
             
             <div className="hidden md:flex space-x-8">
-              <a href="#inicio" className="text-slate-600 hover:text-ocean transition-colors">Início</a>
-              <a href="#roteiros" className="text-slate-600 hover:text-ocean transition-colors">Roteiros IA</a>
-              <a href="#trilhas" className="text-slate-600 hover:text-ocean transition-colors">Trilhas</a>
-              <a href="#praias" className="text-slate-600 hover:text-ocean transition-colors">Praias</a>
-              <a href="#passeios" className="text-slate-600 hover:text-ocean transition-colors">Passeios</a>
-              <a href="#eventos" className="text-slate-600 hover:text-ocean transition-colors">Eventos</a>
-              <a href="#guias" className="text-slate-600 hover:text-ocean transition-colors">Guias</a>
+              <a href="#inicio" className="text-muted-foreground hover:text-primary transition-colors">Início</a>
+              <a href="#roteiros" className="text-muted-foreground hover:text-primary transition-colors">Roteiros IA</a>
+              <a href="#trilhas" className="text-muted-foreground hover:text-primary transition-colors">Trilhas</a>
+              <a href="#praias" className="text-muted-foreground hover:text-primary transition-colors">Praias</a>
+              <a href="#passeios" className="text-muted-foreground hover:text-primary transition-colors">Passeios</a>
+              <a href="#eventos" className="text-muted-foreground hover:text-primary transition-colors">Eventos</a>
+              <a href="#guias" className="text-muted-foreground hover:text-primary transition-colors">Guias</a>
             </div>
 
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <Button 
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-ocean text-white hover:bg-ocean/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Users className="h-4 w-4 mr-2" />
                 Entrar
@@ -39,7 +41,7 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section id="inicio" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-ocean/80 to-tropical/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/60 dark:from-primary/60 dark:to-primary/40"></div>
         <div 
           className="relative bg-cover bg-center h-screen flex items-center"
           style={{
@@ -48,7 +50,7 @@ export default function Landing() {
         >
           <div className="container mx-auto px-4 text-center text-white">
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              Descubra <span className="text-sunset">Ubatuba</span>
+              Descubra <span className="text-orange-400">Ubatuba</span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
               Roteiros personalizados com inteligência artificial para sua aventura perfeita no litoral norte de São Paulo
@@ -57,7 +59,7 @@ export default function Landing() {
               <Button 
                 size="lg"
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-sunset text-white hover:bg-sunset/90 text-lg px-8 py-6"
+                className="bg-orange-500 text-white hover:bg-orange-600 text-lg px-8 py-6"
               >
                 <Sparkles className="h-5 w-5 mr-2" />
                 Criar Roteiro com IA

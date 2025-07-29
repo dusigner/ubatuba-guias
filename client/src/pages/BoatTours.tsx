@@ -54,8 +54,7 @@ export default function BoatTours() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navigation />
+    <div className="min-h-screen bg-background">
       
       {/* Header */}
       <section className="bg-gradient-to-br from-ocean/10 to-tropical/10 py-16">

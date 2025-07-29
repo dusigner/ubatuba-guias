@@ -102,8 +102,7 @@ export default function Guides() {
   const canCreateGuide = user?.userType === 'guide';
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navigation />
+    <div className="min-h-screen bg-background">
       
       {/* Header */}
       <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 py-16">

@@ -47,8 +47,8 @@ export default function Trails() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -57,24 +57,23 @@ export default function Trails() {
     switch (difficulty.toLowerCase()) {
       case 'fácil':
       case 'easy':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       case 'moderado':
       case 'moderate':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'difícil':
       case 'difficult':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navigation />
+    <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 py-16">
+      <section className="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 py-16">
         <div className="container mx-auto px-4">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">

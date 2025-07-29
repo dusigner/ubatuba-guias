@@ -37,28 +37,26 @@ export default function Home() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navigation />
-      
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-ocean/10 to-tropical/10">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10">
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
               Bem-vindo de volta, {user?.firstName || 'Explorador'}!
             </h1>
-            <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
               Pronto para descobrir novos destinos em Ubatuba? Nossa IA está preparada para criar o roteiro perfeito para você.
             </p>
             <AIItinerary>
-              <Button size="lg" className="bg-gradient-to-r from-sunset to-ocean text-white hover:opacity-90 text-lg px-8 py-6">
+              <Button size="lg" className="bg-gradient-to-r from-orange-500 to-primary text-white hover:opacity-90 text-lg px-8 py-6">
                 <Sparkles className="h-5 w-5 mr-2" />
                 Criar Novo Roteiro com IA
               </Button>

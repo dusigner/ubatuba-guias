@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Loader2, MapPin, Clock, Star, Wand2 } from "lucide-react";
+import { Sparkles, Loader2, MapPin, Clock, Star, Wand2, Calendar, Users } from "lucide-react";
 
 interface AIItineraryProps {
   children: React.ReactNode;
@@ -32,9 +32,11 @@ export default function AIItinerary({ children }: AIItineraryProps) {
 
   // Form state estruturado
   const [experienceTypes, setExperienceTypes] = useState<string[]>(['praias']);
-  const [duration, setDuration] = useState<string>('');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [budget, setBudget] = useState<string>('');
   const [travelStyle, setTravelStyle] = useState<string>('');
+  const [groupSize, setGroupSize] = useState<string>('');
   const [specialRequests, setSpecialRequests] = useState<string>('');
 
   const generateMutation = useMutation({
@@ -59,7 +61,7 @@ export default function AIItinerary({ children }: AIItineraryProps) {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          (window as any).location.href = "/api/login";
         }, 500);
         return;
       }
@@ -81,8 +83,19 @@ export default function AIItinerary({ children }: AIItineraryProps) {
     }
   };
 
+  const calculateDuration = () => {
+    if (!startDate || !endDate) return 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays;
+  };
+
   const handleGenerateItinerary = () => {
-    if (experienceTypes.length === 0 || !duration || !budget || !travelStyle) {
+    const duration = calculateDuration();
+    
+    if (experienceTypes.length === 0 || !startDate || !endDate || !budget || !travelStyle || !groupSize) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha todos os campos obrigatórios.",
@@ -91,13 +104,25 @@ export default function AIItinerary({ children }: AIItineraryProps) {
       return;
     }
 
+    if (duration <= 0) {
+      toast({
+        title: "Datas inválidas",
+        description: "A data de fim deve ser após a data de início.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setStep('generating');
     
     const preferences = {
-      duration: parseInt(duration),
+      duration,
+      startDate,
+      endDate,
       interests: experienceTypes,
       budget,
       travelStyle,
+      groupSize,
       specialRequests: specialRequests || undefined
     };
     
@@ -110,9 +135,11 @@ export default function AIItinerary({ children }: AIItineraryProps) {
     setGeneratedItinerary(null);
     // Reset form
     setExperienceTypes(['praias']);
-    setDuration('');
+    setStartDate('');
+    setEndDate('');
     setBudget('');
     setTravelStyle('');
+    setGroupSize('');
     setSpecialRequests('');
   };
 
@@ -162,7 +189,7 @@ export default function AIItinerary({ children }: AIItineraryProps) {
                         type="checkbox"
                         id={option.value}
                         checked={experienceTypes.includes(option.value)}
-                        onChange={(e) => handleExperienceTypeChange(option.value, e.target.checked)}
+                        onChange={(e) => handleExperienceTypeChange(option.value, (e.target as HTMLInputElement).checked)}
                         className="rounded border-gray-300"
                       />
                       <Label 
@@ -178,29 +205,73 @@ export default function AIItinerary({ children }: AIItineraryProps) {
               </CardContent>
             </Card>
 
-            {/* Duração */}
+            {/* Datas da Viagem */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  Quantos dias você tem? *
+                  <Calendar className="h-5 w-5 text-primary" />
+                  Quando você estará em Ubatuba? *
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="start-date" className="text-sm font-medium">
+                      Data de Chegada
+                    </Label>
+                    <input
+                      type="date"
+                      id="start-date"
+                      value={startDate}
+                      onChange={(e) => setStartDate((e.target as HTMLInputElement).value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full p-3 border rounded-lg bg-background mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="end-date" className="text-sm font-medium">
+                      Data de Saída
+                    </Label>
+                    <input
+                      type="date"
+                      id="end-date"
+                      value={endDate}
+                      onChange={(e) => setEndDate((e.target as HTMLInputElement).value)}
+                      min={startDate || new Date().toISOString().split('T')[0]}
+                      className="w-full p-3 border rounded-lg bg-background mt-1"
+                    />
+                  </div>
+                </div>
+                {startDate && endDate && (
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <p className="text-sm text-primary font-medium">
+                      📅 Duração da viagem: {calculateDuration()} {calculateDuration() === 1 ? 'dia' : 'dias'}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Tamanho do Grupo */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  Quantas pessoas? *
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <select
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
+                  value={groupSize}
+                  onChange={(e) => setGroupSize((e.target as HTMLSelectElement).value)}
                   className="w-full p-3 border rounded-lg bg-background"
                 >
-                  <option value="">Selecione a duração</option>
-                  <option value="1">1 dia</option>
-                  <option value="2">2 dias</option>
-                  <option value="3">3 dias</option>
-                  <option value="4">4 dias</option>
-                  <option value="5">5 dias</option>
-                  <option value="7">1 semana</option>
-                  <option value="10">10 dias</option>
-                  <option value="14">2 semanas</option>
+                  <option value="">Selecione o tamanho do grupo</option>
+                  <option value="1">Sozinho</option>
+                  <option value="2">Casal</option>
+                  <option value="3-4">Grupo pequeno (3-4 pessoas)</option>
+                  <option value="5-8">Grupo médio (5-8 pessoas)</option>
+                  <option value="9+">Grupo grande (9+ pessoas)</option>
                 </select>
               </CardContent>
             </Card>
@@ -216,13 +287,13 @@ export default function AIItinerary({ children }: AIItineraryProps) {
               <CardContent>
                 <select
                   value={budget}
-                  onChange={(e) => setBudget(e.target.value)}
+                  onChange={(e) => setBudget((e.target as HTMLSelectElement).value)}
                   className="w-full p-3 border rounded-lg bg-background"
                 >
                   <option value="">Selecione o orçamento</option>
-                  <option value="econômico">Econômico (até R$ 200/dia)</option>
-                  <option value="médio">Médio (R$ 200-500/dia)</option>
-                  <option value="alto">Alto (acima de R$ 500/dia)</option>
+                  <option value="econômico">💰 Econômico (até R$ 200/dia por pessoa)</option>
+                  <option value="médio">💎 Médio (R$ 200-500/dia por pessoa)</option>
+                  <option value="alto">👑 Premium (acima de R$ 500/dia por pessoa)</option>
                 </select>
               </CardContent>
             </Card>
@@ -238,16 +309,17 @@ export default function AIItinerary({ children }: AIItineraryProps) {
               <CardContent>
                 <select
                   value={travelStyle}
-                  onChange={(e) => setTravelStyle(e.target.value)}
+                  onChange={(e) => setTravelStyle((e.target as HTMLSelectElement).value)}
                   className="w-full p-3 border rounded-lg bg-background"
                 >
                   <option value="">Selecione o estilo</option>
-                  <option value="aventura">Aventura</option>
-                  <option value="relaxante">Relaxante</option>
-                  <option value="cultural">Cultural</option>
-                  <option value="família">Família</option>
-                  <option value="romântico">Romântico</option>
-                  <option value="mochileiro">Mochileiro</option>
+                  <option value="aventura">🏔️ Aventura</option>
+                  <option value="relaxante">🧘 Relaxante</option>
+                  <option value="cultural">🎭 Cultural</option>
+                  <option value="família">👨‍👩‍👧‍👦 Família</option>
+                  <option value="romântico">💕 Romântico</option>
+                  <option value="mochileiro">🎒 Mochileiro</option>
+                  <option value="luxo">✨ Luxo</option>
                 </select>
               </CardContent>
             </Card>
@@ -262,11 +334,14 @@ export default function AIItinerary({ children }: AIItineraryProps) {
               </CardHeader>
               <CardContent>
                 <Textarea
-                  placeholder="Ex: Somos vegetarianos, queremos locais pet-friendly, temos dificuldade de locomoção..."
+                  placeholder="Ex: Somos vegetarianos, queremos locais pet-friendly, temos dificuldade de locomoção, preferimos atividades pela manhã, não sabemos nadar..."
                   value={specialRequests}
-                  onChange={(e) => setSpecialRequests(e.target.value)}
-                  className="min-h-[80px] resize-none"
+                  onChange={(e) => setSpecialRequests((e.target as HTMLTextAreaElement).value)}
+                  className="min-h-[100px] resize-none"
                 />
+                <div className="mt-2 text-xs text-muted-foreground">
+                  💡 Dica: Quanto mais detalhes, melhor será seu roteiro personalizado!
+                </div>
               </CardContent>
             </Card>
 

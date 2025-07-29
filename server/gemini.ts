@@ -6,9 +6,12 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 export interface ItineraryPreferences {
   duration: number;
+  startDate?: string;
+  endDate?: string;
   interests: string[];
   budget: string;
   travelStyle: string;
+  groupSize?: string;
   specialRequests?: string;
 }
 
@@ -16,10 +19,11 @@ export async function generateItinerary(preferences: ItineraryPreferences): Prom
   try {
     const prompt = `Você é um especialista em turismo de Ubatuba, SP, Brasil. Crie um roteiro detalhado e personalizado baseado nas seguintes preferências:
 
-**Duração:** ${preferences.duration} dias
+**Duração:** ${preferences.duration} dias${preferences.startDate && preferences.endDate ? ` (${new Date(preferences.startDate).toLocaleDateString('pt-BR')} a ${new Date(preferences.endDate).toLocaleDateString('pt-BR')})` : ''}
 **Interesses:** ${preferences.interests.join(', ')}
 **Orçamento:** ${preferences.budget}
 **Estilo de viagem:** ${preferences.travelStyle}
+${preferences.groupSize ? `**Tamanho do grupo:** ${preferences.groupSize}` : ''}
 ${preferences.specialRequests ? `**Pedidos especiais:** ${preferences.specialRequests}` : ''}
 
 **INSTRUÇÕES IMPORTANTES:**

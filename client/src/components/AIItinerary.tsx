@@ -27,17 +27,18 @@ export default function AIItinerary({ children }: AIItineraryProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState<'input' | 'generating' | 'result'>('input');
+  const [step, setStep] = useState<'preferences' | 'generating' | 'result'>('preferences');
   const [generatedItinerary, setGeneratedItinerary] = useState<any>(null);
-  const [userInput, setUserInput] = useState<string>('');
+
+  // Form state estruturado
+  const [experienceTypes, setExperienceTypes] = useState<string[]>(['praias']);
+  const [duration, setDuration] = useState<string>('');
+  const [budget, setBudget] = useState<string>('');
+  const [travelStyle, setTravelStyle] = useState<string>('');
+  const [specialRequests, setSpecialRequests] = useState<string>('');
 
   const generateMutation = useMutation({
-    mutationFn: async (userInput: string) => {
-      // Primeiro analisa as preferências
-      const analyzeResponse = await apiRequest('POST', '/api/itineraries/analyze', { userInput });
-      const preferences = await analyzeResponse.json();
-      
-      // Depois gera o roteiro
+    mutationFn: async (preferences: any) => {
       const generateResponse = await apiRequest('POST', '/api/itineraries/generate', { preferences });
       return generateResponse.json();
     },
@@ -68,34 +69,67 @@ export default function AIItinerary({ children }: AIItineraryProps) {
         description: "Não foi possível gerar o roteiro. Tente novamente.",
         variant: "destructive",
       });
-      setStep('input');
+      setStep('preferences');
     },
   });
 
+  const handleExperienceTypeChange = (type: string, checked: boolean) => {
+    if (checked) {
+      setExperienceTypes([...experienceTypes, type]);
+    } else {
+      setExperienceTypes(experienceTypes.filter(t => t !== type));
+    }
+  };
+
   const handleGenerateItinerary = () => {
-    if (!userInput.trim()) {
+    if (experienceTypes.length === 0 || !duration || !budget || !travelStyle) {
       toast({
-        title: "Descreva sua viagem",
-        description: "Por favor, conte-nos o que você gostaria de fazer em Ubatuba.",
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos obrigatórios.",
         variant: "destructive",
       });
       return;
     }
 
     setStep('generating');
-    generateMutation.mutate(userInput);
+    
+    const preferences = {
+      duration: parseInt(duration),
+      interests: experienceTypes,
+      budget,
+      travelStyle,
+      specialRequests: specialRequests || undefined
+    };
+    
+    generateMutation.mutate(preferences);
   };
 
   const handleClose = () => {
     setIsOpen(false);
-    setStep('input');
+    setStep('preferences');
     setGeneratedItinerary(null);
-    setUserInput('');
+    // Reset form
+    setExperienceTypes(['praias']);
+    setDuration('');
+    setBudget('');
+    setTravelStyle('');
+    setSpecialRequests('');
   };
+
+  const experienceOptions = [
+    { value: 'praias', label: 'Praias', icon: '🏖️' },
+    { value: 'trilhas', label: 'Trilhas', icon: '🥾' },
+    { value: 'mergulho', label: 'Mergulho', icon: '🤿' },
+    { value: 'culinária', label: 'Culinária', icon: '🍽️' },
+    { value: 'vida noturna', label: 'Vida Noturna', icon: '🌙' },
+    { value: 'história', label: 'História', icon: '🏛️' },
+    { value: 'natureza', label: 'Natureza', icon: '🌿' },
+    { value: 'fotografia', label: 'Fotografia', icon: '📸' }
+  ];
 
   const renderContent = () => {
     switch (step) {
-      case 'input':
+      case 'preferences':
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -112,36 +146,127 @@ export default function AIItinerary({ children }: AIItineraryProps) {
               </p>
             </div>
 
-            <Card className="border-2 border-dashed border-primary/20">
-              <CardContent className="p-6">
-                <Label htmlFor="travel-description" className="text-lg font-semibold">
-                  Conte-nos sobre sua viagem dos sonhos em Ubatuba:
-                </Label>
-                <Textarea
-                  id="travel-description"
-                  placeholder="Ex: Quero passar 3 dias em Ubatuba com minha família. Gostamos de praias, trilhas leves e boa comida. Temos orçamento médio e gostaríamos de conhecer o melhor da região..."
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  className="mt-3 min-h-[120px] resize-none"
-                />
-                <div className="mt-4 grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Locais específicos
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Duração da viagem
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4" />
-                    Seus interesses
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Estilo de viagem
-                  </div>
+            {/* Tipos de Experiência */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  O que você gostaria de fazer? *
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  {experienceOptions.map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={option.value}
+                        checked={experienceTypes.includes(option.value)}
+                        onChange={(e) => handleExperienceTypeChange(option.value, e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <Label 
+                        htmlFor={option.value} 
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <span>{option.icon}</span>
+                        {option.label}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Duração */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  Quantos dias você tem? *
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <select
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  className="w-full p-3 border rounded-lg bg-background"
+                >
+                  <option value="">Selecione a duração</option>
+                  <option value="1">1 dia</option>
+                  <option value="2">2 dias</option>
+                  <option value="3">3 dias</option>
+                  <option value="4">4 dias</option>
+                  <option value="5">5 dias</option>
+                  <option value="7">1 semana</option>
+                  <option value="10">10 dias</option>
+                  <option value="14">2 semanas</option>
+                </select>
+              </CardContent>
+            </Card>
+
+            {/* Orçamento */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span>💰</span>
+                  Qual seu orçamento? *
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <select
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  className="w-full p-3 border rounded-lg bg-background"
+                >
+                  <option value="">Selecione o orçamento</option>
+                  <option value="econômico">Econômico (até R$ 200/dia)</option>
+                  <option value="médio">Médio (R$ 200-500/dia)</option>
+                  <option value="alto">Alto (acima de R$ 500/dia)</option>
+                </select>
+              </CardContent>
+            </Card>
+
+            {/* Estilo de Viagem */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span>🎯</span>
+                  Qual seu estilo de viagem? *
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <select
+                  value={travelStyle}
+                  onChange={(e) => setTravelStyle(e.target.value)}
+                  className="w-full p-3 border rounded-lg bg-background"
+                >
+                  <option value="">Selecione o estilo</option>
+                  <option value="aventura">Aventura</option>
+                  <option value="relaxante">Relaxante</option>
+                  <option value="cultural">Cultural</option>
+                  <option value="família">Família</option>
+                  <option value="romântico">Romântico</option>
+                  <option value="mochileiro">Mochileiro</option>
+                </select>
+              </CardContent>
+            </Card>
+
+            {/* Pedidos Especiais */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span>✨</span>
+                  Algum pedido especial?
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  placeholder="Ex: Somos vegetarianos, queremos locais pet-friendly, temos dificuldade de locomoção..."
+                  value={specialRequests}
+                  onChange={(e) => setSpecialRequests(e.target.value)}
+                  className="min-h-[80px] resize-none"
+                />
               </CardContent>
             </Card>
 
@@ -220,8 +345,7 @@ export default function AIItinerary({ children }: AIItineraryProps) {
             <div className="flex gap-3">
               <Button 
                 onClick={() => {
-                  setStep('input');
-                  setUserInput('');
+                  setStep('preferences');
                   setGeneratedItinerary(null);
                 }}
                 variant="outline"

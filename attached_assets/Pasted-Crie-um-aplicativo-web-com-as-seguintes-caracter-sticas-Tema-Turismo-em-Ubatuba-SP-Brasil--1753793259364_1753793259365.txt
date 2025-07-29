@@ -1,0 +1,42 @@
+Crie um aplicativo web com as seguintes características:
+
+🔹 Tema: Turismo em Ubatuba (SP, Brasil)
+🔹 Objetivo: Ajudar turistas a planejar passeios personalizados em Ubatuba com sugestões geradas por inteligência artificial
+
+📌 Funcionalidades principais:
+1. Página inicial com informações sobre a cidade e o que esperar do app
+2. Sistema de recomendação com IA para gerar roteiros personalizados de turismo, com base nas preferências do usuário (ex: natureza, trilhas, praias, lancha, tempo de estadia)
+3. Módulo de Trilhas: lista de trilhas famosas, nível de dificuldade, distância e dicas
+4. Módulo de Praias: principais praias, com fotos, estrutura e atrações
+5. Módulo de Passeios de Lancha: opções, empresas, preços e horários
+6. Módulo de Eventos:
+   - Listagem dos próximos eventos (festas, feiras, culturais)
+   - Área para produtores locais cadastrarem novos eventos com descrição, data, local e contato
+7. Área para guias turísticos locais se cadastrarem, com:
+   - Nome, contato, especialidades (ex: trilhas, história, mergulho)
+   - Foto e breve apresentação
+8. Sistema de login para 3 tipos de usuários:
+   - Turistas (consumidores dos roteiros e eventos)
+   - Guias locais (que adicionam seus perfis)
+   - Produtores de eventos (que divulgam eventos)
+
+🧠 Inteligência Artificial:
+- Crie um sistema que, ao receber preferências como "aventura", "família", "praia", "trilha", "tempo disponível" e "estilo de passeio", gere automaticamente um roteiro de turismo com base nos dados cadastrados na plataforma (praias, trilhas, eventos).
+- Utilize uma API de IA, como OpenAI ou similar, para gerar o roteiro com descrição dos dias, horários sugeridos e atividades.
+
+💻 Tecnologias sugeridas:
+- Backend: Node.js + Express
+- Frontend: React ou Next.js
+- Banco de dados: Firebase ou MongoDB
+- Integração com IA: API da OpenAI para gerar roteiros
+- Autenticação: Firebase Auth ou Auth0
+
+🌍 O app deve ser responsivo e funcionar bem em dispositivos móveis.
+
+🎨 Layout leve e tropical, com imagens de Ubatuba, foco em natureza, mar e aventura.
+
+📦 Deploy preferencialmente via Replit (pode usar `replit.web`, `replit.db` e outras ferramentas do Replit).
+
+🧪 Teste o app com dados fictícios de eventos e guias para garantir o funcionamento completo.
+
+📢 Importante: O app deve estar em português (pt-BR).

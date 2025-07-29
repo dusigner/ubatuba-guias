@@ -33,24 +33,34 @@ export interface IStorage {
   getTrails(): Promise<Trail[]>;
   getTrail(id: string): Promise<Trail | undefined>;
   createTrail(trail: InsertTrail): Promise<Trail>;
+  updateTrail(id: string, trail: Partial<InsertTrail>): Promise<Trail>;
+  deleteTrail(id: string): Promise<void>;
   
   // Beaches  
   getBeaches(): Promise<Beach[]>;
   getBeach(id: string): Promise<Beach | undefined>;
   createBeach(beach: InsertBeach): Promise<Beach>;
+  updateBeach(id: string, beach: Partial<InsertBeach>): Promise<Beach>;
+  deleteBeach(id: string): Promise<void>;
   
   // Boat Tours
   getBoatTours(): Promise<BoatTour[]>;
   getBoatTour(id: string): Promise<BoatTour | undefined>;
   createBoatTour(tour: InsertBoatTour): Promise<BoatTour>;
+  updateBoatTour(id: string, tour: Partial<InsertBoatTour>): Promise<BoatTour>;
+  deleteBoatTour(id: string): Promise<void>;
   
   // Events
   getEvents(): Promise<Event[]>;
   createEvent(event: InsertEvent): Promise<Event>;
+  updateEvent(id: string, event: Partial<InsertEvent>): Promise<Event>;
+  deleteEvent(id: string): Promise<void>;
   
   // Guides
   getGuides(): Promise<Guide[]>;
   createGuide(guide: InsertGuide): Promise<Guide>;
+  updateGuide(id: string, guide: Partial<InsertGuide>): Promise<Guide>;
+  deleteGuide(id: string): Promise<void>;
   
   // Itineraries
   getUserItineraries(userId: string): Promise<Itinerary[]>;
@@ -94,6 +104,18 @@ export class DatabaseStorage implements IStorage {
     return newTrail;
   }
 
+  async updateTrail(id: string, trail: Partial<InsertTrail>): Promise<Trail> {
+    const [updatedTrail] = await db.update(trails)
+      .set(trail)
+      .where(eq(trails.id, id))
+      .returning();
+    return updatedTrail;
+  }
+
+  async deleteTrail(id: string): Promise<void> {
+    await db.delete(trails).where(eq(trails.id, id));
+  }
+
   // Beaches
   async getBeaches(): Promise<Beach[]> {
     return await db.select().from(beaches).orderBy(desc(beaches.rating));
@@ -107,6 +129,18 @@ export class DatabaseStorage implements IStorage {
   async createBeach(beach: InsertBeach): Promise<Beach> {
     const [newBeach] = await db.insert(beaches).values(beach).returning();
     return newBeach;
+  }
+
+  async updateBeach(id: string, beach: Partial<InsertBeach>): Promise<Beach> {
+    const [updatedBeach] = await db.update(beaches)
+      .set(beach)
+      .where(eq(beaches.id, id))
+      .returning();
+    return updatedBeach;
+  }
+
+  async deleteBeach(id: string): Promise<void> {
+    await db.delete(beaches).where(eq(beaches.id, id));
   }
 
   // Boat Tours
@@ -124,6 +158,18 @@ export class DatabaseStorage implements IStorage {
     return newTour;
   }
 
+  async updateBoatTour(id: string, tour: Partial<InsertBoatTour>): Promise<BoatTour> {
+    const [updatedTour] = await db.update(boatTours)
+      .set(tour)
+      .where(eq(boatTours.id, id))
+      .returning();
+    return updatedTour;
+  }
+
+  async deleteBoatTour(id: string): Promise<void> {
+    await db.delete(boatTours).where(eq(boatTours.id, id));
+  }
+
   // Events
   async getEvents(): Promise<Event[]> {
     return await db.select().from(events).orderBy(desc(events.startDate));
@@ -134,6 +180,18 @@ export class DatabaseStorage implements IStorage {
     return newEvent;
   }
 
+  async updateEvent(id: string, event: Partial<InsertEvent>): Promise<Event> {
+    const [updatedEvent] = await db.update(events)
+      .set(event)
+      .where(eq(events.id, id))
+      .returning();
+    return updatedEvent;
+  }
+
+  async deleteEvent(id: string): Promise<void> {
+    await db.delete(events).where(eq(events.id, id));
+  }
+
   // Guides
   async getGuides(): Promise<Guide[]> {
     return await db.select().from(guides).orderBy(desc(guides.rating));
@@ -142,6 +200,18 @@ export class DatabaseStorage implements IStorage {
   async createGuide(guide: InsertGuide): Promise<Guide> {
     const [newGuide] = await db.insert(guides).values(guide).returning();
     return newGuide;
+  }
+
+  async updateGuide(id: string, guide: Partial<InsertGuide>): Promise<Guide> {
+    const [updatedGuide] = await db.update(guides)
+      .set(guide)
+      .where(eq(guides.id, id))
+      .returning();
+    return updatedGuide;
+  }
+
+  async deleteGuide(id: string): Promise<void> {
+    await db.delete(guides).where(eq(guides.id, id));
   }
 
   // Itineraries

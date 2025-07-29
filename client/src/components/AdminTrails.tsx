@@ -1,201 +1,269 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Mountain, Clock, Route, TrendingUp, Star } from "lucide-react";
-import { Trail } from "@shared/schema";
+import { Edit, Trash2, Plus, Mountain } from "lucide-react";
+import type { Trail, InsertTrail } from "@shared/schema";
 
 export default function AdminTrails() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [editingTrail, setEditingTrail] = useState<Trail | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    difficulty: '',
-    distance: '',
-    duration: '',
-    elevation: '',
-    imageUrl: ''
+  const [formData, setFormData] = useState<Partial<InsertTrail>>({
+    name: "",
+    description: "",
+    difficulty: "easy",
+    distance: "",
+    duration: "",
+    elevation: "",
+    rating: "0",
+    reviewCount: 0,
+    imageUrl: "",
   });
 
-  const { data: trails = [], isLoading } = useQuery<Trail[]>({
+  const { data: trails = [], isLoading } = useQuery({
     queryKey: ["/api/trails"],
-    retry: false,
   });
 
-  const createTrailMutation = useMutation({
-    mutationFn: async (trailData: any) => {
-      const response = await apiRequest('POST', '/api/admin/trails', {
-        ...trailData,
-        distance: parseFloat(trailData.distance),
-        duration: parseInt(trailData.duration),
-        elevation: parseInt(trailData.elevation),
-      });
-      return response.json();
-    },
+  const updateMutation = useMutation({
+    mutationFn: (data: { id: string; trail: Partial<InsertTrail> }) =>
+      apiRequest(`/api/trails/${data.id}`, "PUT", data.trail),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/trails'] });
-      toast({
-        title: "Trilha criada com sucesso!",
-        description: "A nova trilha foi adicionada ao catálogo.",
-      });
-      setFormData({
-        name: '',
-        description: '',
-        difficulty: '',
-        distance: '',
-        duration: '',
-        elevation: '',
-        imageUrl: ''
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/trails"] });
+      toast({ title: "Trilha atualizada com sucesso!" });
       setIsDialogOpen(false);
+      setEditingTrail(null);
     },
-    onError: (error: any) => {
-      toast({
-        title: "Erro ao criar trilha",
-        description: error.message || "Ocorreu um erro inesperado.",
-        variant: "destructive",
-      });
+    onError: () => {
+      toast({ title: "Erro ao atualizar trilha", variant: "destructive" });
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => apiRequest(`/api/trails/${id}`, "DELETE"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/trails"] });
+      toast({ title: "Trilha removida com sucesso!" });
+    },
+    onError: () => {
+      toast({ title: "Erro ao remover trilha", variant: "destructive" });
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (trail: InsertTrail) => apiRequest("/api/trails", "POST", trail),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/trails"] });
+      toast({ title: "Trilha criada com sucesso!" });
+      setIsDialogOpen(false);
+      resetForm();
+    },
+    onError: () => {
+      toast({ title: "Erro ao criar trilha", variant: "destructive" });
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      difficulty: "easy",
+      distance: "",
+      duration: "",
+      elevation: "",
+      rating: "0",
+      reviewCount: 0,
+      imageUrl: "",
+    });
+  };
+
+  const handleEdit = (trail: Trail) => {
+    setEditingTrail(trail);
+    setFormData({
+      name: trail.name,
+      description: trail.description,
+      difficulty: trail.difficulty,
+      distance: trail.distance,
+      duration: trail.duration,
+      elevation: trail.elevation,
+      rating: trail.rating,
+      reviewCount: trail.reviewCount,
+      imageUrl: trail.imageUrl || "",
+    });
+    setIsDialogOpen(true);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createTrailMutation.mutate(formData);
+    
+    const trailData = {
+      name: formData.name!,
+      description: formData.description!,
+      difficulty: formData.difficulty!,
+      distance: formData.distance!,
+      duration: Number(formData.duration),
+      elevation: Number(formData.elevation),
+      rating: formData.rating!,
+      reviewCount: Number(formData.reviewCount),
+      imageUrl: formData.imageUrl,
+    };
+
+    if (editingTrail) {
+      updateMutation.mutate({ id: editingTrail.id, trail: trailData });
+    } else {
+      createMutation.mutate(trailData as InsertTrail);
+    }
   };
 
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
-      case 'fácil':
-      case 'easy':
-        return 'bg-green-100 text-green-800';
-      case 'moderado':
-      case 'moderate':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'difícil':
-      case 'difficult':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    switch (difficulty) {
+      case "easy": return "bg-green-100 text-green-800";
+      case "moderate": return "bg-yellow-100 text-yellow-800";
+      case "difficult": return "bg-red-100 text-red-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
+
+  if (isLoading) {
+    return <div className="flex justify-center p-8">Carregando trilhas...</div>;
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Gerenciar Trilhas</h2>
-          <p className="text-slate-600">Adicione e gerencie as trilhas de Ubatuba</p>
-        </div>
-
+        <h2 className="text-2xl font-bold flex items-center">
+          <Mountain className="mr-2" />
+          Gerenciar Trilhas ({trails.length})
+        </h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-tropical hover:bg-tropical/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Trilha
+            <Button onClick={() => { resetForm(); setEditingTrail(null); }}>
+              <Plus className="w-4 h-4 mr-2" />
+              Nova Trilha
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Adicionar Nova Trilha</DialogTitle>
+              <DialogTitle>
+                {editingTrail ? "Editar Trilha" : "Nova Trilha"}
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Nome da Trilha *</Label>
+                  <label className="block text-sm font-medium mb-2">Nome</label>
                   <Input
-                    id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="difficulty">Dificuldade *</Label>
-                  <Select value={formData.difficulty} onValueChange={(value) => setFormData({...formData, difficulty: value})}>
+                  <label className="block text-sm font-medium mb-2">Dificuldade</label>
+                  <Select
+                    value={formData.difficulty}
+                    onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a dificuldade" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="fácil">Fácil</SelectItem>
-                      <SelectItem value="moderado">Moderado</SelectItem>
-                      <SelectItem value="difícil">Difícil</SelectItem>
+                      <SelectItem value="easy">Fácil</SelectItem>
+                      <SelectItem value="moderate">Moderado</SelectItem>
+                      <SelectItem value="difficult">Difícil</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-
+              
               <div>
-                <Label htmlFor="description">Descrição *</Label>
+                <label className="block text-sm font-medium mb-2">Descrição</label>
                 <Textarea
-                  id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
                   required
                 />
               </div>
 
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="distance">Distância (km) *</Label>
+                  <label className="block text-sm font-medium mb-2">Distância (km)</label>
                   <Input
-                    id="distance"
-                    type="number"
-                    step="0.1"
                     value={formData.distance}
-                    onChange={(e) => setFormData({...formData, distance: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, distance: e.target.value })}
+                    placeholder="5.2"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="duration">Duração (minutos) *</Label>
+                  <label className="block text-sm font-medium mb-2">Duração (min)</label>
                   <Input
-                    id="duration"
                     type="number"
                     value={formData.duration}
-                    onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                    placeholder="180"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="elevation">Elevação (metros) *</Label>
+                  <label className="block text-sm font-medium mb-2">Elevação (m)</label>
                   <Input
-                    id="elevation"
                     type="number"
                     value={formData.elevation}
-                    onChange={(e) => setFormData({...formData, elevation: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, elevation: e.target.value })}
+                    placeholder="550"
                     required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Avaliação</label>
+                  <Input
+                    value={formData.rating}
+                    onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
+                    placeholder="4.5"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Nº Reviews</label>
+                  <Input
+                    type="number"
+                    value={formData.reviewCount}
+                    onChange={(e) => setFormData({ ...formData, reviewCount: Number(e.target.value) })}
+                    placeholder="45"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="imageUrl">URL da Imagem</Label>
+                <label className="block text-sm font-medium mb-2">URL da Imagem</label>
                 <Input
-                  id="imageUrl"
-                  type="url"
                   value={formData.imageUrl}
-                  onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                  placeholder="https://example.com/image.jpg"
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  placeholder="https://..."
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4">
+              <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={createTrailMutation.isPending}>
-                  {createTrailMutation.isPending ? 'Criando...' : 'Criar Trilha'}
+                <Button 
+                  type="submit" 
+                  disabled={updateMutation.isPending || createMutation.isPending}
+                >
+                  {editingTrail ? "Atualizar" : "Criar"}
                 </Button>
               </div>
             </form>
@@ -203,48 +271,43 @@ export default function AdminTrails() {
         </Dialog>
       </div>
 
-      {/* Trails List */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {trails.map((trail) => (
-          <Card key={trail.id} className="overflow-hidden">
-            <div className="relative">
-              <img 
-                src={trail.imageUrl || 'https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400'} 
-                alt={trail.name}
-                className="w-full h-48 object-cover"
-              />
-              <div className="absolute top-4 right-4">
-                <Badge className={getDifficultyColor(trail.difficulty)}>
-                  {trail.difficulty}
-                </Badge>
-              </div>
-            </div>
-            
-            <CardContent className="p-4">
-              <h3 className="text-lg font-bold text-slate-800 mb-2">{trail.name}</h3>
-              <p className="text-sm text-slate-600 mb-4 line-clamp-2">{trail.description}</p>
-              
-              <div className="flex items-center justify-between text-sm text-slate-600">
-                <span className="flex items-center">
-                  <Route className="h-4 w-4 mr-1" />
-                  {trail.distance} km
-                </span>
-                <span className="flex items-center">
-                  <Clock className="h-4 w-4 mr-1" />
-                  {Math.floor(Number(trail.duration) / 60)}h {Number(trail.duration) % 60}min
-                </span>
-                <span className="flex items-center">
-                  <TrendingUp className="h-4 w-4 mr-1" />
-                  {trail.elevation}m
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between mt-4">
-                <div className="flex items-center">
-                  <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                  <span className="text-sm font-semibold">{trail.rating || '0.0'}</span>
-                  <span className="text-sm text-slate-500 ml-1">({trail.reviewCount || 0})</span>
+      <div className="grid gap-4">
+        {trails.map((trail: Trail) => (
+          <Card key={trail.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    {trail.name}
+                    <Badge className={getDifficultyColor(trail.difficulty)}>
+                      {trail.difficulty === "easy" ? "Fácil" : 
+                       trail.difficulty === "moderate" ? "Moderado" : "Difícil"}
+                    </Badge>
+                  </CardTitle>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {trail.distance}km • {trail.duration}min • {trail.elevation}m elevação
+                  </div>
                 </div>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(trail)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    onClick={() => deleteMutation.mutate(trail.id)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-700 mb-2">{trail.description}</p>
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <span>⭐ {trail.rating} ({trail.reviewCount} avaliações)</span>
+                <span>ID: {trail.id.slice(0, 8)}...</span>
               </div>
             </CardContent>
           </Card>

@@ -193,6 +193,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin routes for updating content
+  app.put('/api/trails/:id', authMiddleware, async (req, res) => {
+    try {
+      const trailData = insertTrailSchema.partial().parse(req.body);
+      const updatedTrail = await storage.updateTrail(req.params.id, trailData);
+      res.json(updatedTrail);
+    } catch (error) {
+      console.error("Erro ao atualizar trilha:", error);
+      res.status(500).json({ message: "Falha ao atualizar trilha" });
+    }
+  });
+
+  app.delete('/api/trails/:id', authMiddleware, async (req, res) => {
+    try {
+      await storage.deleteTrail(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao deletar trilha:", error);
+      res.status(500).json({ message: "Falha ao deletar trilha" });
+    }
+  });
+
+  app.put('/api/beaches/:id', authMiddleware, async (req, res) => {
+    try {
+      const beachData = insertBeachSchema.partial().parse(req.body);
+      const updatedBeach = await storage.updateBeach(req.params.id, beachData);
+      res.json(updatedBeach);
+    } catch (error) {
+      console.error("Erro ao atualizar praia:", error);
+      res.status(500).json({ message: "Falha ao atualizar praia" });
+    }
+  });
+
+  app.delete('/api/beaches/:id', authMiddleware, async (req, res) => {
+    try {
+      await storage.deleteBeach(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao deletar praia:", error);
+      res.status(500).json({ message: "Falha ao deletar praia" });
+    }
+  });
+
+  app.put('/api/boat-tours/:id', authMiddleware, async (req, res) => {
+    try {
+      const tourData = insertBoatTourSchema.partial().parse(req.body);
+      const updatedTour = await storage.updateBoatTour(req.params.id, tourData);
+      res.json(updatedTour);
+    } catch (error) {
+      console.error("Erro ao atualizar passeio:", error);
+      res.status(500).json({ message: "Falha ao atualizar passeio" });
+    }
+  });
+
+  app.delete('/api/boat-tours/:id', authMiddleware, async (req, res) => {
+    try {
+      await storage.deleteBoatTour(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao deletar passeio:", error);
+      res.status(500).json({ message: "Falha ao deletar passeio" });
+    }
+  });
+
+  app.put('/api/events/:id', authMiddleware, async (req, res) => {
+    try {
+      const eventData = insertEventSchema.partial().parse(req.body);
+      const updatedEvent = await storage.updateEvent(req.params.id, eventData);
+      res.json(updatedEvent);
+    } catch (error) {
+      console.error("Erro ao atualizar evento:", error);
+      res.status(500).json({ message: "Falha ao atualizar evento" });
+    }
+  });
+
+  app.delete('/api/events/:id', authMiddleware, async (req, res) => {
+    try {
+      await storage.deleteEvent(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao deletar evento:", error);
+      res.status(500).json({ message: "Falha ao deletar evento" });
+    }
+  });
+
+  app.put('/api/guides/:id', authMiddleware, async (req, res) => {
+    try {
+      const guideData = insertGuideSchema.partial().parse(req.body);
+      const updatedGuide = await storage.updateGuide(req.params.id, guideData);
+      res.json(updatedGuide);
+    } catch (error) {
+      console.error("Erro ao atualizar guia:", error);
+      res.status(500).json({ message: "Falha ao atualizar guia" });
+    }
+  });
+
+  app.delete('/api/guides/:id', authMiddleware, async (req, res) => {
+    try {
+      await storage.deleteGuide(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao deletar guia:", error);
+      res.status(500).json({ message: "Falha ao deletar guia" });
+    }
+  });
+
   // Analyze user preferences from text
   app.post('/api/itineraries/analyze', authMiddleware, async (req, res) => {
     try {

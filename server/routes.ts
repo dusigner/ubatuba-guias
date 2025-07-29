@@ -3,7 +3,14 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { generateItinerary } from "./openai";
-import { insertEventSchema, insertGuideSchema, insertItinerarySchema } from "@shared/schema";
+import { 
+  insertEventSchema, 
+  insertGuideSchema, 
+  insertItinerarySchema,
+  insertTrailSchema,
+  insertBeachSchema,
+  insertBoatTourSchema,
+} from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -124,6 +131,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertGuideSchema.parse({
         ...req.body,
         userId: userId,
+      });
+
+      const guide = await storage.createGuide(validatedData);
+      res.json(guide);
+    } catch (error) {
+      console.error("Erro ao criar guia:", error);
+      res.status(500).json({ message: "Falha ao criar guia" });
+    }
+  });
+
+  // Admin routes
+  app.post('/api/admin/trails', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.userType !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem criar trilhas" });
+      }
+
+      const validatedData = insertTrailSchema.parse(req.body);
+      const trail = await storage.createTrail(validatedData);
+      res.json(trail);
+    } catch (error) {
+      console.error("Erro ao criar trilha:", error);
+      res.status(500).json({ message: "Falha ao criar trilha" });
+    }
+  });
+
+  app.post('/api/admin/beaches', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.userType !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem criar praias" });
+      }
+
+      const validatedData = insertBeachSchema.parse(req.body);
+      const beach = await storage.createBeach(validatedData);
+      res.json(beach);
+    } catch (error) {
+      console.error("Erro ao criar praia:", error);
+      res.status(500).json({ message: "Falha ao criar praia" });
+    }
+  });
+
+  app.post('/api/admin/boat-tours', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.userType !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem criar passeios" });
+      }
+
+      const validatedData = insertBoatTourSchema.parse(req.body);
+      const tour = await storage.createBoatTour(validatedData);
+      res.json(tour);
+    } catch (error) {
+      console.error("Erro ao criar passeio:", error);
+      res.status(500).json({ message: "Falha ao criar passeio" });
+    }
+  });
+
+  app.post('/api/admin/events', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.userType !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem criar eventos" });
+      }
+
+      const validatedData = insertEventSchema.parse({
+        ...req.body,
+        producerId: 'admin-created',
+      });
+
+      const event = await storage.createEvent(validatedData);
+      res.json(event);
+    } catch (error) {
+      console.error("Erro ao criar evento:", error);
+      res.status(500).json({ message: "Falha ao criar evento" });
+    }
+  });
+
+  app.post('/api/admin/guides', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.userType !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem criar guias" });
+      }
+
+      const validatedData = insertGuideSchema.parse({
+        ...req.body,
+        userId: 'admin-created',
       });
 
       const guide = await storage.createGuide(validatedData);

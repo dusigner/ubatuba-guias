@@ -12,6 +12,7 @@ import BoatTours from "@/pages/BoatTours";
 import Events from "@/pages/Events";
 import Guides from "@/pages/Guides";
 import NotFound from "@/pages/not-found";
+import Admin from "@/pages/Admin";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -23,11 +24,12 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
-          <Route path="/trilhas" component={Trails} />
-          <Route path="/praias" component={Beaches} />
-          <Route path="/passeios" component={BoatTours} />
-          <Route path="/eventos" component={Events} />
-          <Route path="/guias" component={Guides} />
+          <Route path="/trails" component={Trails} />
+          <Route path="/beaches" component={Beaches} />
+          <Route path="/boat-tours" component={BoatTours} />
+          <Route path="/events" component={Events} />
+          <Route path="/guides" component={Guides} />
+          <Route path="/admin" component={Admin} />
         </>
       )}
       <Route component={NotFound} />

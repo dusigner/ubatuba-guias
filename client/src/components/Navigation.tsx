@@ -19,11 +19,11 @@ export default function Navigation() {
 
   const navItems = [
     { href: "/", label: "Início" },
-    { href: "/trilhas", label: "Trilhas" },
-    { href: "/praias", label: "Praias" },
-    { href: "/passeios", label: "Passeios" },
-    { href: "/eventos", label: "Eventos" },
-    { href: "/guias", label: "Guias" },
+    { href: "/trails", label: "Trilhas" },
+    { href: "/beaches", label: "Praias" },
+    { href: "/boat-tours", label: "Passeios" },
+    { href: "/events", label: "Eventos" },
+    { href: "/guides", label: "Guias" },
   ];
 
   const isActive = (href: string) => {
@@ -94,6 +94,17 @@ export default function Navigation() {
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Configurações</span>
                 </DropdownMenuItem>
+                {user?.userType === 'admin' && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Administração</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => window.location.href = '/api/logout'}>
                   <LogOut className="mr-2 h-4 w-4" />

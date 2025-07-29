@@ -34,13 +34,15 @@ export interface IStorage {
   getTrail(id: string): Promise<Trail | undefined>;
   createTrail(trail: InsertTrail): Promise<Trail>;
   
-  // Beaches
+  // Beaches  
   getBeaches(): Promise<Beach[]>;
   getBeach(id: string): Promise<Beach | undefined>;
+  createBeach(beach: InsertBeach): Promise<Beach>;
   
   // Boat Tours
   getBoatTours(): Promise<BoatTour[]>;
   getBoatTour(id: string): Promise<BoatTour | undefined>;
+  createBoatTour(tour: InsertBoatTour): Promise<BoatTour>;
   
   // Events
   getEvents(): Promise<Event[]>;
@@ -102,6 +104,11 @@ export class DatabaseStorage implements IStorage {
     return beach;
   }
 
+  async createBeach(beach: InsertBeach): Promise<Beach> {
+    const [newBeach] = await db.insert(beaches).values(beach).returning();
+    return newBeach;
+  }
+
   // Boat Tours
   async getBoatTours(): Promise<BoatTour[]> {
     return await db.select().from(boatTours).orderBy(desc(boatTours.rating));
@@ -110,6 +117,11 @@ export class DatabaseStorage implements IStorage {
   async getBoatTour(id: string): Promise<BoatTour | undefined> {
     const [tour] = await db.select().from(boatTours).where(eq(boatTours.id, id));
     return tour;
+  }
+
+  async createBoatTour(tour: InsertBoatTour): Promise<BoatTour> {
+    const [newTour] = await db.insert(boatTours).values(tour).returning();
+    return newTour;
   }
 
   // Events

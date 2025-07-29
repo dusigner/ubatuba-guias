@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, MapPin, Clock, Star, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Link } from "wouter";
 
 export default function Home() {
   const { toast } = useToast();
@@ -136,45 +137,53 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-slate-800 mb-8">Explore Ubatuba</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-              <CardContent className="p-6 text-center">
-                <div className="bg-tropical/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-tropical/20 transition-colors">
-                  <MapPin className="h-8 w-8 text-tropical" />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">Trilhas</h3>
-                <p className="text-sm text-slate-600">Descubra as melhores trilhas da região</p>
-              </CardContent>
-            </Card>
+            <Link href="/trails">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="p-6 text-center">
+                  <div className="bg-tropical/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-tropical/20 transition-colors">
+                    <MapPin className="h-8 w-8 text-tropical" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-2">Trilhas</h3>
+                  <p className="text-sm text-slate-600">Descubra as melhores trilhas da região</p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-              <CardContent className="p-6 text-center">
-                <div className="bg-ocean/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-ocean/20 transition-colors">
-                  <MapPin className="h-8 w-8 text-ocean" />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">Praias</h3>
-                <p className="text-sm text-slate-600">Explore praias paradisíacas</p>
-              </CardContent>
-            </Card>
+            <Link href="/beaches">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="p-6 text-center">
+                  <div className="bg-ocean/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-ocean/20 transition-colors">
+                    <MapPin className="h-8 w-8 text-ocean" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-2">Praias</h3>
+                  <p className="text-sm text-slate-600">Explore praias paradisíacas</p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-              <CardContent className="p-6 text-center">
-                <div className="bg-sunset/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-sunset/20 transition-colors">
-                  <Clock className="h-8 w-8 text-sunset" />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">Passeios</h3>
-                <p className="text-sm text-slate-600">Reserve passeios de lancha</p>
-              </CardContent>
-            </Card>
+            <Link href="/boat-tours">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="p-6 text-center">
+                  <div className="bg-sunset/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-sunset/20 transition-colors">
+                    <Clock className="h-8 w-8 text-sunset" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-2">Passeios</h3>
+                  <p className="text-sm text-slate-600">Reserve passeios de lancha</p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-              <CardContent className="p-6 text-center">
-                <div className="bg-tropical/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-tropical/20 transition-colors">
-                  <Star className="h-8 w-8 text-tropical" />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">Guias</h3>
-                <p className="text-sm text-slate-600">Conecte-se com guias locais</p>
-              </CardContent>
-            </Card>
+            <Link href="/guides">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="p-6 text-center">
+                  <div className="bg-tropical/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-tropical/20 transition-colors">
+                    <Star className="h-8 w-8 text-tropical" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-2">Guias</h3>
+                  <p className="text-sm text-slate-600">Conecte-se com guias locais</p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>

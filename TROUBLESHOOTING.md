@@ -108,6 +108,30 @@ Este erro é normal em desenvolvimento local! O sistema Replit Auth não funcion
 - Um usuário admin de teste será criado automaticamente
 - Você será redirecionado já logado
 
+### "ECONNREFUSED" - Frontend não conecta com Backend
+**Causa mais comum:** Backend não iniciou antes do frontend
+
+**Solução:**
+1. **SEMPRE iniciar backend primeiro:**
+   ```bash
+   # Terminal 1 - Backend
+   npm run server:dev
+   # Aguarde: "[express] serving on port 5000"
+   ```
+
+2. **Depois iniciar frontend:**
+   ```bash
+   # Terminal 2 - Frontend  
+   npm run client:dev
+   ```
+
+3. **Se ainda der erro:**
+   ```bash
+   # Verificar se porta 5000 está em uso
+   netstat -ano | findstr :5000  # Windows
+   lsof -i :5000                 # Mac/Linux
+   ```
+
 ### "Port 5000 already in use"
 ```bash
 # Encontrar processo usando a porta

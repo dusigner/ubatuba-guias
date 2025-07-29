@@ -4,8 +4,9 @@
   "description": "Aplicativo de turismo para Ubatuba com IA",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
-    "server:dev": "tsx watch --tsconfig ./tsconfig.json server/index.ts",
+    "dev": "echo \"Use: npm run server:dev (terminal 1) e npm run client:dev (terminal 2)\"",
+    "dev:all": "concurrently \"npm run server:dev\" \"wait-on http://localhost:5000 && npm run client:dev\"",
+    "server:dev": "tsx watch server/index.ts",
     "client:dev": "vite --config vite.config.local.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --config vite.config.local.ts",

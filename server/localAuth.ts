@@ -1,6 +1,8 @@
 import type { Express, RequestHandler } from "express";
 import session from "express-session";
 import { storage } from "./storage";
+import { db } from "./db";
+import { users } from "../shared/schema";
 
 // Sistema de autenticação local simples para desenvolvimento
 export function setupLocalAuth(app: Express) {
@@ -23,9 +25,7 @@ export function setupLocalAuth(app: Express) {
       let user = await storage.getUser(testUserId);
       
       if (!user) {
-        // Usar método de inserção direta para controlar o ID
-        const { db } = await import("./db");
-        const { users } = await import("../shared/schema");
+        // Criar usuário de teste diretamente no banco
         await db.insert(users).values({
           id: testUserId,
           email: 'teste@ubatuba.local',

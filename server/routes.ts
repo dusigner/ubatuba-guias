@@ -222,10 +222,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const itinerary = await generateItinerary(preferences);
       
+      // Criar título baseado nas preferências
+      const title = `Roteiro ${preferences.duration} dias - ${preferences.interests?.slice(0, 2).join(', ') || 'Ubatuba'}`;
+      
       // Salvar roteiro no banco
       const savedItinerary = await storage.createItinerary({
         userId,
-        preferences: JSON.stringify(preferences),
+        title,
+        duration: preferences.duration,
+        preferences,
         content: itinerary,
       });
 

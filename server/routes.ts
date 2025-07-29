@@ -1,8 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-import { setupLocalAuth, isAuthenticatedLocal } from "./localAuth";
 import { generateItinerary } from "./openai";
 import { 
   insertEventSchema, 
@@ -15,16 +13,24 @@ import {
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware - usar local em desenvolvimento
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  // Verificar se estamos em desenvolvimento local ou no Replit
+  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.REPLIT_DOMAINS;
+  
+  console.log('Configurando autenticação:', isDevelopment ? 'Local' : 'Replit');
+  
+  let authMiddleware: any;
   
   if (isDevelopment) {
+    // Usar autenticação local
+    const { setupLocalAuth, isAuthenticatedLocal } = await import("./localAuth");
     setupLocalAuth(app);
+    authMiddleware = isAuthenticatedLocal;
   } else {
+    // Usar Replit Auth
+    const { setupAuth, isAuthenticated } = await import("./replitAuth");
     await setupAuth(app);
+    authMiddleware = isAuthenticated;
   }
-  
-  const authMiddleware = isDevelopment ? isAuthenticatedLocal : isAuthenticated;
 
   // Auth routes
   app.get('/api/auth/user', authMiddleware, async (req: any, res) => {
@@ -62,6 +68,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/trails', authMiddleware, async (req, res) => {
+    try {
+      const trailData = insertTrailSchema.parse(req.body);
+      const newTrail = await storage.createTrail(trailData);
+      res.status(201).json(newTrail);
+    } catch (error) {
+      console.error("Erro ao criar trilha:", error);
+      res.status(500).json({ message: "Falha ao criar trilha" });
+    }
+  });
+
   // Beaches routes
   app.get('/api/beaches', async (req, res) => {
     try {
@@ -70,6 +87,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erro ao buscar praias:", error);
       res.status(500).json({ message: "Falha ao buscar praias" });
+    }
+  });
+
+  app.get('/api/beaches/:id', async (req, res) => {
+    try {
+      const beach = await storage.getBeach(req.params.id);
+      if (!beach) {
+        return res.status(404).json({ message: "Praia não encontrada" });
+      }
+      res.json(beach);
+    } catch (error) {
+      console.error("Erro ao buscar praia:", error);
+      res.status(500).json({ message: "Falha ao buscar praia" });
+    }
+  });
+
+  app.post('/api/beaches', authMiddleware, async (req, res) => {
+    try {
+      const beachData = insertBeachSchema.parse(req.body);
+      const newBeach = await storage.createBeach(beachData);
+      res.status(201).json(newBeach);
+    } catch (error) {
+      console.error("Erro ao criar praia:", error);
+      res.status(500).json({ message: "Falha ao criar praia" });
     }
   });
 
@@ -84,6 +125,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/boat-tours/:id', async (req, res) => {
+    try {
+      const tour = await storage.getBoatTour(req.params.id);
+      if (!tour) {
+        return res.status(404).json({ message: "Passeio não encontrado" });
+      }
+      res.json(tour);
+    } catch (error) {
+      console.error("Erro ao buscar passeio:", error);
+      res.status(500).json({ message: "Falha ao buscar passeio" });
+    }
+  });
+
+  app.post('/api/boat-tours', authMiddleware, async (req, res) => {
+    try {
+      const tourData = insertBoatTourSchema.parse(req.body);
+      const newTour = await storage.createBoatTour(tourData);
+      res.status(201).json(newTour);
+    } catch (error) {
+      console.error("Erro ao criar passeio:", error);
+      res.status(500).json({ message: "Falha ao criar passeio" });
+    }
+  });
+
   // Events routes
   app.get('/api/events', async (req, res) => {
     try {
@@ -95,22 +160,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/events', authMiddleware, async (req: any, res) => {
+  app.post('/api/events', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      if (!user || user.userType !== 'event_producer') {
-        return res.status(403).json({ message: "Apenas produtores de eventos podem criar eventos" });
-      }
-
-      const validatedData = insertEventSchema.parse({
-        ...req.body,
-        producerId: userId,
-      });
-
-      const event = await storage.createEvent(validatedData);
-      res.json(event);
+      const eventData = insertEventSchema.parse(req.body);
+      const newEvent = await storage.createEvent(eventData);
+      res.status(201).json(newEvent);
     } catch (error) {
       console.error("Erro ao criar evento:", error);
       res.status(500).json({ message: "Falha ao criar evento" });
@@ -128,152 +182,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/guides', authMiddleware, async (req: any, res) => {
+  app.post('/api/guides', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      if (!user || user.userType !== 'guide') {
-        return res.status(403).json({ message: "Apenas guias podem criar perfis de guia" });
-      }
-
-      const validatedData = insertGuideSchema.parse({
-        ...req.body,
-        userId: userId,
-      });
-
-      const guide = await storage.createGuide(validatedData);
-      res.json(guide);
+      const guideData = insertGuideSchema.parse(req.body);
+      const newGuide = await storage.createGuide(guideData);
+      res.status(201).json(newGuide);
     } catch (error) {
       console.error("Erro ao criar guia:", error);
       res.status(500).json({ message: "Falha ao criar guia" });
     }
   });
 
-  // Admin routes
-  app.post('/api/admin/trails', authMiddleware, async (req: any, res) => {
+  // Itinerary generation route
+  app.post('/api/itineraries/generate', authMiddleware, async (req, res) => {
     try {
+      const { preferences } = req.body;
       const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
       
-      if (!user || user.userType !== 'admin') {
-        return res.status(403).json({ message: "Apenas administradores podem criar trilhas" });
+      if (!preferences) {
+        return res.status(400).json({ message: "Preferências são obrigatórias" });
       }
 
-      const validatedData = insertTrailSchema.parse(req.body);
-      const trail = await storage.createTrail(validatedData);
-      res.json(trail);
-    } catch (error) {
-      console.error("Erro ao criar trilha:", error);
-      res.status(500).json({ message: "Falha ao criar trilha" });
-    }
-  });
-
-  app.post('/api/admin/beaches', authMiddleware, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const itinerary = await generateItinerary(preferences);
       
-      if (!user || user.userType !== 'admin') {
-        return res.status(403).json({ message: "Apenas administradores podem criar praias" });
-      }
-
-      const validatedData = insertBeachSchema.parse(req.body);
-      const beach = await storage.createBeach(validatedData);
-      res.json(beach);
-    } catch (error) {
-      console.error("Erro ao criar praia:", error);
-      res.status(500).json({ message: "Falha ao criar praia" });
-    }
-  });
-
-  app.post('/api/admin/boat-tours', authMiddleware, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      if (!user || user.userType !== 'admin') {
-        return res.status(403).json({ message: "Apenas administradores podem criar passeios" });
-      }
-
-      const validatedData = insertBoatTourSchema.parse(req.body);
-      const tour = await storage.createBoatTour(validatedData);
-      res.json(tour);
-    } catch (error) {
-      console.error("Erro ao criar passeio:", error);
-      res.status(500).json({ message: "Falha ao criar passeio" });
-    }
-  });
-
-  app.post('/api/admin/events', authMiddleware, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      if (!user || user.userType !== 'admin') {
-        return res.status(403).json({ message: "Apenas administradores podem criar eventos" });
-      }
-
-      const validatedData = insertEventSchema.parse({
-        ...req.body,
-        producerId: 'admin-created',
-      });
-
-      const event = await storage.createEvent(validatedData);
-      res.json(event);
-    } catch (error) {
-      console.error("Erro ao criar evento:", error);
-      res.status(500).json({ message: "Falha ao criar evento" });
-    }
-  });
-
-  app.post('/api/admin/guides', authMiddleware, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      if (!user || user.userType !== 'admin') {
-        return res.status(403).json({ message: "Apenas administradores podem criar guias" });
-      }
-
-      const validatedData = insertGuideSchema.parse({
-        ...req.body,
-        userId: 'admin-created',
-      });
-
-      const guide = await storage.createGuide(validatedData);
-      res.json(guide);
-    } catch (error) {
-      console.error("Erro ao criar guia:", error);
-      res.status(500).json({ message: "Falha ao criar guia" });
-    }
-  });
-
-  // AI Itinerary routes
-  app.post('/api/itinerary/generate', authMiddleware, async (req: any, res) => {
-    try {
-      const preferences = req.body;
-      const generatedItinerary = await generateItinerary(preferences);
-      
-      const userId = req.user.claims.sub;
-      
-      // Save to database
-      const itinerary = await storage.createItinerary({
+      // Salvar roteiro no banco
+      const savedItinerary = await storage.createItinerary({
         userId,
-        preferences,
-        content: generatedItinerary,
-        title: generatedItinerary.title,
-        duration: generatedItinerary.totalDays,
+        preferences: JSON.stringify(preferences),
+        content: itinerary,
       });
 
-      res.json(generatedItinerary);
+      res.json(savedItinerary);
     } catch (error) {
       console.error("Erro ao gerar roteiro:", error);
-      res.status(500).json({ message: "Falha ao gerar roteiro com IA" });
+      res.status(500).json({ message: "Falha ao gerar roteiro" });
     }
   });
 
-  app.get('/api/itineraries', authMiddleware, async (req: any, res) => {
+  // Get user itineraries
+  app.get('/api/itineraries', authMiddleware, async (req, res) => {
     try {
       const userId = req.user.claims.sub;
       const itineraries = await storage.getUserItineraries(userId);
@@ -281,33 +228,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erro ao buscar roteiros:", error);
       res.status(500).json({ message: "Falha ao buscar roteiros" });
-    }
-  });
-
-  // Update user type
-  app.patch('/api/auth/user/type', authMiddleware, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const { userType } = req.body;
-      
-      if (!['tourist', 'guide', 'event_producer'].includes(userType)) {
-        return res.status(400).json({ message: "Tipo de usuário inválido" });
-      }
-
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "Usuário não encontrado" });
-      }
-
-      const updatedUser = await storage.upsertUser({
-        ...user,
-        userType,
-      });
-
-      res.json(updatedUser);
-    } catch (error) {
-      console.error("Erro ao atualizar tipo de usuário:", error);
-      res.status(500).json({ message: "Falha ao atualizar tipo de usuário" });
     }
   });
 

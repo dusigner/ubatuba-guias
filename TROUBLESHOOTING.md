@@ -132,6 +132,15 @@ Este erro é normal em desenvolvimento local! O sistema Replit Auth não funcion
    lsof -i :5000                 # Mac/Linux
    ```
 
+### "Environment variable REPLIT_DOMAINS not provided"
+Este erro acontece quando o sistema tenta usar Replit Auth localmente.
+
+**Solução:**
+- O sistema agora detecta automaticamente o ambiente
+- Em desenvolvimento local usa autenticação local
+- No Replit usa Replit Auth
+- **Certifique-se que NODE_ENV=development está no seu .env**
+
 ### "Port 5000 already in use"
 ```bash
 # Encontrar processo usando a porta

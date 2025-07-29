@@ -107,6 +107,18 @@ npm start
 - **Aplicação**: http://localhost:5000
 - **Cliente (dev)**: http://localhost:3000 (se usar npm run dev)
 
+### 8. Login Local
+Como o sistema Replit Auth não funciona localmente, foi criado um sistema de login simples:
+
+1. Acesse: http://localhost:3000/api/login (será redirecionado automaticamente)
+2. Um usuário de teste será criado automaticamente com privilégios de admin
+3. Você será redirecionado para a página inicial já logado
+
+**Dados do usuário de teste:**
+- Email: teste@ubatuba.local
+- Nome: Usuário Teste
+- Tipo: Administrador
+
 ## Criar Usuário Admin
 
 1. Faça login na aplicação

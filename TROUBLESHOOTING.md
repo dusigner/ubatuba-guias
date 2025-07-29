@@ -99,6 +99,15 @@ DATABASE_URL=postgresql://postgres:SUA_SENHA@localhost:5432/ubatuba_tourism
 2. Teste a chave em https://platform.openai.com/playground
 3. Confirme se tem créditos na conta
 
+### "HTTP ERROR 500" no /api/login
+Este erro é normal em desenvolvimento local! O sistema Replit Auth não funciona fora do Replit.
+
+**Solução:**
+- Foi criado um sistema de login local automático
+- Apenas acesse: http://localhost:3000/api/login
+- Um usuário admin de teste será criado automaticamente
+- Você será redirecionado já logado
+
 ### "Port 5000 already in use"
 ```bash
 # Encontrar processo usando a porta

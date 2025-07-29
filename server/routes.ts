@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupLocalAuth, isAuthenticatedLocal } from "./localAuth";
 import { generateItinerary } from "./openai";
 import { 
   insertEventSchema, 
@@ -14,11 +15,19 @@ import {
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Auth middleware - usar local em desenvolvimento
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  if (isDevelopment) {
+    setupLocalAuth(app);
+  } else {
+    await setupAuth(app);
+  }
+  
+  const authMiddleware = isDevelopment ? isAuthenticatedLocal : isAuthenticated;
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -86,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/events', isAuthenticated, async (req: any, res) => {
+  app.post('/api/events', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -119,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/guides', isAuthenticated, async (req: any, res) => {
+  app.post('/api/guides', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -142,7 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes
-  app.post('/api/admin/trails', isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/trails', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -160,7 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/beaches', isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/beaches', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -178,7 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/boat-tours', isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/boat-tours', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -196,7 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/events', isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/events', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -218,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/guides', isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/guides', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -241,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Itinerary routes
-  app.post('/api/itinerary/generate', isAuthenticated, async (req: any, res) => {
+  app.post('/api/itinerary/generate', authMiddleware, async (req: any, res) => {
     try {
       const preferences = req.body;
       const generatedItinerary = await generateItinerary(preferences);
@@ -264,7 +273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/itineraries', isAuthenticated, async (req: any, res) => {
+  app.get('/api/itineraries', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const itineraries = await storage.getUserItineraries(userId);
@@ -276,7 +285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update user type
-  app.patch('/api/auth/user/type', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/auth/user/type', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const { userType } = req.body;

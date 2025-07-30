@@ -14,9 +14,11 @@ import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Verificar se estamos em desenvolvimento local ou no Replit
-  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.REPLIT_DOMAINS;
+  const isDevelopment = process.env.NODE_ENV === 'development' && !process.env.REPLIT_DOMAINS;
   
   console.log('Configurando autenticação:', isDevelopment ? 'Local' : 'Replit');
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('REPLIT_DOMAINS:', process.env.REPLIT_DOMAINS);
   
   let authMiddleware: any;
   
@@ -41,7 +43,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Se o usuário não existe no banco (primeiro login via Replit), criar
       if (!user && req.user.claims) {
         user = await storage.upsertUser({
-          id: userId,
           email: req.user.claims.email,
           firstName: req.user.claims.first_name,
           lastName: req.user.claims.last_name,

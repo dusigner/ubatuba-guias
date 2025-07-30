@@ -210,7 +210,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUsersByType(userType: string): Promise<User[]> {
-    return await db.select().from(users).where(eq(users.userType, userType)).orderBy(desc(users.createdAt));
+    return await db.select().from(users).where(eq(users.userType, userType as any)).orderBy(desc(users.createdAt));
   }
 
   async adminUpdateUser(id: string, data: Partial<User>): Promise<User> {
@@ -487,45 +487,7 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async createGuide(userId: string, guideData: any): Promise<any> {
-    const [newGuide] = await db
-      .insert(guides)
-      .values({
-        userId,
-        bio: guideData.bio,
-        specialties: guideData.specialties,
-        experience: guideData.experience,
-        languages: guideData.languages,
-        hourlyRate: guideData.hourlyRate,
-        profileImageUrl: guideData.profileImageUrl,
-        whatsapp: guideData.whatsapp,
-        instagram: guideData.instagram,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .returning();
-    return newGuide;
-  }
 
-  async updateGuide(id: string, guideData: any): Promise<any> {
-    const [updatedGuide] = await db
-      .update(guides)
-      .set({
-        ...guideData,
-        updatedAt: new Date(),
-      })
-      .where(eq(guides.id, id))
-      .returning();
-    return updatedGuide;
-  }
-
-  async updateGuide(id: string, guide: Partial<InsertGuide>): Promise<Guide> {
-    const [updatedGuide] = await db.update(guides)
-      .set(guide)
-      .where(eq(guides.id, id))
-      .returning();
-    return updatedGuide;
-  }
 
   async deleteGuide(id: string): Promise<void> {
     await db.delete(guides).where(eq(guides.id, id));

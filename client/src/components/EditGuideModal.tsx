@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { isUnauthorizedError } from "@/lib/authUtils";
+import { User } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -21,25 +25,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import { User } from "@shared/schema";
-import { X } from "lucide-react";
-
-const editGuideSchema = z.object({
-  firstName: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  lastName: z.string().min(2, "Sobrenome deve ter pelo menos 2 caracteres"),
-  bio: z.string().min(20, "Descrição deve ter pelo menos 20 caracteres"),
-  specialties: z.string().min(1, "Especialidades são obrigatórias"),
-  languages: z.string().min(1, "Idiomas são obrigatórios"),
-  experience: z.string().min(5, "Experiência deve ser descrita"),
-  location: z.string().min(3, "Local é obrigatório"),
-  phone: z.string().optional(),
-  profileImageUrl: z.string().url("URL inválida").optional().or(z.literal("")),
-});
-
-type EditGuideFormData = z.infer<typeof editGuideSchema>;
 
 interface EditGuideModalProps {
   isOpen: boolean;
@@ -47,9 +32,22 @@ interface EditGuideModalProps {
   guide: User;
 }
 
+const editGuideSchema = z.object({
+  firstName: z.string().min(1, "Nome é obrigatório"),
+  lastName: z.string().min(1, "Sobrenome é obrigatório"),
+  bio: z.string().min(10, "Bio deve ter pelo menos 10 caracteres"),
+  experience: z.string().min(1, "Experiência é obrigatória"),
+  location: z.string().min(1, "Localização é obrigatória"),
+  phone: z.string().min(1, "Telefone é obrigatório"),
+  profileImageUrl: z.string().optional(),
+});
+
+type EditGuideFormData = z.infer<typeof editGuideSchema>;
+
 const availableSpecialties = [
-  'Trilhas', 'Ecoturismo', 'História Local', 'Fotografia', 'Mergulho',
-  'Snorkeling', 'Turismo Rural', 'Gastronomia', 'Artesanato Local'
+  'Trilhas', 'Ecoturismo', 'História Local', 'Aventura', 'Fotografia', 
+  'Observação de Aves', 'Mergulho', 'Pesca Esportiva', 'Gastronomia', 
+  'Cultura Caiçara', 'Turismo Rural', 'Turismo Religioso'
 ];
 
 const availableLanguages = [
@@ -72,8 +70,6 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
       firstName: guide.firstName || "",
       lastName: guide.lastName || "",
       bio: guide.bio || "",
-      specialties: guide.specialties || "",
-      languages: guide.languages || "Português",
       experience: guide.experience || "",
       location: guide.location || "Ubatuba, SP",
       phone: guide.phone || "",
@@ -88,7 +84,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
         specialties: selectedSpecialties.join(', '),
         languages: selectedLanguages.join(', '),
       });
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/guides'] });
@@ -97,7 +93,6 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
         title: "Perfil atualizado com sucesso!",
         description: "Suas informações foram atualizadas.",
       });
-      form.reset();
       onClose();
     },
     onError: (error) => {
@@ -144,15 +139,12 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            Editar Perfil de Guia
-          </DialogTitle>
+          <DialogTitle>Editar Perfil de Guia</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Informações Básicas */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="firstName"
@@ -187,12 +179,12 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
               name="bio"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descrição Profissional</FormLabel>
+                  <FormLabel>Biografia</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Conte sobre sua experiência como guia, áreas de especialidade e o que torna seus passeios únicos..."
+                      placeholder="Conte um pouco sobre você, sua experiência e paixão por Ubatuba..."
                       className="min-h-[100px]"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -200,35 +192,30 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
               )}
             />
 
-            {/* Especialidades */}
             <div>
               <FormLabel>Especialidades</FormLabel>
-              <div className="grid grid-cols-3 gap-2 mt-2">
-                {availableSpecialties.map((specialty) => (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {availableSpecialties.map(specialty => (
                   <Badge
                     key={specialty}
                     variant={selectedSpecialties.includes(specialty) ? "default" : "outline"}
-                    className="justify-center cursor-pointer hover:bg-ocean/10"
+                    className="cursor-pointer hover:bg-ocean/20"
                     onClick={() => toggleSpecialty(specialty)}
                   >
                     {specialty}
                   </Badge>
                 ))}
               </div>
-              {selectedSpecialties.length === 0 && (
-                <p className="text-sm text-destructive mt-1">Selecione pelo menos uma especialidade</p>
-              )}
             </div>
 
-            {/* Idiomas */}
             <div>
-              <FormLabel>Idiomas que Fala</FormLabel>
-              <div className="grid grid-cols-3 gap-2 mt-2">
-                {availableLanguages.map((language) => (
+              <FormLabel>Idiomas</FormLabel>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {availableLanguages.map(language => (
                   <Badge
                     key={language}
                     variant={selectedLanguages.includes(language) ? "default" : "outline"}
-                    className="justify-center cursor-pointer hover:bg-tropical/10"
+                    className="cursor-pointer hover:bg-tropical/20"
                     onClick={() => toggleLanguage(language)}
                   >
                     {language}
@@ -242,11 +229,12 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
               name="experience"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Experiência e Qualificações</FormLabel>
+                  <FormLabel>Experiência</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Ex: 10 anos como guia, formação em turismo, certificações..."
-                      {...field} 
+                      placeholder="Descreva sua experiência como guia, certificações, cursos..."
+                      className="min-h-[80px]"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -254,7 +242,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="location"
@@ -262,7 +250,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
                   <FormItem>
                     <FormLabel>Localização</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Ubatuba, SP" {...field} />
+                      <Input placeholder="Ubatuba, SP" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -274,9 +262,9 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>WhatsApp (opcional)</FormLabel>
+                    <FormLabel>Telefone</FormLabel>
                     <FormControl>
-                      <Input placeholder="(12) 99999-9999" {...field} />
+                      <Input placeholder="(12) 99999-0000" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -284,28 +272,14 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="profileImageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL da Foto de Perfil (opcional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancelar
               </Button>
               <Button 
                 type="submit" 
-                disabled={updateGuideMutation.isPending || selectedSpecialties.length === 0}
-                className="bg-gradient-to-r from-ocean to-sunset hover:from-ocean/90 hover:to-sunset/90"
+                disabled={updateGuideMutation.isPending}
+                className="bg-gradient-to-r from-tropical to-ocean text-white hover:opacity-90"
               >
                 {updateGuideMutation.isPending ? "Salvando..." : "Salvar Alterações"}
               </Button>

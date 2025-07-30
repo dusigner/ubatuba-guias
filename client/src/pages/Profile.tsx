@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { User, Edit, Save, X, Camera } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -25,6 +27,9 @@ export default function Profile() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -40,24 +45,33 @@ export default function Profile() {
     },
   });
 
-  const onSubmit = async (data: ProfileFormData) => {
-    try {
-      // Simular salvamento (implementar API depois)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: ProfileFormData & { profileImageUrl?: string }) =>
+      apiRequest("/api/auth/user", "PUT", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Perfil atualizado",
         description: "Suas informações foram salvas com sucesso.",
       });
-      
       setIsEditing(false);
-    } catch (error) {
+      setProfileImage(null);
+    },
+    onError: () => {
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o perfil.",
         variant: "destructive",
       });
-    }
+    },
+  });
+
+  const onSubmit = async (data: ProfileFormData) => {
+    const updateData = {
+      ...data,
+      ...(profileImage && { profileImageUrl: profileImage }),
+    };
+    updateProfileMutation.mutate(updateData);
   };
 
   const handleCancel = () => {
@@ -67,6 +81,28 @@ export default function Profile() {
       email: user?.email || "",
     });
     setIsEditing(false);
+    setProfileImage(null);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "Arquivo muito grande",
+          description: "A imagem deve ter no máximo 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setProfileImage(result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   if (isLoading) {
@@ -123,7 +159,7 @@ export default function Profile() {
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <div className="relative">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={user?.profileImageUrl} />
+                  <AvatarImage src={profileImage || user?.profileImageUrl} />
                   <AvatarFallback className="text-lg">
                     {user?.firstName?.[0]}{user?.lastName?.[0]}
                   </AvatarFallback>
@@ -132,9 +168,18 @@ export default function Profile() {
                   size="icon"
                   variant="outline"
                   className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={!isEditing}
                 >
                   <Camera className="h-4 w-4" />
                 </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
               </div>
               
               <div className="text-center sm:text-left space-y-2">
@@ -174,7 +219,7 @@ export default function Profile() {
                   variant="outline"
                   size="sm"
                   onClick={handleCancel}
-                  disabled={isSubmitting}
+                  disabled={updateProfileMutation.isPending}
                 >
                   <X className="h-4 w-4 mr-2" />
                   Cancelar
@@ -182,10 +227,10 @@ export default function Profile() {
                 <Button
                   size="sm"
                   onClick={handleSubmit(onSubmit)}
-                  disabled={isSubmitting}
+                  disabled={updateProfileMutation.isPending}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {isSubmitting ? "Salvando..." : "Salvar"}
+                  {updateProfileMutation.isPending ? "Salvando..." : "Salvar"}
                 </Button>
               </div>
             )}

@@ -35,6 +35,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUser(id: string, data: Partial<User>): Promise<User>;
+  updateUserProfile(id: string, data: Partial<User>): Promise<User>;
   
   // Trails
   getTrails(): Promise<Trail[]>;
@@ -109,6 +110,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUser(id: string, data: Partial<User>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async updateUserProfile(id: string, data: Partial<User>): Promise<User> {
     const [user] = await db
       .update(users)
       .set({

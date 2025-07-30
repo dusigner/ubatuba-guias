@@ -43,6 +43,7 @@ import BoatTourProfile from "@/pages/BoatTourProfile";
 import EventProfile from "@/pages/EventProfile";
 import Admin from "@/pages/Admin";
 import Profile from "@/pages/Profile";
+import Register from "@/pages/Register";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
 
@@ -203,11 +204,12 @@ function Router() {
               <Route path="/events" component={Events} />
               <Route path="/guides" component={Guides} />
               <Route path="/guides/:id" component={GuideProfile} />
-          <Route path="/trails/:id" component={TrailProfile} />
-          <Route path="/beaches/:id" component={BeachProfile} />
-          <Route path="/boat-tours/:id" component={BoatTourProfile} />
-          <Route path="/events/:id" component={EventProfile} />
+              <Route path="/trails/:id" component={TrailProfile} />
+              <Route path="/beaches/:id" component={BeachProfile} />
+              <Route path="/boat-tours/:id" component={BoatTourProfile} />
+              <Route path="/events/:id" component={EventProfile} />
               <Route path="/profile" component={Profile} />
+              <Route path="/register" component={Register} />
               <Route path="/settings" component={Settings} />
               <Route path="/admin" component={Admin} />
             </>

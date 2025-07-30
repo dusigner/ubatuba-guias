@@ -57,6 +57,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile completion route
+  app.post('/api/profile/complete', authMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { userType, phone, bio, isProfileComplete } = req.body;
+      
+      const updatedUser = await storage.updateUserProfile(userId, {
+        userType,
+        phone,
+        bio,
+        isProfileComplete
+      });
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Erro ao completar perfil:", error);
+      res.status(500).json({ message: "Falha ao completar perfil" });
+    }
+  });
+
   // Trails routes
   app.get('/api/trails', async (req, res) => {
     try {

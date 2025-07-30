@@ -31,7 +31,10 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  userType: varchar("user_type").notNull().default("tourist"), // tourist, guide, event_producer, admin
+  userType: varchar("user_type", { enum: ["tourist", "guide", "event_producer", "boat_tour_operator"] }).default("tourist"),
+  phone: varchar("phone"),
+  bio: text("bio"),
+  isProfileComplete: boolean("is_profile_complete").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

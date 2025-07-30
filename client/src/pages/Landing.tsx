@@ -749,18 +749,19 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-ocean to-tropical">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
+      <section className="py-20 bg-gradient-to-br from-ocean via-tropical to-sunset dark:from-ocean/90 dark:via-tropical/80 dark:to-sunset/90 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/10 dark:from-primary/30 dark:to-primary/20"></div>
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-4xl font-bold text-white mb-6 drop-shadow-lg">
             Pronto para sua aventura em Ubatuba?
           </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-white/95 dark:text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md">
             Junte-se a milhares de viajantes que já descobriram Ubatuba com nossos roteiros inteligentes
           </p>
           <Button 
             size="lg" 
             onClick={() => window.location.href = '/api/login'}
-            className="bg-white text-ocean hover:bg-white/90 text-lg px-8 py-6"
+            className="bg-white/95 text-ocean hover:bg-white text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm"
           >
             <Sparkles className="h-5 w-5 mr-2" />
             Começar Agora - É Grátis!

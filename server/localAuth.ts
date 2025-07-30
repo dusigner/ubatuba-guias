@@ -33,6 +33,7 @@ export function setupLocalAuth(app: Express) {
           lastName: 'Teste',
           profileImageUrl: 'https://via.placeholder.com/150',
           userType: 'admin',
+          isProfileComplete: true, // Usuário de teste já tem perfil completo
         }).onConflictDoNothing();
         
         user = await storage.getUser(testUserId);

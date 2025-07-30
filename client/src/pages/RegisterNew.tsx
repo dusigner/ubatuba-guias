@@ -106,7 +106,7 @@ export default function RegisterNew() {
   });
   
   const { toast } = useToast();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
 
@@ -115,9 +115,12 @@ export default function RegisterNew() {
       if (user.isProfileComplete) {
         navigate("/");
       } else {
-        // Se o usuário está logado mas perfil não está completo, pular autenticação
+        // Se o usuário está logado mas perfil não está completo, mostrar seleção de tipo
         setStep("userType");
       }
+    } else if (!isAuthenticated && !isLoading) {
+      // Se não está autenticado, mostrar formulário de auth
+      setStep("auth");
     }
   }, [isAuthenticated, user, navigate]);
 

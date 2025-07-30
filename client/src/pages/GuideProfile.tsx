@@ -207,18 +207,30 @@ Via UbatubaIA - ${window.location.href}`;
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      {/* Header com botão voltar */}
-      <div className="container mx-auto px-4 py-4">
-        <Button 
-          variant="ghost" 
-          onClick={() => setLocation("/guides")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para Guias
-        </Button>
+      {/* Header simplificado com botão voltar */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="ghost" 
+              onClick={() => setLocation("/guides")}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar para Guias
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                onClick={() => setLocation("/")}
+                className="text-sm"
+              >
+                UbatubaIA
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Hero Section */}

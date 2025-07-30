@@ -71,7 +71,7 @@ export default function EventProfile() {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-800 mb-4">Evento não encontrado</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Evento não encontrado</h1>
           <Button onClick={() => setLocation("/events")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar para Eventos
@@ -109,21 +109,21 @@ export default function EventProfile() {
     switch (category.toLowerCase()) {
       case 'música':
       case 'music':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800';
       case 'gastronomia':
       case 'food':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800';
       case 'cultura':
       case 'cultural':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800';
       case 'esporte':
       case 'sport':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800';
       case 'festa':
       case 'party':
-        return 'bg-pink-100 text-pink-800 border-pink-200';
+        return 'bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-900/20 dark:text-pink-300 dark:border-pink-800';
       default:
-        return 'bg-slate-100 text-slate-800 border-slate-200';
+        return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800/20 dark:text-slate-300 dark:border-slate-700';
     }
   };
 
@@ -177,13 +177,13 @@ export default function EventProfile() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header simplificado com botão voltar */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-md bg-background/95">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Button 
               variant="ghost" 
               onClick={() => setLocation("/events")}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
               Voltar para Eventos
@@ -193,7 +193,7 @@ export default function EventProfile() {
               <Button 
                 variant="ghost" 
                 onClick={() => setLocation("/")}
-                className="text-sm"
+                className="text-sm text-foreground hover:text-foreground"
               >
                 UbatubaIA
               </Button>
@@ -203,7 +203,7 @@ export default function EventProfile() {
       </div>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 py-12">
+      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 dark:from-tropical/20 dark:to-ocean/20 py-12">
         <div className="container mx-auto px-4">
           <div className="relative">
             <img

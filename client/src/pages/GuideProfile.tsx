@@ -77,7 +77,7 @@ export default function GuideProfile() {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-800 mb-4">Guia não encontrado</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Guia não encontrado</h1>
           <Button onClick={() => setLocation("/guides")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar para Guias
@@ -91,21 +91,21 @@ export default function GuideProfile() {
     switch (specialty.toLowerCase()) {
       case 'trilhas':
       case 'trails':
-        return 'bg-tropical/10 text-tropical border-tropical/20';
+        return 'bg-tropical/10 text-tropical border-tropical/20 dark:bg-tropical/20 dark:text-tropical dark:border-tropical/30';
       case 'mergulho':
       case 'diving':
-        return 'bg-ocean/10 text-ocean border-ocean/20';
+        return 'bg-ocean/10 text-ocean border-ocean/20 dark:bg-ocean/20 dark:text-ocean dark:border-ocean/30';
       case 'história':
       case 'history':
-        return 'bg-sunset/10 text-sunset border-sunset/20';
+        return 'bg-sunset/10 text-sunset border-sunset/20 dark:bg-sunset/20 dark:text-sunset dark:border-sunset/30';
       case 'fotografia':
       case 'photography':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800';
       case 'ecoturismo':
       case 'ecotourism':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800';
       default:
-        return 'bg-slate-100 text-slate-800 border-slate-200';
+        return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800/20 dark:text-slate-300 dark:border-slate-700';
     }
   };
 
@@ -208,13 +208,13 @@ Via UbatubaIA - ${window.location.href}`;
   return (
     <div className="min-h-screen bg-background">
       {/* Header simplificado com botão voltar */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-md bg-background/95">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Button 
               variant="ghost" 
               onClick={() => setLocation("/guides")}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
               Voltar para Guias
@@ -224,7 +224,7 @@ Via UbatubaIA - ${window.location.href}`;
               <Button 
                 variant="ghost" 
                 onClick={() => setLocation("/")}
-                className="text-sm"
+                className="text-sm text-foreground hover:text-foreground"
               >
                 UbatubaIA
               </Button>
@@ -234,7 +234,7 @@ Via UbatubaIA - ${window.location.href}`;
       </div>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 py-12">
+      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 dark:from-tropical/20 dark:to-ocean/20 py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-start gap-8">
             {/* Foto e Info Básica */}

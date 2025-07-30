@@ -68,7 +68,7 @@ export default function TrailProfile() {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-800 mb-4">Trilha não encontrada</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Trilha não encontrada</h1>
           <Button onClick={() => setLocation("/trails")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar para Trilhas
@@ -82,15 +82,15 @@ export default function TrailProfile() {
     switch (difficulty.toLowerCase()) {
       case 'fácil':
       case 'easy':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800';
       case 'moderada':
       case 'moderate':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800';
       case 'difícil':
       case 'hard':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800';
       default:
-        return 'bg-slate-100 text-slate-800 border-slate-200';
+        return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800/20 dark:text-slate-300 dark:border-slate-700';
     }
   };
 
@@ -129,13 +129,13 @@ export default function TrailProfile() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header simplificado com botão voltar */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-md bg-background/95">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Button 
               variant="ghost" 
               onClick={() => setLocation("/trails")}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
               Voltar para Trilhas
@@ -145,7 +145,7 @@ export default function TrailProfile() {
               <Button 
                 variant="ghost" 
                 onClick={() => setLocation("/")}
-                className="text-sm"
+                className="text-sm text-foreground hover:text-foreground"
               >
                 UbatubaIA
               </Button>
@@ -155,7 +155,7 @@ export default function TrailProfile() {
       </div>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 py-12">
+      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 dark:from-tropical/20 dark:to-ocean/20 py-12">
         <div className="container mx-auto px-4">
           <div className="relative">
             <img
@@ -215,7 +215,7 @@ export default function TrailProfile() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-700 leading-relaxed whitespace-pre-line">
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                   {trail.description}
                 </p>
               </CardContent>
@@ -235,10 +235,10 @@ export default function TrailProfile() {
                     {trail.highlights.map((highlight: string, index: number) => (
                       <div
                         key={index}
-                        className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200"
+                        className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
                       >
-                        <Camera className="h-4 w-4 text-blue-600" />
-                        <span className="text-blue-800">{highlight}</span>
+                        <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-blue-800 dark:text-blue-300">{highlight}</span>
                       </div>
                     ))}
                   </div>

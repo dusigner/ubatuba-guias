@@ -41,18 +41,20 @@ export function setupLocalAuth(app: Express) {
       }
 
       // Simular session do Replit Auth
-      req.session.user = {
-        claims: {
-          sub: user.id,
-          email: user.email,
-          first_name: user.firstName,
-          last_name: user.lastName,
-          profile_image_url: user.profileImageUrl,
-          exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // Expira em 24h
-        },
-        access_token: 'local-dev-token',
-        expires_at: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
-      };
+      if (user) {
+        req.session.user = {
+          claims: {
+            sub: user.id,
+            email: user.email,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            profile_image_url: user.profileImageUrl,
+            exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // Expira em 24h
+          },
+          access_token: 'local-dev-token',
+          expires_at: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
+        };
+      }
 
       res.redirect('/');
     } catch (error) {

@@ -144,14 +144,10 @@ export default function CreateProfile() {
 
   const createProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest('/api/profile', {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          userType: profileType,
-          isProfileComplete: true
-        }),
+      return apiRequest('/api/profile', 'POST', {
+        ...data,
+        userType: profileType,
+        isProfileComplete: true
       });
     },
     onSuccess: () => {

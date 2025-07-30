@@ -132,7 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Create session for the new user
-      req.session.user = {
+      (req.session as any).user = {
         claims: {
           sub: newUser.id,
           email: newUser.email,
@@ -158,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create session
-      req.session.user = {
+      (req.session as any).user = {
         claims: {
           sub: user.id,
           email: user.email,
@@ -637,7 +637,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Favorites routes
   app.get('/api/favorites', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const favorites = await storage.getUserFavorites(userId);
       res.json(favorites);
     } catch (error) {
@@ -648,7 +648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/favorites', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const favoriteData = { ...req.body, userId };
       const newFavorite = await storage.addFavorite(favoriteData);
       res.status(201).json(newFavorite);
@@ -660,7 +660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/favorites/:itemType/:itemId', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const { itemType, itemId } = req.params;
       await storage.removeFavorite(userId, itemType, itemId);
       res.status(204).send();
@@ -672,7 +672,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/favorites/:itemType/:itemId', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const { itemType, itemId } = req.params;
       const isFavorited = await storage.isFavorite(userId, itemType, itemId);
       res.json({ isFavorited });
@@ -685,7 +685,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Bookings routes
   app.get('/api/bookings', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const bookings = await storage.getUserBookings(userId);
       res.json(bookings);
     } catch (error) {
@@ -696,7 +696,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/bookings', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const bookingData = { ...req.body, userId };
       const newBooking = await storage.createBooking(bookingData);
       res.status(201).json(newBooking);

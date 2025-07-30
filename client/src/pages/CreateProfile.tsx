@@ -137,9 +137,53 @@ export default function CreateProfile() {
     return null;
   }
 
+  const getDefaultValues = (type: ProfileType) => {
+    const baseDefaults = {
+      phone: "",
+      bio: "",
+      location: "",
+    };
+
+    switch (type) {
+      case 'tourist':
+        return {
+          ...baseDefaults,
+          interests: "",
+          travelStyle: "",
+          budget: "",
+        };
+      case 'guide':
+        return {
+          ...baseDefaults,
+          specialties: "",
+          experience: "",
+          languages: "Português",
+          hourlyRate: "",
+        };
+      case 'event_producer':
+        return {
+          ...baseDefaults,
+          companyName: "",
+          eventTypes: "",
+          experience: "",
+        };
+      case 'boat_tour_operator':
+        return {
+          ...baseDefaults,
+          companyName: "",
+          boatTypes: "",
+          capacity: "",
+          experience: "",
+          licenses: "",
+        };
+      default:
+        return baseDefaults;
+    }
+  };
+
   const form = useForm({
     resolver: zodResolver(config.schema),
-    defaultValues: {},
+    defaultValues: getDefaultValues(profileType),
   });
 
   const createProfileMutation = useMutation({
@@ -308,12 +352,107 @@ export default function CreateProfile() {
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
                               <User className="h-4 w-4" />
-                              Sobre você (opcional)
+                              Sobre você
                             </FormLabel>
                             <FormControl>
                               <Textarea 
                                 placeholder="Conte um pouco sobre você e seus interesses de viagem..." 
                                 rows={3}
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="interests"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <Compass className="h-4 w-4" />
+                              Interesses
+                            </FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Ex: Praias, Trilhas, História, Gastronomia..." 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="travelStyle"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Estilo de viagem</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione seu estilo" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="aventura">Aventura</SelectItem>
+                                  <SelectItem value="relaxante">Relaxante</SelectItem>
+                                  <SelectItem value="cultural">Cultural</SelectItem>
+                                  <SelectItem value="gastronomico">Gastronômico</SelectItem>
+                                  <SelectItem value="familiar">Familiar</SelectItem>
+                                  <SelectItem value="romantico">Romântico</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="budget"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <DollarSign className="h-4 w-4" />
+                                Orçamento por dia
+                              </FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione seu orçamento" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="economico">Econômico (até R$ 100)</SelectItem>
+                                  <SelectItem value="medio">Médio (R$ 100-300)</SelectItem>
+                                  <SelectItem value="premium">Premium (R$ 300-500)</SelectItem>
+                                  <SelectItem value="luxo">Luxo (acima de R$ 500)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <MapIcon className="h-4 w-4" />
+                              Localização
+                            </FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Ex: São Paulo, Rio de Janeiro..." 
                                 {...field} 
                               />
                             </FormControl>

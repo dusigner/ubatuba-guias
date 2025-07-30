@@ -293,10 +293,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Guides routes
+  // Guides routes - busca usuários que são guias
   app.get('/api/guides', async (req, res) => {
     try {
-      const guides = await storage.getAllGuides();
+      const guides = await storage.getUsersByType('guide');
       res.json(guides);
     } catch (error) {
       console.error("Erro ao buscar guias:", error);

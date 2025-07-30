@@ -32,7 +32,7 @@ export function setupLocalAuth(app: Express) {
           firstName: 'Usuário',
           lastName: 'Teste',
           profileImageUrl: 'https://via.placeholder.com/150',
-          userType: 'tourist',
+          userType: null, // Forçar seleção de perfil
           isAdmin: true,
           isProfileComplete: false, // Forçar fluxo de criação de perfil
         }).onConflictDoNothing();

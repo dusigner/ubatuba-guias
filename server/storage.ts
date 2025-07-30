@@ -193,6 +193,10 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(users).orderBy(desc(users.createdAt));
   }
 
+  async getUsersByType(userType: string): Promise<User[]> {
+    return await db.select().from(users).where(eq(users.userType, userType)).orderBy(desc(users.createdAt));
+  }
+
   async adminUpdateUser(id: string, data: Partial<User>): Promise<User> {
     const [user] = await db
       .update(users)

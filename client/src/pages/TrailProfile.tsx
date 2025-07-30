@@ -1,0 +1,354 @@
+import { useParams, useLocation } from "wouter";
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import Navigation from "@/components/Navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Mountain, Star, MapPin, Clock, Users, ArrowLeft, Share2,
+  Heart, Camera, Gauge, Route, AlertTriangle, TreePine, Compass
+} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { isUnauthorizedError } from "@/lib/authUtils";
+
+export default function TrailProfile() {
+  const params = useParams();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const { isAuthenticated, isLoading } = useAuth();
+  const trailId = params.id;
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Não autorizado",
+        description: "Você precisa estar logado. Redirecionando...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
+
+  const { data: trail, isLoading: trailLoading, error } = useQuery<any>({
+    queryKey: ["/api/trails", trailId],
+    retry: false,
+    enabled: isAuthenticated && !!trailId,
+  });
+
+  if (error && isUnauthorizedError(error as Error)) {
+    toast({
+      title: "Não autorizado",
+      description: "Você foi desconectado. Fazendo login novamente...",
+      variant: "destructive",
+    });
+    setTimeout(() => {
+      window.location.href = "/api/login";
+    }, 500);
+    return null;
+  }
+
+  if (isLoading || trailLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>
+      </div>
+    );
+  }
+
+  if (!trail) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-2xl font-bold text-slate-800 mb-4">Trilha não encontrada</h1>
+          <Button onClick={() => setLocation("/trails")}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar para Trilhas
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case 'fácil':
+      case 'easy':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'moderada':
+      case 'moderate':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'difícil':
+      case 'hard':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-slate-100 text-slate-800 border-slate-200';
+    }
+  };
+
+  const getDifficultyIcon = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case 'fácil':
+      case 'easy':
+        return '🟢';
+      case 'moderada':
+      case 'moderate':
+        return '🟡';
+      case 'difícil':
+      case 'hard':
+        return '🔴';
+      default:
+        return '⚪';
+    }
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: `${trail.name} - Trilha em Ubatuba`,
+        text: `Conheça a trilha ${trail.name} em Ubatuba - ${trail.difficulty}, ${trail.distance}km`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link copiado!",
+        description: "O link da trilha foi copiado para a área de transferência",
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      
+      {/* Header com botão voltar */}
+      <div className="container mx-auto px-4 py-4">
+        <Button 
+          variant="ghost" 
+          onClick={() => setLocation("/trails")}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar para Trilhas
+        </Button>
+      </div>
+
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 py-12">
+        <div className="container mx-auto px-4">
+          <div className="relative">
+            <img
+              src={trail.imageUrl || 'https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400'}
+              alt={trail.name}
+              className="w-full h-64 md:h-80 object-cover rounded-lg shadow-lg"
+            />
+            <div className="absolute inset-0 bg-black/30 rounded-lg flex items-end">
+              <div className="p-6 text-white">
+                <h1 className="text-4xl font-bold mb-2">{trail.name}</h1>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`flex items-center gap-1 px-3 py-1 rounded-full border ${getDifficultyColor(trail.difficulty)}`}>
+                    <span>{getDifficultyIcon(trail.difficulty)}</span>
+                    <span className="font-medium">{trail.difficulty}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-white/90">
+                    <Route className="h-4 w-4" />
+                    <span>{trail.distance} km</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-white/90">
+                    <Clock className="h-4 w-4" />
+                    <span>{trail.duration}h</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-5 w-5 ${
+                        star <= Math.round(parseFloat(trail.rating) || 0)
+                          ? 'text-yellow-400 fill-current'
+                          : 'text-white/50'
+                      }`}
+                    />
+                  ))}
+                  <span className="text-lg font-semibold">{trail.rating || '0.0'}</span>
+                  <span className="text-white/90">
+                    ({trail.reviewCount || 0} avaliações)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Coluna Principal */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Descrição */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mountain className="h-5 w-5 text-primary" />
+                  Sobre a Trilha
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 leading-relaxed whitespace-pre-line">
+                  {trail.description}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Destaques */}
+            {trail.highlights && trail.highlights.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Camera className="h-5 w-5 text-primary" />
+                    Principais Atrações
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {trail.highlights.map((highlight: string, index: number) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200"
+                      >
+                        <Camera className="h-4 w-4 text-blue-600" />
+                        <span className="text-blue-800">{highlight}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Equipamentos */}
+            {trail.equipment && trail.equipment.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Compass className="h-5 w-5 text-primary" />
+                    Equipamentos Recomendados
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {trail.equipment.map((item: string, index: number) => (
+                      <Badge key={index} variant="secondary" className="justify-center py-2">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Dicas de Segurança */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  Dicas de Segurança
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2 p-3 bg-amber-50 rounded-lg border-l-4 border-amber-400">
+                    <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-amber-700">Sempre informe alguém sobre seu roteiro e horário previsto de retorno</span>
+                  </div>
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                    <TreePine className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-blue-700">Respeite a fauna e flora local - não retire nada da natureza</span>
+                  </div>
+                  <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
+                    <Users className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-green-700">Para trilhas difíceis, recomendamos contratar um guia local</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar de Informações */}
+          <div className="space-y-6">
+            <Card className="sticky top-4">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mountain className="h-5 w-5 text-primary" />
+                  Informações da Trilha
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Distância</span>
+                  <span className="font-bold text-tropical">{trail.distance} km</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Duração</span>
+                  <span className="font-bold text-ocean">{trail.duration} horas</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Dificuldade</span>
+                  <Badge className={getDifficultyColor(trail.difficulty)}>
+                    {getDifficultyIcon(trail.difficulty)} {trail.difficulty}
+                  </Badge>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Localização</span>
+                  <span className="font-bold text-slate-800">{trail.location}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Avaliação</span>
+                  <span className="font-bold text-yellow-600">{trail.rating || '0.0'} ⭐</span>
+                </div>
+
+                <div className="pt-4 space-y-2">
+                  <Button 
+                    onClick={handleShare}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Compartilhar
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    Favoritar
+                  </Button>
+                  <Button className="w-full bg-gradient-to-r from-tropical to-ocean text-white">
+                    <Users className="h-4 w-4 mr-2" />
+                    Contratar Guia
+                  </Button>
+                </div>
+
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="text-xs text-blue-700">
+                    💡 <strong>Dica:</strong> Esta trilha faz parte do sistema de trilhas do Parque Estadual da Serra do Mar.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

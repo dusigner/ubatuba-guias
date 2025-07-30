@@ -110,7 +110,7 @@ export default function Trails() {
           ) : trails && trails.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {trails.map((trail: any) => (
-                <Card key={trail.id} className="overflow-hidden hover:shadow-xl transition-shadow group">
+                <Card key={trail.id} className="overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer" onClick={() => setLocation(`/trails/${trail.id}`)}>
                   <div className="relative">
                     <img 
                       src={trail.imageUrl || 'https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400'} 

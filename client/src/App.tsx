@@ -37,6 +37,10 @@ import BoatTours from "@/pages/BoatTours";
 import Events from "@/pages/Events";
 import Guides from "@/pages/Guides";
 import GuideProfile from "@/pages/GuideProfile";
+import TrailProfile from "@/pages/TrailProfile";
+import BeachProfile from "@/pages/BeachProfile";
+import BoatTourProfile from "@/pages/BoatTourProfile";
+import EventProfile from "@/pages/EventProfile";
 import Admin from "@/pages/Admin";
 import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
@@ -199,6 +203,10 @@ function Router() {
               <Route path="/events" component={Events} />
               <Route path="/guides" component={Guides} />
               <Route path="/guides/:id" component={GuideProfile} />
+          <Route path="/trails/:id" component={TrailProfile} />
+          <Route path="/beaches/:id" component={BeachProfile} />
+          <Route path="/boat-tours/:id" component={BoatTourProfile} />
+          <Route path="/events/:id" component={EventProfile} />
               <Route path="/profile" component={Profile} />
               <Route path="/settings" component={Settings} />
               <Route path="/admin" component={Admin} />

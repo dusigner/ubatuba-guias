@@ -57,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/trails/:id', async (req, res) => {
     try {
-      const trail = await storage.getTrail(req.params.id);
+      const trail = await storage.getTrailById(req.params.id);
       if (!trail) {
         return res.status(404).json({ message: "Trilha não encontrada" });
       }
@@ -92,7 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/beaches/:id', async (req, res) => {
     try {
-      const beach = await storage.getBeach(req.params.id);
+      const beach = await storage.getBeachById(req.params.id);
       if (!beach) {
         return res.status(404).json({ message: "Praia não encontrada" });
       }
@@ -127,7 +127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/boat-tours/:id', async (req, res) => {
     try {
-      const tour = await storage.getBoatTour(req.params.id);
+      const tour = await storage.getBoatTourById(req.params.id);
       if (!tour) {
         return res.status(404).json({ message: "Passeio não encontrado" });
       }
@@ -157,6 +157,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erro ao buscar eventos:", error);
       res.status(500).json({ message: "Falha ao buscar eventos" });
+    }
+  });
+
+  app.get('/api/events/:id', async (req, res) => {
+    try {
+      const event = await storage.getEventById(req.params.id);
+      if (!event) {
+        return res.status(404).json({ message: "Evento não encontrado" });
+      }
+      res.json(event);
+    } catch (error) {
+      console.error("Erro ao buscar evento:", error);
+      res.status(500).json({ message: "Falha ao buscar evento" });
     }
   });
 

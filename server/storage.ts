@@ -206,6 +206,26 @@ export class DatabaseStorage implements IStorage {
     return guide;
   }
 
+  async getTrailById(id: string): Promise<Trail | undefined> {
+    const [trail] = await db.select().from(trails).where(eq(trails.id, id));
+    return trail;
+  }
+
+  async getBeachById(id: string): Promise<Beach | undefined> {
+    const [beach] = await db.select().from(beaches).where(eq(beaches.id, id));
+    return beach;
+  }
+
+  async getBoatTourById(id: string): Promise<BoatTour | undefined> {
+    const [tour] = await db.select().from(boatTours).where(eq(boatTours.id, id));
+    return tour;
+  }
+
+  async getEventById(id: string): Promise<Event | undefined> {
+    const [event] = await db.select().from(events).where(eq(events.id, id));
+    return event;
+  }
+
   async createGuide(guide: InsertGuide): Promise<Guide> {
     const [newGuide] = await db.insert(guides).values(guide).returning();
     return newGuide;

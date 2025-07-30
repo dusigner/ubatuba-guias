@@ -59,14 +59,14 @@ export default function BoatTours() {
     <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <section className="bg-gradient-to-br from-ocean/10 to-tropical/10 py-16">
+      <section className="bg-gradient-to-br from-ocean/20 via-tropical/10 to-sunset/10 dark:from-ocean/30 dark:via-tropical/20 dark:to-sunset/20 py-16 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
               <Ship className="inline h-12 w-12 text-ocean mr-4" />
               Passeios de Lancha
             </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Explore as ilhas e enseadas de Ubatuba com conforto e segurança. Reserve seu passeio com empresas confiáveis
             </p>
           </div>
@@ -132,12 +132,12 @@ export default function BoatTours() {
                   </div>
                   
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">{tour.name}</h3>
-                    <p className="text-slate-600 mb-4 text-sm">
+                    <h3 className="text-xl font-bold text-foreground mb-2">{tour.name}</h3>
+                    <p className="text-muted-foreground mb-4 text-sm">
                       {tour.description}
                     </p>
                     
-                    <div className="flex items-center text-sm text-slate-600 mb-4">
+                    <div className="flex items-center text-sm text-muted-foreground mb-4">
                       <Clock className="h-4 w-4 mr-2" />
                       <span>{tour.duration} horas</span>
                       <Users className="h-4 w-4 ml-4 mr-2" />
@@ -146,10 +146,10 @@ export default function BoatTours() {
                     
                     <div className="flex items-center justify-between mb-4">
                       <div className="text-sm">
-                        <div className="font-semibold text-slate-800">{tour.companyName}</div>
+                        <div className="font-semibold text-foreground">{tour.companyName}</div>
                         <div className="flex items-center text-yellow-400">
                           <Star className="h-4 w-4" />
-                          <span className="text-slate-600 ml-1">{tour.rating || '0.0'} ({tour.reviewCount || 0})</span>
+                          <span className="text-muted-foreground ml-1">{tour.rating || '0.0'} ({tour.reviewCount || 0})</span>
                         </div>
                       </div>
                       <div className="text-right">
@@ -160,7 +160,7 @@ export default function BoatTours() {
                     
                     <div className="space-y-2 mb-4">
                       {tour.includes?.slice(0, 3).map((item: string, index: number) => (
-                        <div key={index} className="flex items-center text-sm text-slate-600">
+                        <div key={index} className="flex items-center text-sm text-muted-foreground">
                           <Check className="h-4 w-4 text-tropical mr-2" />
                           <span>{item}</span>
                         </div>

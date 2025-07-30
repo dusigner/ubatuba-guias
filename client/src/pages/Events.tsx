@@ -85,15 +85,15 @@ export default function Events() {
     <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <section className="bg-gradient-to-br from-sunset/10 to-ocean/10 py-16">
+      <section className="bg-gradient-to-br from-sunset/20 via-ocean/10 to-tropical/10 dark:from-sunset/30 dark:via-ocean/20 dark:to-tropical/20 py-16 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center justify-between">
             <div>
-              <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
                 <Calendar className="inline h-12 w-12 text-sunset mr-4" />
                 Eventos em Ubatuba
               </h1>
-              <p className="text-xl text-slate-600 max-w-3xl">
+              <p className="text-xl text-muted-foreground max-w-3xl">
                 Descubra os melhores eventos e festivais da região. Produtores locais podem divulgar seus eventos
               </p>
             </div>
@@ -144,34 +144,34 @@ export default function Events() {
               {events.map((event: any) => {
                 const CategoryIcon = getCategoryIcon(event.category);
                 return (
-                  <Card key={event.id} className="bg-gradient-to-br from-slate-50 to-white border border-slate-200 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/events/${event.id}`)}>
+                  <Card key={event.id} className="bg-gradient-to-br from-background to-muted/30 border border-border hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/events/${event.id}`)}>
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="bg-sunset/10 p-3 rounded-xl">
                           <CategoryIcon className="h-6 w-6 text-sunset" />
                         </div>
                         <div className="text-right">
-                          <div className="text-sm font-semibold text-slate-800">
+                          <div className="text-sm font-semibold text-foreground">
                             {formatDate(event.startDate)}
                           </div>
                         </div>
                       </div>
                       
-                      <h3 className="text-xl font-bold text-slate-800 mb-2">{event.title}</h3>
-                      <p className="text-slate-600 text-sm mb-4 line-clamp-3">
+                      <h3 className="text-xl font-bold text-foreground mb-2">{event.title}</h3>
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
                         {event.description}
                       </p>
                       
                       <div className="space-y-2 mb-4">
-                        <div className="flex items-center text-sm text-slate-600">
+                        <div className="flex items-center text-sm text-muted-foreground">
                           <MapPin className="h-4 w-4 mr-2 text-ocean" />
                           <span>{event.location}</span>
                         </div>
-                        <div className="flex items-center text-sm text-slate-600">
+                        <div className="flex items-center text-sm text-muted-foreground">
                           <Clock className="h-4 w-4 mr-2 text-tropical" />
                           <span>{event.startTime} às {event.endTime}</span>
                         </div>
-                        <div className="flex items-center text-sm text-slate-600">
+                        <div className="flex items-center text-sm text-muted-foreground">
                           <Ticket className="h-4 w-4 mr-2 text-sunset" />
                           <span>{event.ticketPrice}</span>
                         </div>
@@ -182,7 +182,7 @@ export default function Events() {
                           <div className="w-8 h-8 bg-gradient-to-r from-ocean to-tropical rounded-full flex items-center justify-center mr-2">
                             <User className="h-4 w-4 text-white" />
                           </div>
-                          <span className="text-sm text-slate-600">por {event.producerName}</span>
+                          <span className="text-sm text-muted-foreground">por {event.producerName}</span>
                         </div>
                         <Button variant="ghost" className="text-ocean hover:text-ocean/80 text-sm">
                           Ver detalhes <ArrowRight className="h-4 w-4 ml-1" />
@@ -195,9 +195,9 @@ export default function Events() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <Calendar className="h-24 w-24 text-slate-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Nenhum evento encontrado</h3>
-              <p className="text-slate-600 mb-8">
+              <Calendar className="h-24 w-24 text-muted-foreground mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-foreground mb-4">Nenhum evento encontrado</h3>
+              <p className="text-muted-foreground mb-8">
                 Parece que ainda não temos eventos cadastrados no sistema. 
                 {canCreateEvent ? ' Que tal cadastrar o primeiro evento?' : ' Nossa equipe está trabalhando para adicionar eventos incríveis em Ubatuba.'}
               </p>

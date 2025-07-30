@@ -75,14 +75,14 @@ export default function Trails() {
     <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <section className="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 py-16">
+      <section className="bg-gradient-to-br from-tropical/20 via-ocean/10 to-sunset/10 dark:from-tropical/30 dark:via-ocean/20 dark:to-sunset/20 py-16 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
               <Mountain className="inline h-12 w-12 text-tropical mr-4" />
               Trilhas de Ubatuba
             </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Explore as melhores trilhas da região com dicas especializadas, níveis de dificuldade e avaliações de outros aventureiros
             </p>
           </div>
@@ -128,10 +128,10 @@ export default function Trails() {
                   
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-xl font-bold text-slate-800">{trail.name}</h3>
+                      <h3 className="text-xl font-bold text-foreground">{trail.name}</h3>
                     </div>
                     
-                    <div className="flex items-center space-x-4 mb-4 text-sm text-slate-600">
+                    <div className="flex items-center space-x-4 mb-4 text-sm text-muted-foreground">
                       <span className="flex items-center">
                         <Route className="h-4 w-4 mr-1" />
                         {trail.distance} km
@@ -146,12 +146,12 @@ export default function Trails() {
                       </span>
                     </div>
                     
-                    <p className="text-slate-600 mb-4 line-clamp-3">
+                    <p className="text-muted-foreground mb-4 line-clamp-3">
                       {trail.description}
                     </p>
                     
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center text-sm text-slate-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <Star className="h-4 w-4 text-yellow-400 mr-1" />
                         <span>{trail.rating || '0.0'} ({trail.reviewCount || 0} avaliações)</span>
                       </div>
@@ -165,9 +165,9 @@ export default function Trails() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <Mountain className="h-24 w-24 text-slate-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Nenhuma trilha encontrada</h3>
-              <p className="text-slate-600 mb-8">
+              <Mountain className="h-24 w-24 text-muted-foreground mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-foreground mb-4">Nenhuma trilha encontrada</h3>
+              <p className="text-muted-foreground mb-8">
                 Parece que ainda não temos trilhas cadastradas no sistema. Nossa equipe está trabalhando para adicionar as melhores trilhas de Ubatuba.
               </p>
               <Button 

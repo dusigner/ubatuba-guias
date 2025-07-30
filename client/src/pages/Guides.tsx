@@ -61,21 +61,21 @@ export default function Guides() {
     switch (specialty.toLowerCase()) {
       case 'trilhas':
       case 'trails':
-        return 'bg-tropical/10 text-tropical';
+        return 'bg-tropical/10 text-tropical dark:bg-tropical/20 dark:text-tropical';
       case 'mergulho':
       case 'diving':
-        return 'bg-ocean/10 text-ocean';
+        return 'bg-ocean/10 text-ocean dark:bg-ocean/20 dark:text-ocean';
       case 'história':
       case 'history':
-        return 'bg-sunset/10 text-sunset';
+        return 'bg-sunset/10 text-sunset dark:bg-sunset/20 dark:text-sunset';
       case 'fotografia':
       case 'photography':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
       case 'ecoturismo':
       case 'ecotourism':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
       default:
-        return 'bg-slate-100 text-slate-800';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -107,15 +107,15 @@ export default function Guides() {
     <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <section className="bg-gradient-to-br from-tropical/10 to-ocean/10 py-16">
+      <section className="bg-gradient-to-br from-tropical/20 via-ocean/10 to-sunset/10 dark:from-tropical/30 dark:via-ocean/20 dark:to-sunset/20 py-16 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center justify-between">
             <div>
-              <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
                 <Users className="inline h-12 w-12 text-tropical mr-4" />
                 Guias Locais
               </h1>
-              <p className="text-xl text-slate-600 max-w-3xl">
+              <p className="text-xl text-muted-foreground max-w-3xl">
                 Conheça nossos guias especializados para uma experiência autêntica em Ubatuba
               </p>
             </div>
@@ -189,8 +189,8 @@ export default function Guides() {
                   </div>
                   
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">{guide.name}</h3>
-                    <p className="text-slate-600 text-sm mb-4 line-clamp-3">
+                    <h3 className="text-xl font-bold text-foreground mb-2">{guide.name}</h3>
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
                       {guide.description}
                     </p>
                     

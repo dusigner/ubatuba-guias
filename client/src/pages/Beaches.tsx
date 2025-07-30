@@ -93,14 +93,14 @@ export default function Beaches() {
     <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <section className="bg-gradient-to-br from-ocean/10 to-tropical/10 py-16">
+      <section className="bg-gradient-to-br from-ocean/20 via-tropical/10 to-sunset/10 dark:from-ocean/30 dark:via-tropical/20 dark:to-sunset/20 py-16 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
               <Umbrella className="inline h-12 w-12 text-ocean mr-4" />
               Praias Paradisíacas
             </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Descubra as mais belas praias de Ubatuba com todas as informações que você precisa para planejar sua visita perfeita
             </p>
           </div>
@@ -166,22 +166,22 @@ export default function Beaches() {
                   </div>
                   
                   <CardContent className="p-6">
-                    <h3 className="text-2xl font-bold text-slate-800 mb-3">{beach.name}</h3>
-                    <p className="text-slate-600 mb-4">
+                    <h3 className="text-2xl font-bold text-foreground mb-3">{beach.name}</h3>
+                    <p className="text-muted-foreground mb-4">
                       {beach.description}
                     </p>
                     
                     <div className="grid grid-cols-3 gap-4 mb-4">
                       {beach.features?.slice(0, 3).map((feature: string, index: number) => (
-                        <div key={index} className="text-center p-3 bg-slate-50 rounded-lg">
+                        <div key={index} className="text-center p-3 bg-muted/50 dark:bg-muted/20 rounded-lg">
                           <div className="text-xl mb-2">{getFeatureIcon(feature)}</div>
-                          <div className="text-xs text-slate-600">{feature}</div>
+                          <div className="text-xs text-muted-foreground">{feature}</div>
                         </div>
                       ))}
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center text-sm text-slate-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <Star className="h-4 w-4 text-yellow-400 mr-1" />
                         <span>{beach.rating || '0.0'} ({beach.reviewCount || 0} avaliações)</span>
                       </div>
@@ -195,9 +195,9 @@ export default function Beaches() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <Umbrella className="h-24 w-24 text-slate-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Nenhuma praia encontrada</h3>
-              <p className="text-slate-600 mb-8">
+              <Umbrella className="h-24 w-24 text-muted-foreground mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-foreground mb-4">Nenhuma praia encontrada</h3>
+              <p className="text-muted-foreground mb-8">
                 Parece que ainda não temos praias cadastradas no sistema. Nossa equipe está trabalhando para adicionar as mais belas praias de Ubatuba.
               </p>
               <Button 

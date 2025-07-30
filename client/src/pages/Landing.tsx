@@ -66,10 +66,9 @@ export default function Landing() {
             
             <div className="hidden md:flex space-x-8">
               <button onClick={() => scrollToSection('inicio')} className="text-muted-foreground hover:text-primary transition-colors">Início</button>
-              <button onClick={() => scrollToSection('roteiros')} className="text-muted-foreground hover:text-primary transition-colors">Roteiros IA</button>
-              <button onClick={() => scrollToSection('experiencias')} className="text-muted-foreground hover:text-primary transition-colors">Experiências</button>
-              <button onClick={() => scrollToSection('tecnologia')} className="text-muted-foreground hover:text-primary transition-colors">Tecnologia</button>
-              <button onClick={() => scrollToSection('guias')} className="text-muted-foreground hover:text-primary transition-colors">Guias Locais</button>
+              <button onClick={() => scrollToSection('trilhas')} className="text-muted-foreground hover:text-primary transition-colors">Trilhas</button>
+              <button onClick={() => scrollToSection('praias')} className="text-muted-foreground hover:text-primary transition-colors">Praias</button>
+              <button onClick={() => scrollToSection('guias')} className="text-muted-foreground hover:text-primary transition-colors">Guias</button>
               <button onClick={() => scrollToSection('eventos')} className="text-muted-foreground hover:text-primary transition-colors">Eventos</button>
             </div>
 
@@ -138,11 +137,11 @@ export default function Landing() {
               <Button 
                 size="lg"
                 variant="outline"
-                onClick={() => scrollToSection('experiencias')}
+                onClick={() => scrollToSection('trilhas')}
                 className="bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20 text-lg px-8 py-6"
               >
                 <Play className="h-5 w-5 mr-2" />
-                Ver Experiências
+                Explorar Trilhas
               </Button>
             </div>
           </div>
@@ -238,7 +237,7 @@ export default function Landing() {
       </section>
 
       {/* Sample Trails */}
-      <section className="py-20 bg-slate-50">
+      <section id="trilhas" className="py-20 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-800 mb-4">
@@ -319,7 +318,7 @@ export default function Landing() {
       </section>
 
       {/* Sample Beaches */}
-      <section className="py-20 bg-white">
+      <section id="praias" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-800 mb-4">

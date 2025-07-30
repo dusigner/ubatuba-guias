@@ -115,6 +115,7 @@ export default function RegisterNew() {
       if (user.isProfileComplete) {
         navigate("/");
       } else {
+        // Se o usuário está logado mas perfil não está completo, pular autenticação
         setStep("userType");
       }
     }

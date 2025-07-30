@@ -36,7 +36,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/user', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      let user = await storage.getUser(userId);
+      
+      // Se o usuário não existe no banco (primeiro login via Replit), criar
+      if (!user && req.user.claims) {
+        user = await storage.upsertUser({
+          id: userId,
+          email: req.user.claims.email,
+          firstName: req.user.claims.first_name,
+          lastName: req.user.claims.last_name,
+          profileImageUrl: req.user.claims.profile_image_url,
+          userType: 'tourist',
+          isProfileComplete: false
+        });
+      }
+      
       res.json(user);
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);

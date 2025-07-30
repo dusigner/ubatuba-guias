@@ -185,7 +185,7 @@ function Navigation() {
 }
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -200,21 +200,32 @@ function Router() {
             </>
           ) : (
             <>
-              <Route path="/" component={Home} />
-              <Route path="/trails" component={Trails} />
-              <Route path="/beaches" component={Beaches} />
-              <Route path="/boat-tours" component={BoatTours} />
-              <Route path="/events" component={Events} />
-              <Route path="/guides" component={Guides} />
-              <Route path="/guides/:id" component={GuideProfile} />
-              <Route path="/trails/:id" component={TrailProfile} />
-              <Route path="/beaches/:id" component={BeachProfile} />
-              <Route path="/boat-tours/:id" component={BoatTourProfile} />
-              <Route path="/events/:id" component={EventProfile} />
-              <Route path="/profile" component={Profile} />
-              <Route path="/register" component={RegisterNew} />
-              <Route path="/settings" component={Settings} />
-              <Route path="/admin" component={Admin} />
+              {/* Se o usuário está logado mas o perfil não está completo, redirecionar para registro */}
+              {user && !user.isProfileComplete ? (
+                <>
+                  <Route path="/" component={RegisterNew} />
+                  <Route path="/register" component={RegisterNew} />
+                  <Route component={() => { window.location.href = '/register'; return null; }} />
+                </>
+              ) : (
+                <>
+                  <Route path="/" component={Home} />
+                  <Route path="/trails" component={Trails} />
+                  <Route path="/beaches" component={Beaches} />
+                  <Route path="/boat-tours" component={BoatTours} />
+                  <Route path="/events" component={Events} />
+                  <Route path="/guides" component={Guides} />
+                  <Route path="/guides/:id" component={GuideProfile} />
+                  <Route path="/trails/:id" component={TrailProfile} />
+                  <Route path="/beaches/:id" component={BeachProfile} />
+                  <Route path="/boat-tours/:id" component={BoatTourProfile} />
+                  <Route path="/events/:id" component={EventProfile} />
+                  <Route path="/profile" component={Profile} />
+                  <Route path="/register" component={RegisterNew} />
+                  <Route path="/settings" component={Settings} />
+                  <Route path="/admin" component={Admin} />
+                </>
+              )}
             </>
           )}
           <Route component={NotFound} />

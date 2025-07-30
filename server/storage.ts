@@ -98,18 +98,43 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.email,
-        set: {
+    // Tentar inserir por ID primeiro, depois por email
+    try {
+      const [user] = await db
+        .insert(users)
+        .values({
           ...userData,
+          createdAt: new Date(),
           updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+        })
+        .onConflictDoUpdate({
+          target: users.id,
+          set: {
+            ...userData,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+      return user;
+    } catch (error) {
+      // Se falhar por ID, tentar por email
+      const [user] = await db
+        .insert(users)
+        .values({
+          ...userData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: users.email,
+          set: {
+            ...userData,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+      return user;
+    }
   }
 
   async updateUser(id: string, data: Partial<User>): Promise<User> {

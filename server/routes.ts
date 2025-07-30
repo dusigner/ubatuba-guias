@@ -320,13 +320,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/itineraries/generate', authMiddleware, async (req, res) => {
     try {
       const { preferences } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = (req.user as any)?.claims?.sub;
       
       if (!preferences) {
         return res.status(400).json({ message: "Preferências são obrigatórias" });
       }
 
-      const itinerary = await generateItinerary(preferences);
+      // Buscar dados reais do banco de dados
+      const [trails, beaches, boatTours, events, guides] = await Promise.all([
+        storage.getTrails(),
+        storage.getBeaches(),
+        storage.getBoatTours(),
+        storage.getEvents(),
+        storage.getGuides()
+      ]);
+
+      const availableData = {
+        trails,
+        beaches,
+        boatTours,
+        events,
+        guides
+      };
+
+      // Gerar roteiro com dados reais
+      const itinerary = await generateItinerary(preferences, availableData);
       
       // Criar título baseado nas preferências
       const title = `Roteiro ${preferences.duration} dias - ${preferences.interests?.slice(0, 2).join(', ') || 'Ubatuba'}`;
@@ -350,7 +368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user itineraries
   app.get('/api/itineraries', authMiddleware, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const itineraries = await storage.getUserItineraries(userId);
       res.json(itineraries);
     } catch (error) {

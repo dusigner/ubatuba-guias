@@ -15,10 +15,22 @@ export interface ItineraryPreferences {
   specialRequests?: string;
 }
 
-export async function generateItinerary(preferences: ItineraryPreferences): Promise<string> {
+export async function generateItinerary(
+  preferences: ItineraryPreferences, 
+  availableData: {
+    trails: any[],
+    beaches: any[],
+    boatTours: any[],
+    events: any[],
+    guides: any[]
+  }
+): Promise<string> {
   try {
-    const prompt = `Você é um especialista em turismo de Ubatuba, SP, Brasil. Crie um roteiro detalhado e personalizado baseado nas seguintes preferências:
+    const { trails, beaches, boatTours, events, guides } = availableData;
+    
+    const prompt = `Você é um especialista em turismo de Ubatuba, SP, Brasil. Crie um roteiro detalhado e personalizado baseado nas seguintes preferências e nos dados REAIS disponíveis no sistema:
 
+**PREFERÊNCIAS DO USUÁRIO:**
 **Duração:** ${preferences.duration} dias${preferences.startDate && preferences.endDate ? ` (${new Date(preferences.startDate).toLocaleDateString('pt-BR')} a ${new Date(preferences.endDate).toLocaleDateString('pt-BR')})` : ''}
 **Interesses:** ${preferences.interests.join(', ')}
 **Orçamento:** ${preferences.budget}
@@ -26,46 +38,75 @@ export async function generateItinerary(preferences: ItineraryPreferences): Prom
 ${preferences.groupSize ? `**Tamanho do grupo:** ${preferences.groupSize}` : ''}
 ${preferences.specialRequests ? `**Pedidos especiais:** ${preferences.specialRequests}` : ''}
 
+**DADOS REAIS DISPONÍVEIS NO SISTEMA:**
+
+**TRILHAS CADASTRADAS:**
+${trails.map(trail => 
+  `- ${trail.name} (${trail.difficulty}) - ${trail.distance}km, ${trail.duration}h - ${trail.description.substring(0, 100)}...`
+).join('\n')}
+
+**PRAIAS CADASTRADAS:**
+${beaches.map(beach => 
+  `- ${beach.name} (${beach.region}) - ${beach.description.substring(0, 100)}... - Comodidades: ${beach.amenities?.join(', ') || 'N/A'}`
+).join('\n')}
+
+**PASSEIOS DE BARCO CADASTRADOS:**
+${boatTours.map(tour => 
+  `- ${tour.name} (${tour.companyName}) - ${tour.duration}h, até ${tour.maxPeople} pessoas, R$ ${tour.price} - ${tour.description.substring(0, 100)}...`
+).join('\n')}
+
+**EVENTOS DISPONÍVEIS:**
+${events.map(event => 
+  `- ${event.title} (${new Date(event.startDate).toLocaleDateString('pt-BR')} às ${event.startTime}) - ${event.location} - R$ ${event.ticketPrice} - ${event.description.substring(0, 100)}...`
+).join('\n')}
+
+**GUIAS LOCAIS DISPONÍVEIS:**
+${guides.map(guide => 
+  `- ${guide.name} (${guide.experienceYears} anos) - Especialidades: ${guide.specialties?.join(', ') || 'N/A'} - Idiomas: ${guide.languages?.join(', ') || 'N/A'} - ⭐ ${guide.rating}`
+).join('\n')}
+
 **INSTRUÇÕES IMPORTANTES:**
 - Responda APENAS em português brasileiro
+- OBRIGATÓRIO: Use SOMENTE os dados reais fornecidos acima nas suas sugestões
+- Mencione os nomes EXATOS das trilhas, praias, passeios, eventos e guias cadastrados
+- Inclua informações específicas como preços, horários e características dos itens cadastrados
 - Crie um roteiro detalhado dia por dia
 - Inclua horários sugeridos para cada atividade
-- Mencione praias específicas de Ubatuba (ex: Praia do Félix, Praia Vermelha do Norte, Praia da Fortaleza)
-- Inclua trilhas famosas (ex: Trilha do Pico do Corcovado, Trilha da Praia Brava)
-- Sugira restaurantes locais e pratos típicos
-- Inclua dicas práticas e custos aproximados
-- Mencione opções de hospedagem adequadas ao orçamento
-- Adicione informações sobre transporte local
-- Inclua atividades aquáticas como mergulho, stand-up paddle, etc.
+- Sugira os guias locais apropriados para cada atividade
+- Inclua dicas práticas baseadas nos dados reais
+- Conecte as atividades de forma lógica e geográfica
 
 **ESTRUTURA DO ROTEIRO:**
 # Roteiro Personalizado para Ubatuba - ${preferences.duration} dias
 
 ## Dia 1: [Título do dia]
 ### Manhã (8h-12h)
-- **Atividade:** [descrição]
-- **Local:** [endereço/região]
-- **Custo aproximado:** R$ [valor]
-- **Dica:** [informação útil]
+- **Atividade:** [usar trilha/praia/passeio REAL do sistema]
+- **Local:** [nome exato do local cadastrado]
+- **Custo:** [preço real do sistema quando disponível]
+- **Guia sugerido:** [nome do guia real e especialidades]
+- **Dica:** [informação baseada nos dados reais]
 
 ### Tarde (13h-18h)
-- **Atividade:** [descrição]
-- **Local:** [endereço/região]
-- **Custo aproximado:** R$ [valor]
-- **Dica:** [informação útil]
+- **Atividade:** [usar trilha/praia/passeio REAL do sistema]
+- **Local:** [nome exato do local cadastrado]
+- **Custo:** [preço real do sistema quando disponível]
+- **Dica:** [informação baseada nos dados reais]
 
 ### Noite (19h-22h)
-- **Jantar:** [restaurante/tipo de comida]
-- **Custo aproximado:** R$ [valor]
+- **Evento/Jantar:** [evento real do sistema ou sugestão gastronômica]
+- **Local:** [local real quando disponível]
 
 Continue este formato para todos os dias...
 
-## Dicas Gerais
-- [Dicas importantes sobre Ubatuba]
-- [Informações sobre clima e melhor época]
-- [Contatos úteis]
+## Contatos dos Guias Sugeridos
+[Liste os guias mencionados com suas informações de contato reais]
 
-**IMPORTANTE:** Seja específico sobre Ubatuba, use nomes reais de praias, trilhas e estabelecimentos conhecidos da região.`;
+## Dicas Gerais
+- [Dicas baseadas nos dados reais cadastrados]
+- [Informações sobre os eventos disponíveis nas datas]
+
+**IMPORTANTE:** Use APENAS os dados fornecidos acima. Não invente nomes de trilhas, praias ou estabelecimentos que não estão na lista.`;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",

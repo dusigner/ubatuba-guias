@@ -168,13 +168,13 @@ export default function Landing() {
       </section>
 
       {/* Features Overview */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               Por que escolher UbatubaIA?
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               A primeira plataforma de turismo inteligente para Ubatuba, criada por especialistas locais
             </p>
           </div>
@@ -182,11 +182,11 @@ export default function Landing() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <div className="bg-ocean/10 p-3 rounded-xl w-fit mb-4">
+                <div className="bg-ocean/10 dark:bg-ocean/20 p-3 rounded-xl w-fit mb-4">
                   <Sparkles className="h-8 w-8 text-ocean" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">IA Personalizada</h3>
-                <p className="text-slate-600">
+                <h3 className="text-xl font-bold text-foreground mb-2">IA Personalizada</h3>
+                <p className="text-muted-foreground">
                   Roteiros únicos gerados por inteligência artificial baseados nas suas preferências e tempo disponível.
                 </p>
               </CardContent>
@@ -194,11 +194,11 @@ export default function Landing() {
 
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <div className="bg-tropical/10 p-3 rounded-xl w-fit mb-4">
+                <div className="bg-tropical/10 dark:bg-tropical/20 p-3 rounded-xl w-fit mb-4">
                   <Mountain className="h-8 w-8 text-tropical" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Trilhas Completas</h3>
-                <p className="text-slate-600">
+                <h3 className="text-xl font-bold text-foreground mb-2">Trilhas Completas</h3>
+                <p className="text-muted-foreground">
                   Todas as trilhas de Ubatuba com dificuldade, distância, dicas e avaliações de outros visitantes.
                 </p>
               </CardContent>
@@ -206,11 +206,11 @@ export default function Landing() {
 
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <div className="bg-sunset/10 p-3 rounded-xl w-fit mb-4">
+                <div className="bg-sunset/10 dark:bg-sunset/20 p-3 rounded-xl w-fit mb-4">
                   <Umbrella className="h-8 w-8 text-sunset" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Praias Paradisíacas</h3>
-                <p className="text-slate-600">
+                <h3 className="text-xl font-bold text-foreground mb-2">Praias Paradisíacas</h3>
+                <p className="text-muted-foreground">
                   Guia completo das melhores praias com informações sobre estrutura, atividades e acesso.
                 </p>
               </CardContent>
@@ -218,11 +218,11 @@ export default function Landing() {
 
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <div className="bg-ocean/10 p-3 rounded-xl w-fit mb-4">
+                <div className="bg-ocean/10 dark:bg-ocean/20 p-3 rounded-xl w-fit mb-4">
                   <Ship className="h-8 w-8 text-ocean" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Passeios de Lancha</h3>
-                <p className="text-slate-600">
+                <h3 className="text-xl font-bold text-foreground mb-2">Passeios de Lancha</h3>
+                <p className="text-muted-foreground">
                   Reserve passeios de lancha com empresas confiáveis e explore as ilhas e enseadas de Ubatuba.
                 </p>
               </CardContent>
@@ -230,11 +230,11 @@ export default function Landing() {
 
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <div className="bg-tropical/10 p-3 rounded-xl w-fit mb-4">
+                <div className="bg-tropical/10 dark:bg-tropical/20 p-3 rounded-xl w-fit mb-4">
                   <Calendar className="h-8 w-8 text-tropical" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Eventos Locais</h3>
-                <p className="text-slate-600">
+                <h3 className="text-xl font-bold text-foreground mb-2">Eventos Locais</h3>
+                <p className="text-muted-foreground">
                   Descubra festivais, feiras e eventos culturais. Produtores locais podem divulgar seus eventos.
                 </p>
               </CardContent>
@@ -242,11 +242,11 @@ export default function Landing() {
 
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <div className="bg-sunset/10 p-3 rounded-xl w-fit mb-4">
+                <div className="bg-sunset/10 dark:bg-sunset/20 p-3 rounded-xl w-fit mb-4">
                   <Users className="h-8 w-8 text-sunset" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Guias Especializados</h3>
-                <p className="text-slate-600">
+                <h3 className="text-xl font-bold text-foreground mb-2">Guias Especializados</h3>
+                <p className="text-muted-foreground">
                   Conecte-se com guias locais certificados para experiências autênticas e seguras.
                 </p>
               </CardContent>
@@ -256,14 +256,14 @@ export default function Landing() {
       </section>
 
       {/* Sample Trails */}
-      <section id="trilhas" className="py-20 bg-slate-50">
+      <section id="trilhas" className="py-20 bg-muted/30 dark:bg-muted/10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               <Mountain className="inline h-10 w-10 text-tropical mr-4" />
               Trilhas Incríveis
             </h2>
-            <p className="text-xl text-slate-600">Algumas das trilhas mais procuradas de Ubatuba</p>
+            <p className="text-xl text-muted-foreground">Algumas das trilhas mais procuradas de Ubatuba</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -275,13 +275,13 @@ export default function Landing() {
               />
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xl font-bold text-slate-800">Trilha da Praia Brava</h3>
-                  <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Moderado</span>
+                  <h3 className="text-xl font-bold text-foreground">Trilha da Praia Brava</h3>
+                  <span className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300 text-xs px-2 py-1 rounded-full font-medium">Moderado</span>
                 </div>
-                <p className="text-slate-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Trilha moderada que leva a uma das praias mais selvagens de Ubatuba.
                 </p>
-                <div className="flex items-center space-x-4 text-sm text-slate-600">
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                   <span>2.5 km</span>
                   <span>1h 30min</span>
                   <span>150m ↗</span>
@@ -297,13 +297,13 @@ export default function Landing() {
               />
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xl font-bold text-slate-800">Pico do Corcovado</h3>
-                  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-medium">Difícil</span>
+                  <h3 className="text-xl font-bold text-foreground">Pico do Corcovado</h3>
+                  <span className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300 text-xs px-2 py-1 rounded-full font-medium">Difícil</span>
                 </div>
-                <p className="text-slate-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   A trilha mais desafiadora com vista panorâmica de 360° do litoral.
                 </p>
-                <div className="flex items-center space-x-4 text-sm text-slate-600">
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                   <span>4.2 km</span>
                   <span>3h</span>
                   <span>380m ↗</span>
@@ -319,13 +319,13 @@ export default function Landing() {
               />
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xl font-bold text-slate-800">Cachoeira do Prumirim</h3>
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">Fácil</span>
+                  <h3 className="text-xl font-bold text-foreground">Cachoeira do Prumirim</h3>
+                  <span className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 text-xs px-2 py-1 rounded-full font-medium">Fácil</span>
                 </div>
-                <p className="text-slate-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Trilha familiar que leva a uma bela cachoeira com poço natural.
                 </p>
-                <div className="flex items-center space-x-4 text-sm text-slate-600">
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                   <span>1.8 km</span>
                   <span>45min</span>
                   <span>80m ↗</span>
@@ -337,14 +337,14 @@ export default function Landing() {
       </section>
 
       {/* Sample Beaches */}
-      <section id="praias" className="py-20 bg-white">
+      <section id="praias" className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               <Umbrella className="inline h-10 w-10 text-ocean mr-4" />
               Praias Paradisíacas
             </h2>
-            <p className="text-xl text-slate-600">Descubra as praias mais belas de Ubatuba</p>
+            <p className="text-xl text-muted-foreground">Descubra as praias mais belas de Ubatuba</p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12">
@@ -367,8 +367,8 @@ export default function Landing() {
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-3">Praia Vermelha do Norte</h3>
-                <p className="text-slate-600 mb-4">
+                <h3 className="text-2xl font-bold text-foreground mb-3">Praia Vermelha do Norte</h3>
+                <p className="text-muted-foreground mb-4">
                   Uma das praias mais famosas de Ubatuba, conhecida por sua areia avermelhada única e ondas perfeitas para o surf.
                 </p>
               </div>

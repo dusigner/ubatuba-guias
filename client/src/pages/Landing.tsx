@@ -393,8 +393,8 @@ export default function Landing() {
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-3">Praia do Félix</h3>
-                <p className="text-slate-600 mb-4">
+                <h3 className="text-2xl font-bold text-foreground mb-3">Praia do Félix</h3>
+                <p className="text-muted-foreground mb-4">
                   Praia selvagem e preservada, acessível apenas por trilha. Perfeita para quem busca tranquilidade.
                 </p>
               </div>
@@ -404,14 +404,14 @@ export default function Landing() {
       </section>
 
       {/* Seção de Passeios de Barco */}
-      <section id="passeios" className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
+      <section id="passeios" className="py-20 bg-gradient-to-br from-ocean/10 via-blue-50/50 to-cyan-50/50 dark:from-ocean/20 dark:via-background dark:to-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               <Ship className="inline h-10 w-10 text-ocean mr-4" />
               Passeios de Barco
             </h2>
-            <p className="text-xl text-slate-600">Explore as águas cristalinas e ilhas paradisíacas</p>
+            <p className="text-xl text-muted-foreground">Explore as águas cristalinas e ilhas paradisíacas</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -427,11 +427,11 @@ export default function Landing() {
                 </Badge>
               </div>
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Ilha Anchieta</h3>
-                <p className="text-slate-600 mb-4">
+                <h3 className="text-xl font-bold text-foreground mb-2">Ilha Anchieta</h3>
+                <p className="text-muted-foreground mb-4">
                   Passeio completo pela Ilha Anchieta com parada para banho e snorkel.
                 </p>
-                <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
+                <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     <span>6 horas</span>
@@ -442,7 +442,7 @@ export default function Landing() {
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-ocean mb-2">R$ 180</div>
-                <div className="text-sm text-slate-500">por pessoa</div>
+                <div className="text-sm text-muted-foreground">por pessoa</div>
               </CardContent>
             </Card>
 
@@ -458,11 +458,11 @@ export default function Landing() {
                 </Badge>
               </div>
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Tour das 7 Praias</h3>
-                <p className="text-slate-600 mb-4">
+                <h3 className="text-xl font-bold text-foreground mb-2">Tour das 7 Praias</h3>
+                <p className="text-muted-foreground mb-4">
                   Conheça as 7 praias mais belas de Ubatuba em um dia inesquecível.
                 </p>
-                <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
+                <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     <span>8 horas</span>
@@ -473,7 +473,7 @@ export default function Landing() {
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-ocean mb-2">R$ 220</div>
-                <div className="text-sm text-slate-500">por pessoa</div>
+                <div className="text-sm text-muted-foreground">por pessoa</div>
               </CardContent>
             </Card>
 
@@ -489,11 +489,11 @@ export default function Landing() {
                 </Badge>
               </div>
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Pesca Esportiva</h3>
-                <p className="text-slate-600 mb-4">
+                <h3 className="text-xl font-bold text-foreground mb-2">Pesca Esportiva</h3>
+                <p className="text-muted-foreground mb-4">
                   Pescaria em alto mar com equipamentos profissionais inclusos.
                 </p>
-                <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
+                <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     <span>4 horas</span>
@@ -504,7 +504,7 @@ export default function Landing() {
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-ocean mb-2">R$ 250</div>
-                <div className="text-sm text-slate-500">por pessoa</div>
+                <div className="text-sm text-muted-foreground">por pessoa</div>
               </CardContent>
             </Card>
           </div>
@@ -522,34 +522,34 @@ export default function Landing() {
       </section>
 
       {/* Seção de Eventos Próximos */}
-      <section id="eventos" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+      <section id="eventos" className="py-20 bg-gradient-to-br from-tropical/10 via-muted/30 to-sunset/10 dark:from-tropical/20 dark:via-muted/10 dark:to-sunset/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               <Calendar className="inline h-10 w-10 text-tropical mr-4" />
               Eventos em Ubatuba
             </h2>
-            <p className="text-xl text-slate-600">Próximos eventos e experiências imperdíveis</p>
+            <p className="text-xl text-muted-foreground">Próximos eventos e experiências imperdíveis</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <Card className="hover:shadow-xl transition-shadow border-l-4 border-l-orange-400">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <Badge className="bg-orange-100 text-orange-800">Este fim de semana</Badge>
+                  <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300">Este fim de semana</Badge>
                   <Calendar className="h-5 w-5 text-orange-500" />
                 </div>
-                <CardTitle className="text-slate-800">Festival de Inverno de Ubatuba</CardTitle>
+                <CardTitle className="text-foreground">Festival de Inverno de Ubatuba</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Shows musicais, apresentações culturais e gastronomia local no centro histórico.
                 </p>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
                   <span>Centro Histórico</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                   <Clock className="h-4 w-4" />
                   <span>19h às 23h</span>
                 </div>
@@ -559,20 +559,20 @@ export default function Landing() {
             <Card className="hover:shadow-xl transition-shadow border-l-4 border-l-blue-400">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <Badge className="bg-blue-100 text-blue-800">Próxima semana</Badge>
+                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">Próxima semana</Badge>
                   <Waves className="h-5 w-5 text-blue-500" />
                 </div>
-                <CardTitle className="text-slate-800">Campeonato de Surf</CardTitle>
+                <CardTitle className="text-foreground">Campeonato de Surf</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Competição de surf profissional na Praia Grande, com atletas de todo o país.
                 </p>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
                   <span>Praia Grande</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                   <Clock className="h-4 w-4" />
                   <span>08h às 17h</span>
                 </div>
@@ -582,20 +582,20 @@ export default function Landing() {
             <Card className="hover:shadow-xl transition-shadow border-l-4 border-l-green-400">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <Badge className="bg-green-100 text-green-800">Todo mês</Badge>
+                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">Todo mês</Badge>
                   <Coffee className="h-5 w-5 text-green-500" />
                 </div>
-                <CardTitle className="text-slate-800">Feira de Produtos Locais</CardTitle>
+                <CardTitle className="text-foreground">Feira de Produtos Locais</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Feira com produtos artesanais, comidas típicas e arte local caiçara.
                 </p>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
                   <span>Praça Anchieta</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                   <Clock className="h-4 w-4" />
                   <span>Sábados 9h às 16h</span>
                 </div>
@@ -616,14 +616,14 @@ export default function Landing() {
       </section>
 
       {/* Seção de Guias Locais */}
-      <section id="guias" className="py-20 bg-white">
+      <section id="guias" className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               <Users className="inline h-10 w-10 text-sunset mr-4" />
               Guias Especializados
             </h2>
-            <p className="text-xl text-slate-600">Conheça os melhores guias locais de Ubatuba</p>
+            <p className="text-xl text-muted-foreground">Conheça os melhores guias locais de Ubatuba</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -639,18 +639,18 @@ export default function Landing() {
                     <Star className="h-3 w-3 text-white fill-current" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Carlos Silva</h3>
-                <p className="text-sm text-slate-600 mb-3">Especialista em Trilhas</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">Carlos Silva</h3>
+                <p className="text-sm text-muted-foreground mb-3">Especialista em Trilhas</p>
                 <div className="flex items-center justify-center gap-1 mb-4">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
                   ))}
-                  <span className="text-sm text-slate-600 ml-1">(4.9)</span>
+                  <span className="text-sm text-muted-foreground ml-1">(4.9)</span>
                 </div>
-                <p className="text-sm text-slate-600 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   "Conheço cada trilha de Ubatuba há mais de 15 anos. Vamos explorar a Mata Atlântica juntos!"
                 </p>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-center justify-center gap-2">
                     <Mountain className="h-4 w-4 text-tropical" />
                     <span>Trilhas e Ecoturismo</span>
@@ -675,18 +675,18 @@ export default function Landing() {
                     <Waves className="h-3 w-3 text-white" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Ana Costa</h3>
-                <p className="text-sm text-slate-600 mb-3">Guia Cultural Caiçara</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">Ana Costa</h3>
+                <p className="text-sm text-muted-foreground mb-3">Guia Cultural Caiçara</p>
                 <div className="flex items-center justify-center gap-1 mb-4">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
                   ))}
-                  <span className="text-sm text-slate-600 ml-1">(5.0)</span>
+                  <span className="text-sm text-muted-foreground ml-1">(5.0)</span>
                 </div>
-                <p className="text-sm text-slate-600 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   "Nascida e criada aqui, vou te mostrar a verdadeira cultura caiçara de Ubatuba."
                 </p>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-center justify-center gap-2">
                     <Heart className="h-4 w-4 text-sunset" />
                     <span>Cultura Caiçara</span>
@@ -711,18 +711,18 @@ export default function Landing() {
                     <Ship className="h-3 w-3 text-white" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Pedro Santos</h3>
-                <p className="text-sm text-slate-600 mb-3">Capitão Marítimo</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">Pedro Santos</h3>
+                <p className="text-sm text-muted-foreground mb-3">Capitão Marítimo</p>
                 <div className="flex items-center justify-center gap-1 mb-4">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
                   ))}
-                  <span className="text-sm text-slate-600 ml-1">(4.8)</span>
+                  <span className="text-sm text-muted-foreground ml-1">(4.8)</span>
                 </div>
-                <p className="text-sm text-slate-600 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   "Conheço cada ilha e enseada de Ubatuba. Vamos explorar o mar juntos com segurança!"
                 </p>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-center justify-center gap-2">
                     <Ship className="h-4 w-4 text-ocean" />
                     <span>Passeios de Barco</span>

@@ -39,6 +39,8 @@ export interface IStorage {
   updateUserProfile(id: string, data: Partial<User>): Promise<User>;
   createLocalUser(userData: any): Promise<User>;
   authenticateUser(email: string, password: string): Promise<User | null>;
+  getAllUsers(): Promise<User[]>;
+  adminUpdateUser(id: string, data: Partial<User>): Promise<User>;
   
   // Trails
   getTrails(): Promise<Trail[]>;
@@ -184,6 +186,22 @@ export class DatabaseStorage implements IStorage {
     if (!user || user.password !== password) {
       return null;
     }
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async adminUpdateUser(id: string, data: Partial<User>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
     return user;
   }
 

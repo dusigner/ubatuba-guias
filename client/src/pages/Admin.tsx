@@ -11,6 +11,7 @@ import AdminBeaches from "@/components/AdminBeaches";
 import AdminBoatTours from "@/components/AdminBoatTours";
 import AdminEvents from "@/components/AdminEvents";
 import AdminGuides from "@/components/AdminGuides";
+import AdminUsers from "@/components/AdminUsers";
 
 export default function Admin() {
   const { toast } = useToast();
@@ -29,7 +30,7 @@ export default function Admin() {
       return;
     }
 
-    if (!isLoading && isAuthenticated && user?.userType !== 'admin') {
+    if (!isLoading && isAuthenticated && user?.userType !== 'admin' && !user?.isAdmin) {
       toast({
         title: "Acesso negado",
         description: "Apenas administradores podem acessar esta página.",
@@ -42,7 +43,7 @@ export default function Admin() {
     }
   }, [isAuthenticated, isLoading, user, toast]);
 
-  if (isLoading || !isAuthenticated || user?.userType !== 'admin') {
+  if (isLoading || !isAuthenticated || (user?.userType !== 'admin' && !user?.isAdmin)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>
@@ -71,8 +72,12 @@ export default function Admin() {
       {/* Admin Panel */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Tabs defaultValue="trails" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
+          <Tabs defaultValue="users" className="w-full">
+            <TabsList className="grid w-full grid-cols-6 mb-8">
+              <TabsTrigger value="users" className="flex items-center space-x-2">
+                <Users className="h-4 w-4" />
+                <span>Usuários</span>
+              </TabsTrigger>
               <TabsTrigger value="trails" className="flex items-center space-x-2">
                 <Mountain className="h-4 w-4" />
                 <span>Trilhas</span>
@@ -90,10 +95,14 @@ export default function Admin() {
                 <span>Eventos</span>
               </TabsTrigger>
               <TabsTrigger value="guides" className="flex items-center space-x-2">
-                <Users className="h-4 w-4" />
+                <Shield className="h-4 w-4" />
                 <span>Guias</span>
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="users">
+              <AdminUsers />
+            </TabsContent>
 
             <TabsContent value="trails">
               <AdminTrails />

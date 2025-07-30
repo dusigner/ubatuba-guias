@@ -435,6 +435,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin user management routes
+  app.get('/api/admin/users', authMiddleware, async (req: any, res) => {
+    try {
+      const currentUser = await storage.getUser(req.user.claims.sub);
+      if (!currentUser || (currentUser.userType !== 'admin' && !currentUser.isAdmin)) {
+        return res.status(403).json({ message: "Acesso negado. Apenas administradores podem acessar esta funcionalidade." });
+      }
+      
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      res.status(500).json({ message: "Falha ao buscar usuários" });
+    }
+  });
+
+  app.put('/api/admin/users/:id', authMiddleware, async (req: any, res) => {
+    try {
+      const currentUser = await storage.getUser(req.user.claims.sub);
+      if (!currentUser || (currentUser.userType !== 'admin' && !currentUser.isAdmin)) {
+        return res.status(403).json({ message: "Acesso negado. Apenas administradores podem acessar esta funcionalidade." });
+      }
+      
+      const userData = req.body;
+      const updatedUser = await storage.adminUpdateUser(req.params.id, userData);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+      res.status(500).json({ message: "Falha ao atualizar usuário" });
+    }
+  });
+
   // Analyze user preferences from text
   app.post('/api/itineraries/analyze', authMiddleware, async (req, res) => {
     try {

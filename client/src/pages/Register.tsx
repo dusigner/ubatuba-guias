@@ -88,25 +88,32 @@ const userTypes: UserTypeCard[] = [
 
 export default function Register() {
   const [selectedType, setSelectedType] = useState<UserType | null>(null);
-  const [step, setStep] = useState<"select" | "details">("select");
+  const [step, setStep] = useState<"auth" | "select" | "details">("auth");
+  const [authMode, setAuthMode] = useState<"login" | "register">("register");
   const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     bio: "",
     specialties: "",
-    experience: ""
+    experience: "",
+    services: "",
+    certifications: "",
+    equipment: "",
+    pricing: "",
+    availability: ""
   });
   
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest("/api/profile/complete", {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
+      return apiRequest("/api/profile/complete", "POST", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });

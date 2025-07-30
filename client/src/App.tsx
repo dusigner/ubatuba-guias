@@ -43,7 +43,7 @@ import BoatTourProfile from "@/pages/BoatTourProfile";
 import EventProfile from "@/pages/EventProfile";
 import Admin from "@/pages/Admin";
 import Profile from "@/pages/Profile";
-import Register from "@/pages/Register";
+import RegisterNew from "@/pages/RegisterNew";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
 
@@ -194,7 +194,10 @@ function Router() {
       <main>
         <Switch>
           {isLoading || !isAuthenticated ? (
-            <Route path="/" component={Landing} />
+            <>
+              <Route path="/" component={Landing} />
+              <Route path="/register" component={RegisterNew} />
+            </>
           ) : (
             <>
               <Route path="/" component={Home} />
@@ -209,7 +212,7 @@ function Router() {
               <Route path="/boat-tours/:id" component={BoatTourProfile} />
               <Route path="/events/:id" component={EventProfile} />
               <Route path="/profile" component={Profile} />
-              <Route path="/register" component={Register} />
+              <Route path="/register" component={RegisterNew} />
               <Route path="/settings" component={Settings} />
               <Route path="/admin" component={Admin} />
             </>

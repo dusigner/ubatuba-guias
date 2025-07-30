@@ -61,19 +61,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/profile/complete', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { userType, phone, bio, isProfileComplete } = req.body;
+      const profileData = req.body;
       
       const updatedUser = await storage.updateUserProfile(userId, {
-        userType,
-        phone,
-        bio,
-        isProfileComplete
+        ...profileData,
+        isProfileComplete: true
       });
       
       res.json(updatedUser);
     } catch (error) {
       console.error("Erro ao completar perfil:", error);
       res.status(500).json({ message: "Falha ao completar perfil" });
+    }
+  });
+
+  // Local authentication routes (for email/password)
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email já cadastrado" });
+      }
+
+      // Create new user
+      const newUser = await storage.createLocalUser({
+        email,
+        password,
+        firstName,
+        lastName,
+        userType: 'tourist',
+        isProfileComplete: false
+      });
+
+      // Create session for the new user
+      req.session.user = {
+        claims: {
+          sub: newUser.id,
+          email: newUser.email,
+          first_name: newUser.firstName,
+          last_name: newUser.lastName
+        }
+      };
+
+      res.json({ success: true, user: newUser });
+    } catch (error) {
+      console.error("Erro ao registrar usuário:", error);
+      res.status(500).json({ message: "Falha ao criar conta" });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      const user = await storage.authenticateUser(email, password);
+      if (!user) {
+        return res.status(401).json({ message: "Email ou senha incorretos" });
+      }
+
+      // Create session
+      req.session.user = {
+        claims: {
+          sub: user.id,
+          email: user.email,
+          first_name: user.firstName,
+          last_name: user.lastName
+        }
+      };
+
+      res.json({ success: true, user });
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      res.status(500).json({ message: "Falha ao fazer login" });
     }
   });
 

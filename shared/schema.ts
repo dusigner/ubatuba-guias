@@ -35,6 +35,18 @@ export const users = pgTable("users", {
   userType: varchar("user_type", { enum: ["tourist", "guide", "event_producer", "boat_tour_operator", "admin"] }).default("tourist"),
   phone: varchar("phone"),
   bio: text("bio"),
+  // Guide-specific fields
+  specialties: varchar("specialties"),
+  experience: varchar("experience"),
+  languages: varchar("languages"),
+  hourlyRate: varchar("hourly_rate"),
+  location: varchar("location"),
+  // Business-specific fields (events/tours)
+  companyName: varchar("company_name"),
+  eventTypes: varchar("event_types"),
+  boatTypes: varchar("boat_types"),
+  capacity: varchar("capacity"),
+  licenses: varchar("licenses"),
   isAdmin: boolean("is_admin").default(false),
   isProfileComplete: boolean("is_profile_complete").default(false),
   createdAt: timestamp("created_at").defaultNow(),

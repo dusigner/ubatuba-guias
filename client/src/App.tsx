@@ -45,6 +45,8 @@ import Admin from "@/pages/Admin";
 import Profile from "@/pages/Profile";
 import RegisterNew from "@/pages/RegisterNew";
 import Settings from "@/pages/Settings";
+import ProfileSelection from "@/pages/ProfileSelection";
+import CreateProfile from "@/pages/CreateProfile";
 import NotFound from "@/pages/not-found";
 
 function Navigation() {
@@ -211,11 +213,19 @@ function Router() {
               <Route path="/register" component={RegisterNew} />
               <Route component={Landing} />
             </>
+          ) : user && !user.userType ? (
+            <>
+              <Route path="/" component={ProfileSelection} />
+              <Route path="/profile-selection" component={ProfileSelection} />
+              <Route path="/create-profile/:type" component={CreateProfile} />
+              <Route component={ProfileSelection} />
+            </>
           ) : user && !user.isProfileComplete ? (
             <>
-              <Route path="/" component={RegisterNew} />
-              <Route path="/register" component={RegisterNew} />
-              <Route component={RegisterNew} />
+              <Route path="/" component={CreateProfile} />
+              <Route path="/profile-selection" component={ProfileSelection} />
+              <Route path="/create-profile/:type" component={CreateProfile} />
+              <Route component={CreateProfile} />
             </>
           ) : (
             <>
@@ -233,6 +243,8 @@ function Router() {
               <Route path="/profile" component={Profile} />
               <Route path="/register" component={RegisterNew} />
               <Route path="/settings" component={Settings} />
+              <Route path="/profile-selection" component={ProfileSelection} />
+              <Route path="/create-profile/:type" component={CreateProfile} />
               <Route path="/admin" component={Admin} />
             </>
           )}

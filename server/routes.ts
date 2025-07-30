@@ -467,6 +467,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile creation route
+  app.post('/api/profile', authMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profileData = req.body;
+      
+      const updatedUser = await storage.updateUserProfile(userId, {
+        ...profileData,
+        isProfileComplete: true,
+        updatedAt: new Date(),
+      });
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Erro ao criar perfil:", error);
+      res.status(500).json({ message: "Falha ao criar perfil" });
+    }
+  });
+
   // Analyze user preferences from text
   app.post('/api/itineraries/analyze', authMiddleware, async (req, res) => {
     try {

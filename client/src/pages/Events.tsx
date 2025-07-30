@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -13,6 +14,7 @@ export default function Events() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
   const [showEventModal, setShowEventModal] = useState(false);
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

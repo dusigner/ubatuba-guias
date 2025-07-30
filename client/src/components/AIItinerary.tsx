@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Sparkles, Loader2, MapPin, Clock, Star, Wand2, Calendar, Users } from "lucide-react";
+import ItineraryRenderer from "./ItineraryRenderer";
 
 interface AIItineraryProps {
   children: React.ReactNode;
@@ -398,24 +399,11 @@ export default function AIItinerary({ children }: AIItineraryProps) {
               </p>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  Roteiro Personalizado para Ubatuba
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <div 
-                    className="whitespace-pre-wrap text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{ 
-                      __html: generatedItinerary?.content?.replace(/\n/g, '<br>') || 'Roteiro não disponível'
-                    }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <ItineraryRenderer 
+              content={generatedItinerary?.content || ''}
+              title={generatedItinerary?.title || 'Roteiro Personalizado'}
+              duration={generatedItinerary?.duration || 1}
+            />
 
             <div className="flex gap-3">
               <Button 

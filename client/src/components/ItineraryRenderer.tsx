@@ -213,7 +213,6 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
       <div className="hidden">
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
-          className="prose prose-sm dark:prose-invert max-w-none"
         >
           {content}
         </ReactMarkdown>

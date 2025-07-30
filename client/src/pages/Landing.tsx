@@ -1,9 +1,58 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Compass, Mountain, Umbrella, Ship, Calendar, Users, Sparkles, Play, Award, Leaf, Heart } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { 
+  Compass, Mountain, Umbrella, Ship, Calendar, Users, Sparkles, Play, Award, Leaf, Heart,
+  MapPin, Clock, Star, ArrowRight, Waves, Sun, Navigation, Bot, Smartphone, Globe,
+  TrendingUp, Camera, Coffee
+} from "lucide-react";
 
 export default function Landing() {
+  const [typedText, setTypedText] = useState("");
+  const fullText = "Ubatuba com Inteligência Artificial";
+
+  // Buscar dados reais para exibir na landing
+  const { data: events = [] } = useQuery({
+    queryKey: ["/api/events"],
+    enabled: false, // Só quando logado
+  });
+
+  const { data: guides = [] } = useQuery({
+    queryKey: ["/api/guides"],
+    enabled: false, // Só quando logado
+  });
+
+  const { data: boatTours = [] } = useQuery({
+    queryKey: ["/api/boat-tours"],
+    enabled: false, // Só quando logado
+  });
+
+  // Efeito de digitação
+  useEffect(() => {
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= fullText.length) {
+        setTypedText(fullText.slice(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Navegação suave
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -16,13 +65,12 @@ export default function Landing() {
             </div>
             
             <div className="hidden md:flex space-x-8">
-              <a href="#inicio" className="text-muted-foreground hover:text-primary transition-colors">Início</a>
-              <a href="#roteiros" className="text-muted-foreground hover:text-primary transition-colors">Roteiros IA</a>
-              <a href="#trilhas" className="text-muted-foreground hover:text-primary transition-colors">Trilhas</a>
-              <a href="#praias" className="text-muted-foreground hover:text-primary transition-colors">Praias</a>
-              <a href="#passeios" className="text-muted-foreground hover:text-primary transition-colors">Passeios</a>
-              <a href="#eventos" className="text-muted-foreground hover:text-primary transition-colors">Eventos</a>
-              <a href="#guias" className="text-muted-foreground hover:text-primary transition-colors">Guias</a>
+              <button onClick={() => scrollToSection('inicio')} className="text-muted-foreground hover:text-primary transition-colors">Início</button>
+              <button onClick={() => scrollToSection('roteiros')} className="text-muted-foreground hover:text-primary transition-colors">Roteiros IA</button>
+              <button onClick={() => scrollToSection('experiencias')} className="text-muted-foreground hover:text-primary transition-colors">Experiências</button>
+              <button onClick={() => scrollToSection('tecnologia')} className="text-muted-foreground hover:text-primary transition-colors">Tecnologia</button>
+              <button onClick={() => scrollToSection('guias')} className="text-muted-foreground hover:text-primary transition-colors">Guias Locais</button>
+              <button onClick={() => scrollToSection('eventos')} className="text-muted-foreground hover:text-primary transition-colors">Eventos</button>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -49,17 +97,40 @@ export default function Landing() {
           }}
         >
           <div className="container mx-auto px-4 text-center text-white">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              Descubra <span className="text-orange-400">Ubatuba</span>
+            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-6">
+              <Bot className="h-4 w-4 mr-2 text-orange-400" />
+              <span className="text-sm font-medium">Primeira IA especializada em Ubatuba</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+              Explore <span className="text-orange-400">{typedText}</span>
+              <span className="animate-pulse text-orange-400">|</span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
-              Roteiros personalizados com inteligência artificial para sua aventura perfeita no litoral norte de São Paulo
+            
+            <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto opacity-90 leading-relaxed">
+              A primeira plataforma inteligente que conecta você aos melhores roteiros, guias locais e experiências autênticas de Ubatuba
             </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8 text-sm">
+              <div className="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                <Navigation className="h-4 w-4 text-orange-400" />
+                <span>Roteiros Personalizados</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                <Users className="h-4 w-4 text-orange-400" />
+                <span>Guias Verificados</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                <Smartphone className="h-4 w-4 text-orange-400" />
+                <span>100% Digital</span>
+              </div>
+            </div>
+            
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg"
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-orange-500 text-white hover:bg-orange-600 text-lg px-8 py-6"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 text-lg px-8 py-6 shadow-2xl"
               >
                 <Sparkles className="h-5 w-5 mr-2" />
                 Criar Roteiro com IA
@@ -67,10 +138,11 @@ export default function Landing() {
               <Button 
                 size="lg"
                 variant="outline"
-                className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-lg px-8 py-6"
+                onClick={() => scrollToSection('experiencias')}
+                className="bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20 text-lg px-8 py-6"
               >
                 <Play className="h-5 w-5 mr-2" />
-                Explorar Ubatuba
+                Ver Experiências
               </Button>
             </div>
           </div>
@@ -309,6 +381,233 @@ export default function Landing() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Seção de Eventos Próximos */}
+      <section id="eventos" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+              <Calendar className="inline h-10 w-10 text-tropical mr-4" />
+              Eventos em Ubatuba
+            </h2>
+            <p className="text-xl text-slate-600">Próximos eventos e experiências imperdíveis</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <Card className="hover:shadow-xl transition-shadow border-l-4 border-l-orange-400">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Badge className="bg-orange-100 text-orange-800">Este fim de semana</Badge>
+                  <Calendar className="h-5 w-5 text-orange-500" />
+                </div>
+                <CardTitle className="text-slate-800">Festival de Inverno de Ubatuba</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600 mb-4">
+                  Shows musicais, apresentações culturais e gastronomia local no centro histórico.
+                </p>
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <MapPin className="h-4 w-4" />
+                  <span>Centro Histórico</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                  <Clock className="h-4 w-4" />
+                  <span>19h às 23h</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow border-l-4 border-l-blue-400">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Badge className="bg-blue-100 text-blue-800">Próxima semana</Badge>
+                  <Waves className="h-5 w-5 text-blue-500" />
+                </div>
+                <CardTitle className="text-slate-800">Campeonato de Surf</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600 mb-4">
+                  Competição de surf profissional na Praia Grande, com atletas de todo o país.
+                </p>
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <MapPin className="h-4 w-4" />
+                  <span>Praia Grande</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                  <Clock className="h-4 w-4" />
+                  <span>08h às 17h</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow border-l-4 border-l-green-400">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Badge className="bg-green-100 text-green-800">Todo mês</Badge>
+                  <Coffee className="h-5 w-5 text-green-500" />
+                </div>
+                <CardTitle className="text-slate-800">Feira de Produtos Locais</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600 mb-4">
+                  Feira com produtos artesanais, comidas típicas e arte local caiçara.
+                </p>
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <MapPin className="h-4 w-4" />
+                  <span>Praça Anchieta</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                  <Clock className="h-4 w-4" />
+                  <span>Sábados 9h às 16h</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button 
+              onClick={() => window.location.href = '/api/login'}
+              className="bg-tropical text-white hover:bg-tropical/90"
+            >
+              Ver Todos os Eventos
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Seção de Guias Locais */}
+      <section id="guias" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+              <Users className="inline h-10 w-10 text-sunset mr-4" />
+              Guias Especializados
+            </h2>
+            <p className="text-xl text-slate-600">Conheça os melhores guias locais de Ubatuba</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <Card className="hover:shadow-xl transition-shadow">
+              <CardContent className="p-6 text-center">
+                <div className="relative inline-block mb-4">
+                  <img 
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80" 
+                    alt="Carlos Silva" 
+                    className="w-20 h-20 rounded-full object-cover mx-auto"
+                  />
+                  <div className="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+                    <Star className="h-3 w-3 text-white fill-current" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Carlos Silva</h3>
+                <p className="text-sm text-slate-600 mb-3">Especialista em Trilhas</p>
+                <div className="flex items-center justify-center gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
+                  ))}
+                  <span className="text-sm text-slate-600 ml-1">(4.9)</span>
+                </div>
+                <p className="text-sm text-slate-600 mb-4">
+                  "Conheço cada trilha de Ubatuba há mais de 15 anos. Vamos explorar a Mata Atlântica juntos!"
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-center gap-2">
+                    <Mountain className="h-4 w-4 text-tropical" />
+                    <span>Trilhas e Ecoturismo</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Camera className="h-4 w-4 text-sunset" />
+                    <span>Fotografia de Natureza</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow">
+              <CardContent className="p-6 text-center">
+                <div className="relative inline-block mb-4">
+                  <img 
+                    src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80" 
+                    alt="Ana Costa" 
+                    className="w-20 h-20 rounded-full object-cover mx-auto"
+                  />
+                  <div className="absolute -bottom-1 -right-1 bg-blue-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+                    <Waves className="h-3 w-3 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Ana Costa</h3>
+                <p className="text-sm text-slate-600 mb-3">Guia Cultural Caiçara</p>
+                <div className="flex items-center justify-center gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
+                  ))}
+                  <span className="text-sm text-slate-600 ml-1">(5.0)</span>
+                </div>
+                <p className="text-sm text-slate-600 mb-4">
+                  "Nascida e criada aqui, vou te mostrar a verdadeira cultura caiçara de Ubatuba."
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-center gap-2">
+                    <Heart className="h-4 w-4 text-sunset" />
+                    <span>Cultura Caiçara</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Coffee className="h-4 w-4 text-tropical" />
+                    <span>Gastronomia Local</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow">
+              <CardContent className="p-6 text-center">
+                <div className="relative inline-block mb-4">
+                  <img 
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80" 
+                    alt="Pedro Santos" 
+                    className="w-20 h-20 rounded-full object-cover mx-auto"
+                  />
+                  <div className="absolute -bottom-1 -right-1 bg-orange-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+                    <Ship className="h-3 w-3 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Pedro Santos</h3>
+                <p className="text-sm text-slate-600 mb-3">Capitão Marítimo</p>
+                <div className="flex items-center justify-center gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
+                  ))}
+                  <span className="text-sm text-slate-600 ml-1">(4.8)</span>
+                </div>
+                <p className="text-sm text-slate-600 mb-4">
+                  "Conheço cada ilha e enseada de Ubatuba. Vamos explorar o mar juntos com segurança!"
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-center gap-2">
+                    <Ship className="h-4 w-4 text-ocean" />
+                    <span>Passeios de Barco</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Waves className="h-4 w-4 text-tropical" />
+                    <span>Mergulho e Snorkel</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button 
+              onClick={() => window.location.href = '/api/login'}
+              className="bg-sunset text-white hover:bg-sunset/90"
+            >
+              Conectar com Guias
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
           </div>
         </div>
       </section>

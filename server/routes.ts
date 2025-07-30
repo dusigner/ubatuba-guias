@@ -404,6 +404,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Favorites routes
+  app.get('/api/favorites', authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const favorites = await storage.getUserFavorites(userId);
+      res.json(favorites);
+    } catch (error) {
+      console.error("Erro ao buscar favoritos:", error);
+      res.status(500).json({ message: "Falha ao buscar favoritos" });
+    }
+  });
+
+  app.post('/api/favorites', authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const favoriteData = { ...req.body, userId };
+      const newFavorite = await storage.addFavorite(favoriteData);
+      res.status(201).json(newFavorite);
+    } catch (error) {
+      console.error("Erro ao adicionar favorito:", error);
+      res.status(500).json({ message: "Falha ao adicionar favorito" });
+    }
+  });
+
+  app.delete('/api/favorites/:itemType/:itemId', authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { itemType, itemId } = req.params;
+      await storage.removeFavorite(userId, itemType, itemId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao remover favorito:", error);
+      res.status(500).json({ message: "Falha ao remover favorito" });
+    }
+  });
+
+  app.get('/api/favorites/:itemType/:itemId', authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { itemType, itemId } = req.params;
+      const isFavorited = await storage.isFavorite(userId, itemType, itemId);
+      res.json({ isFavorited });
+    } catch (error) {
+      console.error("Erro ao verificar favorito:", error);
+      res.status(500).json({ message: "Falha ao verificar favorito" });
+    }
+  });
+
+  // Bookings routes
+  app.get('/api/bookings', authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const bookings = await storage.getUserBookings(userId);
+      res.json(bookings);
+    } catch (error) {
+      console.error("Erro ao buscar reservas:", error);
+      res.status(500).json({ message: "Falha ao buscar reservas" });
+    }
+  });
+
+  app.post('/api/bookings', authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const bookingData = { ...req.body, userId };
+      const newBooking = await storage.createBooking(bookingData);
+      res.status(201).json(newBooking);
+    } catch (error) {
+      console.error("Erro ao criar reserva:", error);
+      res.status(500).json({ message: "Falha ao criar reserva" });
+    }
+  });
+
+  app.get('/api/bookings/:id', authMiddleware, async (req, res) => {
+    try {
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: "Reserva não encontrada" });
+      }
+      res.json(booking);
+    } catch (error) {
+      console.error("Erro ao buscar reserva:", error);
+      res.status(500).json({ message: "Falha ao buscar reserva" });
+    }
+  });
+
+  app.patch('/api/bookings/:id/status', authMiddleware, async (req, res) => {
+    try {
+      const { status } = req.body;
+      const updatedBooking = await storage.updateBookingStatus(req.params.id, status);
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error("Erro ao atualizar status da reserva:", error);
+      res.status(500).json({ message: "Falha ao atualizar reserva" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

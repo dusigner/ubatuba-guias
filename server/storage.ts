@@ -6,6 +6,8 @@ import {
   events,
   guides,
   itineraries,
+  favorites,
+  bookings,
   type User,
   type UpsertUser,
   type Trail,
@@ -20,9 +22,13 @@ import {
   type InsertEvent,
   type InsertGuide,
   type InsertItinerary,
+  type Favorite,
+  type InsertFavorite,
+  type Booking,
+  type InsertBooking,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -65,6 +71,18 @@ export interface IStorage {
   // Itineraries
   getUserItineraries(userId: string): Promise<Itinerary[]>;
   createItinerary(itinerary: InsertItinerary): Promise<Itinerary>;
+
+  // Favorites
+  getUserFavorites(userId: string): Promise<Favorite[]>;
+  addFavorite(favorite: InsertFavorite): Promise<Favorite>;
+  removeFavorite(userId: string, itemType: string, itemId: string): Promise<void>;
+  isFavorite(userId: string, itemType: string, itemId: string): Promise<boolean>;
+
+  // Bookings
+  getUserBookings(userId: string): Promise<Booking[]>;
+  createBooking(booking: InsertBooking): Promise<Booking>;
+  getBooking(id: string): Promise<Booking | undefined>;
+  updateBookingStatus(id: string, status: string): Promise<Booking>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -253,6 +271,62 @@ export class DatabaseStorage implements IStorage {
   async createItinerary(itinerary: InsertItinerary): Promise<Itinerary> {
     const [newItinerary] = await db.insert(itineraries).values(itinerary).returning();
     return newItinerary;
+  }
+
+  // Favorites
+  async getUserFavorites(userId: string): Promise<Favorite[]> {
+    return await db.select().from(favorites)
+      .where(eq(favorites.userId, userId))
+      .orderBy(desc(favorites.createdAt));
+  }
+
+  async addFavorite(favorite: InsertFavorite): Promise<Favorite> {
+    const [newFavorite] = await db.insert(favorites).values(favorite).returning();
+    return newFavorite;
+  }
+
+  async removeFavorite(userId: string, itemType: string, itemId: string): Promise<void> {
+    await db.delete(favorites)
+      .where(and(
+        eq(favorites.userId, userId),
+        eq(favorites.itemType, itemType),
+        eq(favorites.itemId, itemId)
+      ));
+  }
+
+  async isFavorite(userId: string, itemType: string, itemId: string): Promise<boolean> {
+    const [favorite] = await db.select().from(favorites)
+      .where(and(
+        eq(favorites.userId, userId),
+        eq(favorites.itemType, itemType),
+        eq(favorites.itemId, itemId)
+      ));
+    return !!favorite;
+  }
+
+  // Bookings
+  async getUserBookings(userId: string): Promise<Booking[]> {
+    return await db.select().from(bookings)
+      .where(eq(bookings.userId, userId))
+      .orderBy(desc(bookings.createdAt));
+  }
+
+  async createBooking(booking: InsertBooking): Promise<Booking> {
+    const [newBooking] = await db.insert(bookings).values(booking).returning();
+    return newBooking;
+  }
+
+  async getBooking(id: string): Promise<Booking | undefined> {
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
+    return booking;
+  }
+
+  async updateBookingStatus(id: string, status: string): Promise<Booking> {
+    const [updatedBooking] = await db.update(bookings)
+      .set({ status })
+      .where(eq(bookings.id, id))
+      .returning();
+    return updatedBooking;
   }
 }
 

@@ -2,6 +2,7 @@ import { useParams, useLocation } from "wouter";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useFavorites } from "@/hooks/useFavorites";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,8 @@ export default function BeachProfile() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const beachId = params.id;
 
   useEffect(() => {
@@ -311,15 +313,24 @@ export default function BeachProfile() {
                     Compartilhar
                   </Button>
                   <Button 
-                    variant="outline"
+                    onClick={() => toggleFavorite('beach', beachId)}
+                    disabled={isToggling}
+                    variant={isFavorite('beach', beachId) ? "default" : "outline"}
                     className="w-full"
                   >
-                    <Heart className="h-4 w-4 mr-2" />
-                    Favoritar
+                    <Heart 
+                      className={`h-4 w-4 mr-2 ${
+                        isFavorite('beach', beachId) ? 'fill-current' : ''
+                      }`} 
+                    />
+                    {isFavorite('beach', beachId) ? 'Favoritado' : 'Favoritar'}
                   </Button>
-                  <Button className="w-full bg-gradient-to-r from-ocean to-tropical text-white">
+                  <Button 
+                    onClick={() => setLocation("/boat-tours")}
+                    className="w-full bg-gradient-to-r from-ocean to-tropical text-white"
+                  >
                     <Camera className="h-4 w-4 mr-2" />
-                    Ver no Mapa
+                    Ver Passeios de Barco
                   </Button>
                 </div>
 

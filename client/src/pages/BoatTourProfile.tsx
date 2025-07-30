@@ -2,6 +2,8 @@ import { useParams, useLocation } from "wouter";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useBookings } from "@/hooks/useBookings";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +21,9 @@ export default function BoatTourProfile() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
+  const { createBooking, isCreating } = useBookings(user?.id);
   const tourId = params.id;
 
   useEffect(() => {

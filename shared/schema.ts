@@ -214,3 +214,41 @@ export type InsertBoatTour = z.infer<typeof insertBoatTourSchema>;
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 export type InsertGuide = z.infer<typeof insertGuideSchema>;
 export type InsertItinerary = z.infer<typeof insertItinerarySchema>;
+
+// Favorites table
+export const favorites = pgTable("favorites", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  itemType: varchar("item_type").notNull(), // 'trail', 'beach', 'boat_tour', 'event', 'guide'
+  itemId: varchar("item_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Favorite = typeof favorites.$inferSelect;
+export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
+
+// Bookings table for tours and guides
+export const bookings = pgTable("bookings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  itemType: varchar("item_type").notNull(), // 'boat_tour', 'guide'
+  itemId: varchar("item_id").notNull(),
+  bookingDate: timestamp("booking_date").notNull(),
+  status: varchar("status").notNull().default("pending"), // 'pending', 'confirmed', 'cancelled'
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertBookingSchema = createInsertSchema(bookings).omit({
+  id: true,
+  createdAt: true,
+  status: true,
+});
+
+export type Booking = typeof bookings.$inferSelect;
+export type InsertBooking = z.infer<typeof insertBookingSchema>;

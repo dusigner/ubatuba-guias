@@ -2,6 +2,7 @@ import { useParams, useLocation } from "wouter";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useFavorites } from "@/hooks/useFavorites";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,8 @@ export default function TrailProfile() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const trailId = params.id;
 
   useEffect(() => {
@@ -327,13 +329,22 @@ export default function TrailProfile() {
                     Compartilhar
                   </Button>
                   <Button 
-                    variant="outline"
+                    onClick={() => toggleFavorite('trail', trailId)}
+                    disabled={isToggling}
+                    variant={isFavorite('trail', trailId) ? "default" : "outline"}
                     className="w-full"
                   >
-                    <Heart className="h-4 w-4 mr-2" />
-                    Favoritar
+                    <Heart 
+                      className={`h-4 w-4 mr-2 ${
+                        isFavorite('trail', trailId) ? 'fill-current' : ''
+                      }`} 
+                    />
+                    {isFavorite('trail', trailId) ? 'Favoritado' : 'Favoritar'}
                   </Button>
-                  <Button className="w-full bg-gradient-to-r from-tropical to-ocean text-white">
+                  <Button 
+                    onClick={() => setLocation("/guides")}
+                    className="w-full bg-gradient-to-r from-tropical to-ocean text-white"
+                  >
                     <Users className="h-4 w-4 mr-2" />
                     Contratar Guia
                   </Button>

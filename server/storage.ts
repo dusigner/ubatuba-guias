@@ -197,6 +197,15 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(guides).orderBy(desc(guides.rating));
   }
 
+  async getAllGuides(): Promise<Guide[]> {
+    return await db.select().from(guides);
+  }
+
+  async getGuideById(id: string): Promise<Guide | undefined> {
+    const [guide] = await db.select().from(guides).where(eq(guides.id, id));
+    return guide;
+  }
+
   async createGuide(guide: InsertGuide): Promise<Guide> {
     const [newGuide] = await db.insert(guides).values(guide).returning();
     return newGuide;

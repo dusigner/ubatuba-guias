@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -14,6 +15,7 @@ export default function Guides() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
   const [showGuideModal, setShowGuideModal] = useState(false);
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -157,7 +159,11 @@ export default function Guides() {
           ) : guides && guides.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {guides.map((guide: any) => (
-                <Card key={guide.id} className="overflow-hidden hover:shadow-xl transition-shadow">
+                <Card 
+                  key={guide.id} 
+                  className="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => setLocation(`/guides/${guide.id}`)}
+                >
                   <div className="relative">
                     <img 
                       src={guide.imageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300'} 
@@ -226,8 +232,15 @@ export default function Guides() {
                             <Instagram className="h-4 w-4" />
                           </Button>
                         )}
-                        <Button size="sm" className="bg-ocean text-white hover:bg-ocean/90">
-                          Contatar
+                        <Button 
+                          size="sm" 
+                          className="bg-ocean text-white hover:bg-ocean/90"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLocation(`/guides/${guide.id}`);
+                          }}
+                        >
+                          Ver Perfil
                         </Button>
                       </div>
                     </div>

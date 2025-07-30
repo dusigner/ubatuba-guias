@@ -156,6 +156,12 @@ export class DatabaseStorage implements IStorage {
     console.log('Atualizando perfil do usuário:', id, 'com dados:', data);
     
     try {
+      // Verificar se o usuário existe primeiro
+      const existingUser = await this.getUser(id);
+      if (!existingUser) {
+        throw new Error(`Usuário com ID ${id} não encontrado`);
+      }
+
       const [user] = await db
         .update(users)
         .set({

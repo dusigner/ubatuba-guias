@@ -35,8 +35,12 @@ import {
 
 // Schemas para validação
 const touristProfileSchema = z.object({
-  phone: z.string().optional(),
-  bio: z.string().optional(),
+  phone: z.string().min(1, "Telefone é obrigatório"),
+  bio: z.string().min(20, "Biografia deve ter pelo menos 20 caracteres"),
+  interests: z.string().min(1, "Interesses são obrigatórios"),
+  travelStyle: z.string().min(1, "Estilo de viagem é obrigatório"),
+  budget: z.string().min(1, "Orçamento é obrigatório"),
+  location: z.string().min(1, "Localização é obrigatória"),
 });
 
 const guideProfileSchema = z.object({

@@ -2,15 +2,20 @@ import { useParams, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useFavorites } from "@/hooks/useFavorites";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Users, Star, MapPin, Languages, Calendar, MessageCircle, 
   Instagram, Award, Phone, Mail, ArrowLeft, Heart, Share2,
-  Camera, Globe, CheckCircle, MapIcon
+  Camera, Globe, CheckCircle, MapIcon, Send, Copy
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -19,7 +24,12 @@ export default function GuideProfile() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [quoteMessage, setQuoteMessage] = useState("");
+  const [selectedDates, setSelectedDates] = useState("");
+  const [groupSize, setGroupSize] = useState("");
   const guideId = params.id;
 
   useEffect(() => {
@@ -147,6 +157,54 @@ export default function GuideProfile() {
     }
   };
 
+  const handleQuoteRequest = () => {
+    setShowQuoteModal(true);
+  };
+
+  const sendQuoteMessage = (method: 'whatsapp' | 'email' | 'copy') => {
+    const fullMessage = `Olá ${guide.name},
+
+Encontrei seu perfil no UbatubaIA e gostaria de solicitar um orçamento para um tour personalizado.
+
+Detalhes da solicitação:
+📅 Datas pretendidas: ${selectedDates || 'A definir'}
+👥 Tamanho do grupo: ${groupSize || 'A definir'}
+
+Mensagem:
+${quoteMessage || 'Gostaria de mais informações sobre seus tours e valores.'}
+
+Aguardo seu contato!
+
+Via UbatubaIA - ${window.location.href}`;
+
+    switch (method) {
+      case 'whatsapp':
+        if (guide.whatsapp) {
+          const whatsappNumber = guide.whatsapp.replace(/\D/g, '');
+          const whatsappUrl = `https://wa.me/55${whatsappNumber}?text=${encodeURIComponent(fullMessage)}`;
+          window.open(whatsappUrl, '_blank');
+        }
+        break;
+      case 'email':
+        const subject = `Solicitação de Orçamento - Tour em Ubatuba via UbatubaIA`;
+        const emailUrl = `mailto:${guide.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
+        window.location.href = emailUrl;
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(fullMessage);
+        toast({
+          title: "Mensagem copiada!",
+          description: "A mensagem foi copiada para a área de transferência.",
+        });
+        break;
+    }
+    
+    setShowQuoteModal(false);
+    setQuoteMessage("");
+    setSelectedDates("");
+    setGroupSize("");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -234,11 +292,17 @@ export default function GuideProfile() {
                     Compartilhar
                   </Button>
                   <Button 
+                    onClick={() => toggleFavorite('guide', guideId!)}
+                    disabled={isToggling}
                     variant="outline"
-                    className="flex items-center gap-2"
+                    className={`flex items-center gap-2 ${
+                      isFavorite('guide', guideId!) 
+                        ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+                        : ''
+                    }`}
                   >
-                    <Heart className="h-4 w-4" />
-                    Favoritar
+                    <Heart className={`h-4 w-4 ${isFavorite('guide', guideId!) ? 'fill-current text-red-500' : ''}`} />
+                    {isFavorite('guide', guideId!) ? 'Favoritado' : 'Favoritar'}
                   </Button>
                 </div>
               </div>
@@ -371,7 +435,10 @@ export default function GuideProfile() {
                   <p className="text-sm text-slate-600 mb-3">
                     Interessado em um tour personalizado?
                   </p>
-                  <Button className="w-full bg-gradient-to-r from-tropical to-ocean text-white">
+                  <Button 
+                    onClick={handleQuoteRequest}
+                    className="w-full bg-gradient-to-r from-tropical to-ocean text-white"
+                  >
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Solicitar Orçamento
                   </Button>
@@ -410,6 +477,94 @@ export default function GuideProfile() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Solicitação de Orçamento */}
+      <Dialog open={showQuoteModal} onOpenChange={setShowQuoteModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-slate-800">
+              Solicitar Orçamento para {guide.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="dates">Datas pretendidas (opcional)</Label>
+              <Input
+                id="dates"
+                placeholder="Ex: 15 a 20 de fevereiro"
+                value={selectedDates}
+                onChange={(e) => setSelectedDates(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="groupSize">Tamanho do grupo (opcional)</Label>
+              <Input
+                id="groupSize"
+                placeholder="Ex: 4 pessoas"
+                value={groupSize}
+                onChange={(e) => setGroupSize(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="message">Mensagem (opcional)</Label>
+              <Textarea
+                id="message"
+                placeholder="Descreva o tipo de tour que você gostaria..."
+                value={quoteMessage}
+                onChange={(e) => setQuoteMessage(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="border-t pt-4">
+              <p className="text-sm text-slate-600 mb-3">
+                Escolha como enviar sua solicitação:
+              </p>
+              
+              <div className="space-y-2">
+                {guide.whatsapp && (
+                  <Button
+                    onClick={() => sendQuoteMessage('whatsapp')}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    Enviar via WhatsApp
+                  </Button>
+                )}
+
+                {guide.email && (
+                  <Button
+                    onClick={() => sendQuoteMessage('email')}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    Enviar por Email
+                  </Button>
+                )}
+
+                <Button
+                  onClick={() => sendQuoteMessage('copy')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copiar Mensagem
+                </Button>
+              </div>
+
+              <div className="bg-blue-50 p-3 rounded-lg mt-3">
+                <p className="text-xs text-blue-700">
+                  💡 Sua mensagem incluirá informações sobre como você encontrou o guia através do UbatubaIA
+                </p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -4,10 +4,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import GuideModal from "@/components/GuideModal";
+import EditGuideModal from "@/components/EditGuideModal";
+import { User as UserType } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Star, MapPin, Languages, Calendar, UserPlus, MessageCircle, Instagram, Award, Tag, Heart } from "lucide-react";
+import { Users, Star, MapPin, Languages, Calendar, UserPlus, MessageCircle, Instagram, Award, Tag, Heart, Edit, User } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
@@ -15,6 +17,7 @@ export default function Guides() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
   const [showGuideModal, setShowGuideModal] = useState(false);
+  const [editingGuide, setEditingGuide] = useState<UserType | null>(null);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -101,7 +104,8 @@ export default function Guides() {
     }
   };
 
-  const canCreateGuide = user?.userType === 'guide';
+  const canCreateGuide = user?.userType === 'guide' && !user?.isProfileComplete;
+  const canEditGuide = user?.userType === 'guide' && user?.isProfileComplete;
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,15 +123,32 @@ export default function Guides() {
                 Conheça nossos guias especializados para uma experiência autêntica em Ubatuba
               </p>
             </div>
-            {canCreateGuide && (
-              <Button 
-                onClick={() => setShowGuideModal(true)}
-                className="bg-gradient-to-r from-tropical to-ocean text-white hover:opacity-90 mt-6 lg:mt-0"
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
-                Cadastrar-se como Guia
-              </Button>
-            )}
+            <div className="flex gap-3 mt-6 lg:mt-0">
+              {canCreateGuide && (
+                <Button 
+                  onClick={() => setShowGuideModal(true)}
+                  className="bg-gradient-to-r from-tropical to-ocean text-white hover:opacity-90"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Cadastrar-se como Guia
+                </Button>
+              )}
+              {canEditGuide && (
+                <Button 
+                  onClick={() => {
+                    const currentUserGuide = guides.find(g => g.id === user?.id);
+                    if (currentUserGuide) {
+                      setEditingGuide(currentUserGuide);
+                    }
+                  }}
+                  variant="outline"
+                  className="border-ocean text-ocean hover:bg-ocean/10"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar Meu Perfil
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -290,6 +311,15 @@ export default function Guides() {
         isOpen={showGuideModal}
         onClose={() => setShowGuideModal(false)}
       />
+
+      {/* Edit Guide Modal */}
+      {editingGuide && (
+        <EditGuideModal 
+          isOpen={!!editingGuide}
+          onClose={() => setEditingGuide(null)}
+          guide={editingGuide}
+        />
+      )}
     </div>
   );
 }

@@ -318,14 +318,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/guides', authMiddleware, async (req, res) => {
+  app.post('/api/guides', authMiddleware, async (req: any, res) => {
     try {
-      const guideData = insertGuideSchema.parse(req.body);
-      const newGuide = await storage.createGuide(guideData);
-      res.status(201).json(newGuide);
+      const userId = req.user.claims.sub;
+      
+      const updateData = {
+        ...req.body,
+        userType: 'guide',
+        isProfileComplete: true, // Marcar perfil como completo
+      };
+
+      const updatedUser = await storage.updateUser(userId, updateData);
+      res.status(201).json(updatedUser);
     } catch (error) {
-      console.error("Erro ao criar guia:", error);
-      res.status(500).json({ message: "Falha ao criar guia" });
+      console.error("Error creating guide profile:", error);
+      res.status(500).json({ message: "Falha ao criar perfil de guia" });
+    }
+  });
+
+  // Rota para editar perfil de guia (apenas o próprio guia pode editar)
+  app.put('/api/guides/:id', authMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const guideId = req.params.id;
+      
+      // Verificar se o usuário está editando seu próprio perfil
+      if (userId !== guideId) {
+        const currentUser = await storage.getUser(userId);
+        if (!currentUser?.isAdmin) {
+          return res.status(403).json({ message: "Você só pode editar seu próprio perfil" });
+        }
+      }
+
+      const updatedUser = await storage.updateUser(guideId, req.body);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "Guia não encontrado" });
+      }
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating guide profile:", error);
+      res.status(500).json({ message: "Falha ao atualizar perfil de guia" });
     }
   });
 

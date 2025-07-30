@@ -37,12 +37,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', authMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      let user = await storage.getUser(userId);
+      const replitUserId = req.user.claims.sub;
+      
+      // First try to find user by email (most reliable for Replit auth)
+      let user = await storage.getUserByEmail(req.user.claims.email);
       
       // Se o usuário não existe no banco (primeiro login via Replit), criar
       if (!user && req.user.claims) {
         user = await storage.upsertUser({
+          id: replitUserId, // Use Replit ID as database ID
           email: req.user.claims.email,
           firstName: req.user.claims.first_name,
           lastName: req.user.claims.last_name,
@@ -62,9 +65,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User profile routes
   app.put('/api/auth/user', authMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Find the actual database user by email
+      let user = await storage.getUserByEmail(req.user.claims.email);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
       const updateData = req.body;
-      const updatedUser = await storage.updateUser(userId, updateData);
+      const updatedUser = await storage.updateUser(user.id, updateData);
       res.json(updatedUser);
     } catch (error) {
       console.error("Erro ao atualizar usuário:", error);
@@ -75,12 +83,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Profile completion route  
   app.post('/api/profile', authMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const replitUserId = req.user.claims.sub;
       const profileData = req.body;
       
-      console.log('Criando perfil para usuário:', userId, 'com dados:', profileData);
+      console.log('Criando perfil para usuário:', replitUserId, 'com dados:', profileData);
       
-      const updatedUser = await storage.updateUserProfile(userId, {
+      // Find the actual database user by email first
+      let user = await storage.getUserByEmail(req.user.claims.email);
+      
+      if (!user) {
+        // If user doesn't exist, create them first
+        user = await storage.upsertUser({
+          id: replitUserId,
+          email: req.user.claims.email,
+          firstName: req.user.claims.first_name,
+          lastName: req.user.claims.last_name,
+          profileImageUrl: req.user.claims.profile_image_url,
+          userType: 'tourist',
+          isProfileComplete: false
+        });
+      }
+      
+      console.log('Atualizando perfil do usuário da database:', user.id);
+      
+      const updatedUser = await storage.updateUserProfile(user.id, {
         ...profileData,
         isProfileComplete: true
       });
@@ -95,10 +121,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Profile completion route (legacy)
   app.post('/api/profile/complete', authMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Find the actual database user by email
+      let user = await storage.getUserByEmail(req.user.claims.email);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
       const profileData = req.body;
       
-      const updatedUser = await storage.updateUserProfile(userId, {
+      const updatedUser = await storage.updateUserProfile(user.id, {
         ...profileData,
         isProfileComplete: true
       });

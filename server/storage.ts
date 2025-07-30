@@ -153,15 +153,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserProfile(id: string, data: Partial<User>): Promise<User> {
-    const [user] = await db
-      .update(users)
-      .set({
-        ...data,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, id))
-      .returning();
-    return user;
+    console.log('Atualizando perfil do usuário:', id, 'com dados:', data);
+    
+    try {
+      const [user] = await db
+        .update(users)
+        .set({
+          ...data,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, id))
+        .returning();
+      
+      console.log('Perfil atualizado com sucesso:', user);
+      return user;
+    } catch (error) {
+      console.error('Erro no updateUserProfile:', error);
+      throw error;
+    }
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
@@ -352,9 +361,71 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(guides);
   }
 
+  async getGuide(id: string): Promise<any | undefined> {
+    // Buscar guia por ID com dados do usuário
+    const [result] = await db
+      .select({
+        id: guides.id,
+        userId: guides.userId,
+        bio: guides.bio,
+        specialties: guides.specialties,
+        experience: guides.experience,
+        languages: guides.languages,
+        hourlyRate: guides.hourlyRate,
+        rating: guides.rating,
+        reviewCount: guides.reviewCount,
+        toursCompleted: guides.toursCompleted,
+        profileImageUrl: guides.profileImageUrl,
+        whatsapp: guides.whatsapp,
+        instagram: guides.instagram,
+        createdAt: guides.createdAt,
+        updatedAt: guides.updatedAt,
+        // Dados do usuário
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        location: users.location,
+        userProfileImageUrl: users.profileImageUrl,
+      })
+      .from(guides)
+      .leftJoin(users, eq(guides.userId, users.id))
+      .where(eq(guides.id, id));
+    return result;
+  }
+
   async getGuideById(id: string): Promise<Guide | undefined> {
     const [guide] = await db.select().from(guides).where(eq(guides.id, id));
     return guide;
+  }
+
+  async createGuide(userId: string, guideData: any): Promise<any> {
+    const [newGuide] = await db
+      .insert(guides)
+      .values({
+        userId,
+        ...guideData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+      
+    // Retornar guia com dados do usuário
+    return this.getGuide(newGuide.id);
+  }
+
+  async updateGuide(id: string, guideData: any): Promise<any> {
+    const [updatedGuide] = await db
+      .update(guides)
+      .set({
+        ...guideData,
+        updatedAt: new Date(),
+      })
+      .where(eq(guides.id, id))
+      .returning();
+      
+    // Retornar guia com dados do usuário
+    return this.getGuide(updatedGuide.id);
   }
 
   async getTrailById(id: string): Promise<Trail | undefined> {

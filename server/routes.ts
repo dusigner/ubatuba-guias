@@ -71,7 +71,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Profile completion route
+  // Profile completion route  
+  app.post('/api/profile', authMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profileData = req.body;
+      
+      console.log('Criando perfil para usuário:', userId, 'com dados:', profileData);
+      
+      const updatedUser = await storage.updateUserProfile(userId, {
+        ...profileData,
+        isProfileComplete: true
+      });
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Erro ao criar perfil:", error);
+      res.status(500).json({ message: "Falha ao criar perfil" });
+    }
+  });
+
+  // Profile completion route (legacy)
   app.post('/api/profile/complete', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;

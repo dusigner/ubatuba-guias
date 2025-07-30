@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { 
   Compass, Mountain, Umbrella, Ship, Calendar, Users, Sparkles, Play, Award, Leaf, Heart,
   MapPin, Clock, Star, ArrowRight, Waves, Sun, Navigation, Bot, Smartphone, Globe,
-  TrendingUp, Camera, Coffee
+  TrendingUp, Camera, Coffee, Home
 } from "lucide-react";
 
 export default function Landing() {
@@ -65,11 +65,30 @@ export default function Landing() {
             </div>
             
             <div className="hidden md:flex space-x-8">
-              <button onClick={() => scrollToSection('inicio')} className="text-muted-foreground hover:text-primary transition-colors">Início</button>
-              <button onClick={() => scrollToSection('trilhas')} className="text-muted-foreground hover:text-primary transition-colors">Trilhas</button>
-              <button onClick={() => scrollToSection('praias')} className="text-muted-foreground hover:text-primary transition-colors">Praias</button>
-              <button onClick={() => scrollToSection('guias')} className="text-muted-foreground hover:text-primary transition-colors">Guias</button>
-              <button onClick={() => scrollToSection('eventos')} className="text-muted-foreground hover:text-primary transition-colors">Eventos</button>
+              <button onClick={() => scrollToSection('inicio')} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Home className="h-4 w-4" />
+                Início
+              </button>
+              <button onClick={() => scrollToSection('trilhas')} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Mountain className="h-4 w-4" />
+                Trilhas
+              </button>
+              <button onClick={() => scrollToSection('praias')} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Umbrella className="h-4 w-4" />
+                Praias
+              </button>
+              <button onClick={() => scrollToSection('passeios')} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Ship className="h-4 w-4" />
+                Passeios
+              </button>
+              <button onClick={() => scrollToSection('guias')} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Users className="h-4 w-4" />
+                Guias
+              </button>
+              <button onClick={() => scrollToSection('eventos')} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Calendar className="h-4 w-4" />
+                Eventos
+              </button>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -380,6 +399,124 @@ export default function Landing() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Seção de Passeios de Barco */}
+      <section id="passeios" className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">
+              <Ship className="inline h-10 w-10 text-ocean mr-4" />
+              Passeios de Barco
+            </h2>
+            <p className="text-xl text-slate-600">Explore as águas cristalinas e ilhas paradisíacas</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <Card className="hover:shadow-xl transition-shadow overflow-hidden">
+              <div className="relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=300" 
+                  alt="Passeio Ilha Anchieta" 
+                  className="w-full h-48 object-cover"
+                />
+                <Badge className="absolute top-3 left-3 bg-blue-500 text-white">
+                  Mais Popular
+                </Badge>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Ilha Anchieta</h3>
+                <p className="text-slate-600 mb-4">
+                  Passeio completo pela Ilha Anchieta com parada para banho e snorkel.
+                </p>
+                <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>6 horas</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>Até 12 pessoas</span>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-ocean mb-2">R$ 180</div>
+                <div className="text-sm text-slate-500">por pessoa</div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow overflow-hidden">
+              <div className="relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=300" 
+                  alt="Tour das 7 Praias" 
+                  className="w-full h-48 object-cover"
+                />
+                <Badge className="absolute top-3 left-3 bg-green-500 text-white">
+                  Aventura
+                </Badge>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Tour das 7 Praias</h3>
+                <p className="text-slate-600 mb-4">
+                  Conheça as 7 praias mais belas de Ubatuba em um dia inesquecível.
+                </p>
+                <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>8 horas</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>Até 15 pessoas</span>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-ocean mb-2">R$ 220</div>
+                <div className="text-sm text-slate-500">por pessoa</div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow overflow-hidden">
+              <div className="relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=300" 
+                  alt="Pesca Esportiva" 
+                  className="w-full h-48 object-cover"
+                />
+                <Badge className="absolute top-3 left-3 bg-orange-500 text-white">
+                  Esportivo
+                </Badge>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Pesca Esportiva</h3>
+                <p className="text-slate-600 mb-4">
+                  Pescaria em alto mar com equipamentos profissionais inclusos.
+                </p>
+                <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>4 horas</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>Até 8 pessoas</span>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-ocean mb-2">R$ 250</div>
+                <div className="text-sm text-slate-500">por pessoa</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button 
+              onClick={() => window.location.href = '/api/login'}
+              className="bg-ocean text-white hover:bg-ocean/90"
+            >
+              Ver Todos os Passeios
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
           </div>
         </div>
       </section>

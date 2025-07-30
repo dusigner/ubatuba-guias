@@ -71,7 +71,7 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
 
   const createGuideMutation = useMutation({
     mutationFn: async (guideData: GuideFormData) => {
-      const response = await apiRequest('POST', '/api/guides', guideData);
+      const response = await apiRequest('/api/guides', 'POST', guideData);
       return response.json();
     },
     onSuccess: () => {

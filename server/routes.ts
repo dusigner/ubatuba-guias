@@ -307,8 +307,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/guides/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const guide = await storage.getGuideById(id);
-      if (!guide) {
+      const guide = await storage.getUser(id);
+      if (!guide || guide.userType !== 'guide') {
         return res.status(404).json({ message: "Guia não encontrado" });
       }
       res.json(guide);

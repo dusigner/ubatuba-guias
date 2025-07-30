@@ -36,9 +36,10 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Authentication System
-- **Provider**: Replit Auth using OpenID Connect
+- **Provider**: Replit Auth using OpenID Connect with local fallback
 - **Session Management**: Express sessions stored in PostgreSQL
-- **User Types**: Three distinct user roles (tourists, guides, event producers)
+- **User Types**: Four distinct user roles (tourists, guides, event producers, boat tour operators)
+- **Profile Flow**: Post-login profile selection and creation system
 - **Authorization**: Route-level protection with middleware
 
 ### AI-Powered Itinerary Generation
@@ -55,7 +56,8 @@ Preferred communication style: Simple, everyday language.
 2. **Beaches Module**: Beach information with amenities and attractions
 3. **Boat Tours Module**: Marine excursions with pricing and schedules
 4. **Events Module**: Local events with CRUD operations for producers
-5. **Guides Module**: Local guide profiles with specialties and contact info
+5. **Guides Module**: Local guide profiles created from user profiles with guide type
+6. **Profile Management**: Post-login profile selection and creation system
 
 ### UI/UX Design
 - **Theme**: Tropical/coastal design with custom color palette

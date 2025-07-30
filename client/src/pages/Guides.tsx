@@ -189,40 +189,48 @@ export default function Guides() {
                   </div>
                   
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-foreground mb-2">{guide.name}</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-2">
+                      {guide.firstName} {guide.lastName}
+                    </h3>
                     <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                      {guide.description}
+                      {guide.bio || 'Guia local experiente em Ubatuba'}
                     </p>
                     
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {guide.specialties?.slice(0, 3).map((specialty: string, index: number) => (
-                        <Badge key={index} className={`${getSpecialtyColor(specialty)} border-0`}>
-                          {getSpecialtyIcon(specialty)} {specialty}
-                        </Badge>
-                      ))}
-                    </div>
+                    {guide.specialties && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {guide.specialties.split(',').slice(0, 3).map((specialty: string, index: number) => (
+                          <Badge key={index} className={`${getSpecialtyColor(specialty.trim())} border-0`}>
+                            {getSpecialtyIcon(specialty.trim())} {specialty.trim()}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                     
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center text-sm text-slate-600">
                         <MapPin className="h-4 w-4 mr-2 text-ocean" />
-                        <span>{guide.location}</span>
+                        <span>{guide.location || 'Ubatuba, SP'}</span>
                       </div>
-                      <div className="flex items-center text-sm text-slate-600">
-                        <Languages className="h-4 w-4 mr-2 text-tropical" />
-                        <span>{guide.languages?.join(', ') || 'Português'}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-slate-600">
-                        <Calendar className="h-4 w-4 mr-2 text-sunset" />
-                        <span>{guide.experienceYears} anos de experiência</span>
-                      </div>
+                      {guide.languages && (
+                        <div className="flex items-center text-sm text-slate-600">
+                          <Languages className="h-4 w-4 mr-2 text-tropical" />
+                          <span>{guide.languages}</span>
+                        </div>
+                      )}
+                      {guide.experience && (
+                        <div className="flex items-center text-sm text-slate-600">
+                          <Calendar className="h-4 w-4 mr-2 text-sunset" />
+                          <span>{guide.experience}</span>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-slate-600">
-                        <span className="font-semibold text-slate-800">{guide.toursCompleted || 0} tours realizados</span>
+                        <span className="font-semibold text-slate-800">Guia Profissional</span>
                       </div>
                       <div className="flex space-x-2">
-                        {guide.whatsapp && (
+                        {guide.phone && (
                           <Button variant="ghost" size="sm" className="text-ocean hover:text-ocean/80">
                             <MessageCircle className="h-4 w-4" />
                           </Button>

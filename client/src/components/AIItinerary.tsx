@@ -41,7 +41,7 @@ export default function AIItinerary({ children }: AIItineraryProps) {
 
   const generateMutation = useMutation({
     mutationFn: async (preferences: any) => {
-      const generateResponse = await apiRequest('POST', '/api/itineraries/generate', { preferences });
+      const generateResponse = await apiRequest('/api/itineraries/generate', 'POST', { preferences });
       return generateResponse.json();
     },
     onSuccess: (data) => {

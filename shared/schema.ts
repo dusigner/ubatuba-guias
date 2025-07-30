@@ -34,12 +34,6 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   userType: varchar("user_type", { enum: ["tourist", "guide", "event_producer", "boat_tour_operator", "admin"] }).default("tourist"),
   phone: varchar("phone"),
-  bio: text("bio"),
-  // Guide-specific fields
-  specialties: varchar("specialties"),
-  experience: varchar("experience"),
-  languages: varchar("languages"),
-  hourlyRate: varchar("hourly_rate"),
   location: varchar("location"),
   // Business-specific fields (events/tours)
   companyName: varchar("company_name"),
@@ -119,23 +113,23 @@ export const events = pgTable("events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Guides table
+// Guides table - dados específicos do perfil de guia
 export const guides = pgTable("guides", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id),
-  name: varchar("name").notNull(),
-  description: text("description").notNull(),
-  specialties: text("specialties").array(), // trails, diving, history, etc.
-  languages: text("languages").array(),
-  experienceYears: integer("experience_years").notNull(),
-  toursCompleted: integer("tours_completed").default(0),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  bio: text("bio").notNull(),
+  specialties: varchar("specialties").notNull(),
+  experience: text("experience").notNull(),
+  languages: varchar("languages").notNull().default("Português"),
+  hourlyRate: decimal("hourly_rate", { precision: 8, scale: 2 }),
   rating: decimal("rating", { precision: 2, scale: 1 }).default("0"),
-  imageUrl: varchar("image_url"),
-  location: varchar("location").default("Ubatuba, SP"),
-  certifications: text("certifications").array(),
+  reviewCount: integer("review_count").default(0),
+  toursCompleted: integer("tours_completed").default(0),
+  profileImageUrl: varchar("profile_image_url"),
   whatsapp: varchar("whatsapp"),
   instagram: varchar("instagram"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Itineraries table

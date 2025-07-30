@@ -136,7 +136,7 @@ export default function Guides() {
               {canEditGuide && (
                 <Button 
                   onClick={() => {
-                    const currentUserGuide = guides.find(g => g.id === user?.id);
+                    const currentUserGuide = guides.find(g => g.userId === user?.id);
                     if (currentUserGuide) {
                       setEditingGuide(currentUserGuide);
                     }

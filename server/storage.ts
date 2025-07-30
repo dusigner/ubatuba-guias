@@ -313,8 +313,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Guides
-  async getGuides(): Promise<Guide[]> {
-    return await db.select().from(guides).orderBy(desc(guides.rating));
+  // Guides  
+  async getGuides(): Promise<any[]> {
+    // Buscar guias com dados do usuário associado
+    const result = await db
+      .select({
+        id: guides.id,
+        userId: guides.userId,
+        bio: guides.bio,
+        specialties: guides.specialties,
+        experience: guides.experience,
+        languages: guides.languages,
+        hourlyRate: guides.hourlyRate,
+        rating: guides.rating,
+        reviewCount: guides.reviewCount,
+        toursCompleted: guides.toursCompleted,
+        profileImageUrl: guides.profileImageUrl,
+        whatsapp: guides.whatsapp,
+        instagram: guides.instagram,
+        createdAt: guides.createdAt,
+        updatedAt: guides.updatedAt,
+        // Dados do usuário
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        location: users.location,
+        userProfileImageUrl: users.profileImageUrl,
+      })
+      .from(guides)
+      .leftJoin(users, eq(guides.userId, users.id))
+      .orderBy(desc(guides.rating));
+    return result;
   }
 
   async getAllGuides(): Promise<Guide[]> {
@@ -346,9 +376,69 @@ export class DatabaseStorage implements IStorage {
     return event;
   }
 
-  async createGuide(guide: InsertGuide): Promise<Guide> {
-    const [newGuide] = await db.insert(guides).values(guide).returning();
+  async getGuideByUserId(userId: string): Promise<any | undefined> {
+    // Buscar guia por userId
+    const [result] = await db
+      .select({
+        id: guides.id,
+        userId: guides.userId,
+        bio: guides.bio,
+        specialties: guides.specialties,
+        experience: guides.experience,
+        languages: guides.languages,
+        hourlyRate: guides.hourlyRate,
+        rating: guides.rating,
+        reviewCount: guides.reviewCount,
+        toursCompleted: guides.toursCompleted,
+        profileImageUrl: guides.profileImageUrl,
+        whatsapp: guides.whatsapp,
+        instagram: guides.instagram,
+        createdAt: guides.createdAt,
+        updatedAt: guides.updatedAt,
+        // Dados do usuário
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        location: users.location,
+        userProfileImageUrl: users.profileImageUrl,
+      })
+      .from(guides)
+      .leftJoin(users, eq(guides.userId, users.id))
+      .where(eq(guides.userId, userId));
+    return result;
+  }
+
+  async createGuide(userId: string, guideData: any): Promise<any> {
+    const [newGuide] = await db
+      .insert(guides)
+      .values({
+        userId,
+        bio: guideData.bio,
+        specialties: guideData.specialties,
+        experience: guideData.experience,
+        languages: guideData.languages,
+        hourlyRate: guideData.hourlyRate,
+        profileImageUrl: guideData.profileImageUrl,
+        whatsapp: guideData.whatsapp,
+        instagram: guideData.instagram,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
     return newGuide;
+  }
+
+  async updateGuide(id: string, guideData: any): Promise<any> {
+    const [updatedGuide] = await db
+      .update(guides)
+      .set({
+        ...guideData,
+        updatedAt: new Date(),
+      })
+      .where(eq(guides.id, id))
+      .returning();
+    return updatedGuide;
   }
 
   async updateGuide(id: string, guide: Partial<InsertGuide>): Promise<Guide> {

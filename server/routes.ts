@@ -307,8 +307,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/guides/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const guide = await storage.getUser(id);
-      if (!guide || guide.userType !== 'guide') {
+      const guide = await storage.getGuide(id);
+      if (!guide) {
         return res.status(404).json({ message: "Guia não encontrado" });
       }
       res.json(guide);
@@ -318,45 +318,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Criar perfil de guia (separado dos dados do usuário)
   app.post('/api/guides', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       
-      const updateData = {
-        ...req.body,
-        userType: 'guide',
-        isProfileComplete: true, // Marcar perfil como completo
-      };
+      // Verificar se o usuário é do tipo guide
+      const user = await storage.getUser(userId);
+      if (!user || user.userType !== 'guide') {
+        return res.status(403).json({ message: "Apenas usuários do tipo 'guide' podem criar perfis de guia" });
+      }
 
-      const updatedUser = await storage.updateUser(userId, updateData);
-      res.status(201).json(updatedUser);
+      // Verificar se já tem perfil de guia
+      const existingGuide = await storage.getGuideByUserId(userId);
+      if (existingGuide) {
+        return res.status(400).json({ message: "Usuário já possui perfil de guia" });
+      }
+
+      // Criar perfil de guia na tabela guides
+      const newGuide = await storage.createGuide(userId, req.body);
+      
+      // Marcar perfil do usuário como completo
+      await storage.updateUser(userId, { isProfileComplete: true });
+      
+      res.status(201).json(newGuide);
     } catch (error) {
       console.error("Error creating guide profile:", error);
       res.status(500).json({ message: "Falha ao criar perfil de guia" });
     }
   });
 
-  // Rota para editar perfil de guia (apenas o próprio guia pode editar)
+  // Editar perfil de guia (apenas o próprio usuário pode editar)
   app.put('/api/guides/:id', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const guideId = req.params.id;
       
+      // Buscar o guia para verificar se pertence ao usuário
+      const guide = await storage.getGuide(guideId);
+      if (!guide) {
+        return res.status(404).json({ message: "Guia não encontrado" });
+      }
+
       // Verificar se o usuário está editando seu próprio perfil
-      if (userId !== guideId) {
+      if (guide.userId !== userId) {
         const currentUser = await storage.getUser(userId);
         if (!currentUser?.isAdmin) {
           return res.status(403).json({ message: "Você só pode editar seu próprio perfil" });
         }
       }
 
-      const updatedUser = await storage.updateUser(guideId, req.body);
+      // Atualizar dados do guia
+      const updatedGuide = await storage.updateGuide(guideId, req.body);
       
-      if (!updatedUser) {
-        return res.status(404).json({ message: "Guia não encontrado" });
-      }
-
-      res.json(updatedUser);
+      res.json(updatedGuide);
     } catch (error) {
       console.error("Error updating guide profile:", error);
       res.status(500).json({ message: "Falha ao atualizar perfil de guia" });

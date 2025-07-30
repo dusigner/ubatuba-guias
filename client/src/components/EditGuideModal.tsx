@@ -6,7 +6,6 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { User } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -29,16 +28,17 @@ import { Badge } from "@/components/ui/badge";
 interface EditGuideModalProps {
   isOpen: boolean;
   onClose: () => void;
-  guide: User;
+  guide: any; // Guide with user data joined
 }
 
 const editGuideSchema = z.object({
-  firstName: z.string().min(1, "Nome é obrigatório"),
-  lastName: z.string().min(1, "Sobrenome é obrigatório"),
   bio: z.string().min(10, "Bio deve ter pelo menos 10 caracteres"),
   experience: z.string().min(1, "Experiência é obrigatória"),
-  location: z.string().min(1, "Localização é obrigatória"),
-  phone: z.string().min(1, "Telefone é obrigatório"),
+  specialties: z.string().min(1, "Especialidades são obrigatórias"),
+  languages: z.string().min(1, "Idiomas são obrigatórios"),
+  hourlyRate: z.string().optional(),
+  whatsapp: z.string().optional(),
+  instagram: z.string().optional(),
   profileImageUrl: z.string().optional(),
 });
 
@@ -58,45 +58,51 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(
-    guide.specialties ? guide.specialties.split(',').map(s => s.trim()) : []
+    guide.specialties ? guide.specialties.split(',').map((s: string) => s.trim()) : []
   );
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
-    guide.languages ? guide.languages.split(',').map(s => s.trim()) : ['Português']
+    guide.languages ? guide.languages.split(',').map((s: string) => s.trim()) : ['Português']
   );
 
   const form = useForm<EditGuideFormData>({
     resolver: zodResolver(editGuideSchema),
     defaultValues: {
-      firstName: guide.firstName || "",
-      lastName: guide.lastName || "",
       bio: guide.bio || "",
       experience: guide.experience || "",
-      location: guide.location || "Ubatuba, SP",
-      phone: guide.phone || "",
+      specialties: guide.specialties || "",
+      languages: guide.languages || "Português",
+      hourlyRate: guide.hourlyRate?.toString() || "",
+      whatsapp: guide.whatsapp || "",
+      instagram: guide.instagram || "",
       profileImageUrl: guide.profileImageUrl || "",
     },
   });
 
-  const updateGuideMutation = useMutation({
-    mutationFn: async (guideData: EditGuideFormData) => {
-      const response = await apiRequest(`/api/guides/${guide.id}`, 'PUT', {
-        ...guideData,
+  const mutation = useMutation({
+    mutationFn: async (data: EditGuideFormData) => {
+      const formData = {
+        ...data,
         specialties: selectedSpecialties.join(', '),
         languages: selectedLanguages.join(', '),
+        hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
+      };
+      
+      return await apiRequest(`/api/guides/${guide.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
-      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/guides'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       toast({
-        title: "Perfil atualizado com sucesso!",
-        description: "Suas informações foram atualizadas.",
+        title: "Sucesso!",
+        description: "Perfil de guia atualizado com sucesso.",
       });
       onClose();
     },
     onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
+      if (isUnauthorizedError(error)) {
         toast({
           title: "Não autorizado",
           description: "Você foi desconectado. Fazendo login novamente...",
@@ -107,16 +113,17 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
         }, 500);
         return;
       }
+      
       toast({
-        title: "Erro ao atualizar perfil",
-        description: "Houve um problema ao atualizar seu perfil. Tente novamente.",
+        title: "Erro",
+        description: "Falha ao atualizar perfil de guia. Tente novamente.",
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: EditGuideFormData) => {
-    updateGuideMutation.mutate(data);
+    mutation.mutate(data);
   };
 
   const toggleSpecialty = (specialty: string) => {
@@ -139,41 +146,13 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar Perfil de Guia</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-ocean">
+            Editar Perfil de Guia
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Seu nome" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sobrenome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Seu sobrenome" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <FormField
               control={form.control}
               name="bio"
@@ -182,8 +161,25 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
                   <FormLabel>Biografia</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Conte um pouco sobre você, sua experiência e paixão por Ubatuba..."
+                      placeholder="Conte sobre você, sua experiência e paixão por Ubatuba..."
                       className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="experience"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Experiência</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Descreva sua experiência como guia turístico..."
                       {...field}
                     />
                   </FormControl>
@@ -195,11 +191,11 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
             <div>
               <FormLabel>Especialidades</FormLabel>
               <div className="flex flex-wrap gap-2 mt-2">
-                {availableSpecialties.map(specialty => (
+                {availableSpecialties.map((specialty) => (
                   <Badge
                     key={specialty}
-                    variant={selectedSpecialties.includes(specialty) ? "default" : "outline"}
-                    className="cursor-pointer hover:bg-ocean/20"
+                    variant={selectedSpecialties.includes(specialty) ? "default" : "secondary"}
+                    className="cursor-pointer"
                     onClick={() => toggleSpecialty(specialty)}
                   >
                     {specialty}
@@ -211,11 +207,11 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
             <div>
               <FormLabel>Idiomas</FormLabel>
               <div className="flex flex-wrap gap-2 mt-2">
-                {availableLanguages.map(language => (
+                {availableLanguages.map((language) => (
                   <Badge
                     key={language}
-                    variant={selectedLanguages.includes(language) ? "default" : "outline"}
-                    className="cursor-pointer hover:bg-tropical/20"
+                    variant={selectedLanguages.includes(language) ? "default" : "secondary"}
+                    className="cursor-pointer"
                     onClick={() => toggleLanguage(language)}
                   >
                     {language}
@@ -226,14 +222,15 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
 
             <FormField
               control={form.control}
-              name="experience"
+              name="hourlyRate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Experiência</FormLabel>
+                  <FormLabel>Valor por Hora (R$) - Opcional</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Descreva sua experiência como guia, certificações, cursos..."
-                      className="min-h-[80px]"
+                    <Input 
+                      type="number" 
+                      step="0.01"
+                      placeholder="150.00"
                       {...field}
                     />
                   </FormControl>
@@ -242,46 +239,72 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
               )}
             />
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Localização</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ubatuba, SP" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="whatsapp"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>WhatsApp</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="(12) 99999-9999"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefone</FormLabel>
-                    <FormControl>
-                      <Input placeholder="(12) 99999-0000" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="instagram"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Instagram</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="@seuinstagram"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={onClose}>
+            <FormField
+              control={form.control}
+              name="profileImageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL da Foto de Perfil</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="https://exemplo.com/foto.jpg"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-4 pt-6">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                className="flex-1"
+              >
                 Cancelar
               </Button>
               <Button 
                 type="submit" 
-                disabled={updateGuideMutation.isPending}
-                className="bg-gradient-to-r from-tropical to-ocean text-white hover:opacity-90"
+                disabled={mutation.isPending}
+                className="flex-1 bg-ocean hover:bg-ocean/90"
               >
-                {updateGuideMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                {mutation.isPending ? "Salvando..." : "Salvar Alterações"}
               </Button>
             </div>
           </form>

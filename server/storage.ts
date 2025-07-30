@@ -70,10 +70,11 @@ export interface IStorage {
   deleteEvent(id: string): Promise<void>;
   
   // Guides
-  getGuides(): Promise<Guide[]>;
-  createGuide(guide: InsertGuide): Promise<Guide>;
-  updateGuide(id: string, guide: Partial<InsertGuide>): Promise<Guide>;
-  deleteGuide(id: string): Promise<void>;
+  getGuides(): Promise<any[]>;
+  getGuide(id: string): Promise<any | undefined>;
+  getGuideByUserId(userId: string): Promise<any | undefined>;
+  createGuide(userId: string, guideData: any): Promise<any>;
+  updateGuide(id: string, guideData: any): Promise<any>;
   
   // Itineraries
   getUserItineraries(userId: string): Promise<Itinerary[]>;

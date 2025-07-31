@@ -111,6 +111,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isProfileComplete: true
       });
       
+      // Se o usuário é um guia, criar entrada na tabela guides
+      if (profileData.userType === 'guide') {
+        console.log('Criando registro de guia para usuário:', user.id);
+        
+        // Verificar se já existe um guia para este usuário
+        const existingGuide = await storage.getGuideByUserId(user.id);
+        
+        if (!existingGuide) {
+          // Criar novo registro de guia
+          await storage.createGuideFromProfile(user.id, {
+            name: `${updatedUser.firstName} ${updatedUser.lastName}`,
+            description: profileData.bio || '',
+            bio: profileData.bio || '',
+            specialties: profileData.specialties ? profileData.specialties.split(',').map((s: string) => s.trim()) : [],
+            experience: profileData.experience || '',
+            languages: profileData.languages ? profileData.languages.split(',').map((l: string) => l.trim()) : ['Português'],
+            experienceYears: parseInt(profileData.experience?.match(/\d+/)?.[0] || '0'),
+            location: profileData.location || updatedUser.location,
+            whatsapp: updatedUser.phone,
+            imageUrl: updatedUser.profileImageUrl,
+            rating: 0,
+            toursCompleted: 0,
+            certifications: []
+          });
+        }
+      }
+      
       res.json(updatedUser);
     } catch (error) {
       console.error("Erro ao criar perfil:", error);

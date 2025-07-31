@@ -383,36 +383,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getGuide(id: string): Promise<any | undefined> {
-    // Buscar guia por ID com dados do usuário
-    const [result] = await db
-      .select({
-        id: guides.id,
-        userId: guides.userId,
-        bio: guides.bio,
-        specialties: guides.specialties,
-        experience: guides.experience,
-        languages: guides.languages,
-        hourlyRate: guides.hourlyRate,
-        rating: guides.rating,
-        reviewCount: guides.reviewCount,
-        toursCompleted: guides.toursCompleted,
-        profileImageUrl: guides.profileImageUrl,
-        whatsapp: guides.whatsapp,
-        instagram: guides.instagram,
-        createdAt: guides.createdAt,
-        updatedAt: guides.updatedAt,
-        // Dados do usuário
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-        phone: users.phone,
-        location: users.location,
-        userProfileImageUrl: users.profileImageUrl,
-      })
-      .from(guides)
-      .leftJoin(users, eq(guides.userId, users.id))
-      .where(eq(guides.id, id));
-    return result;
+    try {
+      // Buscar guia por ID simples
+      const [guide] = await db.select().from(guides).where(eq(guides.id, id));
+      if (!guide) return undefined;
+      
+      // Mapear para formato esperado
+      return {
+        id: guide.id,
+        userId: guide.userId,
+        name: guide.name || 'Nome não informado',
+        bio: guide.bio || guide.description || '',
+        description: guide.description || '',
+        specialties: guide.specialties || [],
+        experience: guide.experience || '',
+        languages: guide.languages || [],
+        experienceYears: guide.experienceYears || 0,
+        toursCompleted: guide.toursCompleted || 0,
+        rating: parseFloat(guide.rating) || 0,
+        imageUrl: guide.imageUrl,
+        location: guide.location,
+        certifications: guide.certifications || [],
+        whatsapp: guide.whatsapp,
+        instagram: guide.instagram,
+        createdAt: guide.createdAt,
+      };
+    } catch (error) {
+      console.error('Erro ao buscar guia por ID:', error);
+      return undefined;
+    }
   }
 
   async getGuideById(id: string): Promise<Guide | undefined> {
@@ -427,12 +426,46 @@ export class DatabaseStorage implements IStorage {
         userId,
         ...guideData,
         createdAt: new Date(),
-        updatedAt: new Date(),
       })
       .returning();
       
     // Retornar guia com dados do usuário
     return this.getGuide(newGuide.id);
+  }
+
+  async createGuideFromProfile(userId: string, guideData: any): Promise<any> {
+    try {
+      console.log('Criando guia na tabela guides para userId:', userId);
+      
+      const [newGuide] = await db
+        .insert(guides)
+        .values({
+          id: sql`gen_random_uuid()`,
+          userId,
+          name: guideData.name,
+          description: guideData.description,
+          specialties: guideData.specialties,
+          languages: guideData.languages,
+          experienceYears: guideData.experienceYears,
+          toursCompleted: guideData.toursCompleted || 0,
+          rating: guideData.rating || '0',
+          imageUrl: guideData.imageUrl,
+          location: guideData.location,
+          certifications: guideData.certifications,
+          whatsapp: guideData.whatsapp,
+          instagram: guideData.instagram,
+          createdAt: new Date(),
+          bio: guideData.bio,
+          experience: guideData.experience,
+        })
+        .returning();
+        
+      console.log('Guia criado com sucesso:', newGuide.id);
+      return newGuide;
+    } catch (error) {
+      console.error('Erro ao criar guia:', error);
+      throw error;
+    }
   }
 
   async updateGuide(id: string, guideData: any): Promise<any> {

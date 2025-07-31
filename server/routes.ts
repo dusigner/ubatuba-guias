@@ -574,8 +574,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Processar dados para arrays quando necessário
+      const processedData = { ...req.body };
+      
+      // Converter strings para arrays se necessário
+      if (processedData.specialties && typeof processedData.specialties === 'string') {
+        processedData.specialties = processedData.specialties.split(',').map(s => s.trim());
+      }
+      
+      if (processedData.languages && typeof processedData.languages === 'string') {
+        processedData.languages = processedData.languages.split(',').map(l => l.trim());
+      }
+
+      // Validar dados com schema
+      const validatedData = insertGuideSchema.partial().parse(processedData);
+
       // Atualizar dados do guia
-      const updatedGuide = await storage.updateGuide(guideId, req.body);
+      const updatedGuide = await storage.updateGuide(guideId, validatedData);
 
       res.json(updatedGuide);
     } catch (error) {
@@ -731,16 +746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/guides/:id", authMiddleware, async (req, res) => {
-    try {
-      const guideData = insertGuideSchema.partial().parse(req.body);
-      const updatedGuide = await storage.updateGuide(req.params.id, guideData);
-      res.json(updatedGuide);
-    } catch (error) {
-      console.error("Erro ao atualizar guia:", error);
-      res.status(500).json({ message: "Falha ao atualizar guia" });
-    }
-  });
+
 
   app.delete("/api/guides/:id", authMiddleware, async (req, res) => {
     try {

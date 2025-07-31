@@ -36,9 +36,6 @@ export default function BoatTourProfile() {
   const [isEditingWhatsApp, setIsEditingWhatsApp] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
-  // Verificar se o usuário pode editar este passeio (apenas o criador ou admin)
-  const canEdit = user && tour && (tour.operatorId === user.id || user.isAdmin);
-
   // Mutação para deletar passeio
   const deleteTourMutation = useMutation({
     mutationFn: () => apiRequest(`/api/boat-tours/${tourId}`, 'DELETE'),
@@ -105,6 +102,9 @@ export default function BoatTourProfile() {
       setWhatsappNumber(tour.whatsappNumber);
     }
   }, [tour]);
+
+  // Verificar se o usuário pode editar este passeio (apenas o criador ou admin)
+  const canEdit = user && tour && (tour.operatorId === user.id || user.isAdmin);
 
   if (error && isUnauthorizedError(error as Error)) {
     toast({

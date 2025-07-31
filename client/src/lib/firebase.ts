@@ -3,9 +3,9 @@ import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, sig
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`,
+  authDomain: "ubatuba-guias.firebaseapp.com",
+  projectId: "ubatuba-guias",
+  storageBucket: "ubatuba-guias.firebasestorage.app",
   messagingSenderId: "123456789", // Optional, can be added if needed
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };

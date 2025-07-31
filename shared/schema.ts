@@ -202,6 +202,9 @@ export const insertBoatTourSchema = createInsertSchema(boatTours).omit({
 export const insertEventSchema = createInsertSchema(events).omit({
   id: true,
   createdAt: true,
+}).extend({
+  startDate: z.string().transform(val => new Date(val)),
+  endDate: z.string().transform(val => new Date(val)),
 });
 
 export const insertGuideSchema = createInsertSchema(guides).omit({

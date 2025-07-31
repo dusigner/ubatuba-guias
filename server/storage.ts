@@ -366,7 +366,7 @@ export class DatabaseStorage implements IStorage {
         experienceYears: guide.experience_years || 0,
         toursCompleted: guide.tours_completed || 0,
         rating: parseFloat(guide.rating) || 0,
-        imageUrl: guide.image_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+        imageUrl: guide.image_url,
         location: guide.location || 'Ubatuba, SP',
         certifications: Array.isArray(guide.certifications) ? guide.certifications : (guide.certifications ? [guide.certifications] : []),
         whatsapp: guide.whatsapp,

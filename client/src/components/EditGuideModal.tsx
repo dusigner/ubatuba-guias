@@ -93,6 +93,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/guides'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/guides/${guide.id}`] });
       toast({
         title: "Sucesso!",
         description: "Perfil de guia atualizado com sucesso.",

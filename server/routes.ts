@@ -88,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       // Get user from database
-      let user = await storage.getUserById(userId);
+      let user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }

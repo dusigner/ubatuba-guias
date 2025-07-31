@@ -211,15 +211,15 @@ export default function Guides() {
                   
                   <CardContent className="p-6">
                     <h3 className="text-xl font-bold text-foreground mb-2">
-                      {guide.firstName} {guide.lastName}
+                      {guide.name || `${guide.firstName} ${guide.lastName}`}
                     </h3>
                     <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                      {guide.bio || 'Guia local experiente em Ubatuba'}
+                      {guide.bio || guide.description || 'Guia local experiente em Ubatuba'}
                     </p>
                     
                     {guide.specialties && (
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {guide.specialties.split(',').slice(0, 3).map((specialty: string, index: number) => (
+                        {(Array.isArray(guide.specialties) ? guide.specialties : guide.specialties.split(',')).slice(0, 3).map((specialty: string, index: number) => (
                           <Badge key={index} className={`${getSpecialtyColor(specialty.trim())} border-0`}>
                             {getSpecialtyIcon(specialty.trim())} {specialty.trim()}
                           </Badge>
@@ -235,7 +235,7 @@ export default function Guides() {
                       {guide.languages && (
                         <div className="flex items-center text-sm text-slate-600">
                           <Languages className="h-4 w-4 mr-2 text-tropical" />
-                          <span>{guide.languages}</span>
+                          <span>{Array.isArray(guide.languages) ? guide.languages.join(', ') : guide.languages}</span>
                         </div>
                       )}
                       {guide.experience && (

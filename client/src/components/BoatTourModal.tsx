@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Ship, Clock, Users, DollarSign, Star, Camera } from "lucide-react";
+import { Ship, Clock, Users, DollarSign, Star, Camera, MessageCircle } from "lucide-react";
 
 const boatTourSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório").max(100, "Nome muito longo"),
@@ -30,6 +30,7 @@ const boatTourSchema = z.object({
   price: z.string().min(1, "Preço é obrigatório"),
   companyName: z.string().min(1, "Nome da empresa é obrigatório"),
   includes: z.string().min(1, "Incluso no passeio é obrigatório"),
+  whatsappNumber: z.string().optional(),
   imageUrl: z.string().url("URL da imagem deve ser válida").optional().or(z.literal("")),
   isPopular: z.boolean().default(false),
   isRomantic: z.boolean().default(false),
@@ -58,6 +59,7 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
       price: tour?.price || "",
       companyName: tour?.companyName || "",
       includes: tour?.includes?.join(", ") || "",
+      whatsappNumber: tour?.whatsappNumber || "",
       imageUrl: tour?.imageUrl || "",
       isPopular: tour?.isPopular || false,
       isRomantic: tour?.isRomantic || false,
@@ -264,6 +266,27 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                   <FormControl>
                     <Input 
                       placeholder="Ex: equipamento, almoço, guia, seguro (separado por vírgulas)"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* WhatsApp */}
+            <FormField
+              control={form.control}
+              name="whatsappNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp para Reservas
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Ex: (12) 99999-9999"
                       {...field}
                     />
                   </FormControl>

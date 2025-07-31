@@ -55,6 +55,7 @@ import CentralAjuda from "@/pages/CentralAjuda";
 import TermosUso from "@/pages/TermosUso";
 import Privacidade from "@/pages/Privacidade";
 import ParaEmpresas from "@/pages/ParaEmpresas";
+import LoginInstructions from "@/pages/LoginInstructions";
 import NotFound from "@/pages/not-found";
 
 function Navigation() {
@@ -112,7 +113,7 @@ function Navigation() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={user?.profileImageUrl} />
+                    <AvatarImage src={user?.profileImageUrl || undefined} />
                     <AvatarFallback>
                       {user?.firstName?.[0]}{user?.lastName?.[0]}
                     </AvatarFallback>
@@ -228,6 +229,7 @@ function Router() {
               <Route path="/termos-uso" component={TermosUso} />
               <Route path="/privacidade" component={Privacidade} />
               <Route path="/para-empresas" component={ParaEmpresas} />
+              <Route path="/login-instructions" component={LoginInstructions} />
               <Route component={Landing} />
             </>
           ) : user && !user.userType ? (

@@ -73,7 +73,7 @@ export default function EventModal({ isOpen, onClose }: EventModalProps) {
 
   const createEventMutation = useMutation({
     mutationFn: async (eventData: EventFormData) => {
-      const response = await apiRequest('POST', '/api/events', eventData);
+      const response = await apiRequest('/api/events', 'POST', eventData);
       return response.json();
     },
     onSuccess: () => {

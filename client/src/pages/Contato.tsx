@@ -4,19 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Mail, MapPin, Phone, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
+import { LandingLayout } from "@/components/LandingLayout";
 
 export default function Contato() {
   return (
-    <div className="min-h-screen bg-background">
+    <LandingLayout>
       {/* Header */}
       <section className="bg-gradient-to-br from-tropical/20 via-ocean/10 to-sunset/10 dark:from-tropical/30 dark:via-ocean/20 dark:to-sunset/20 py-16 border-b border-border">
         <div className="container mx-auto px-4">
-          <Link href="/">
-            <Button variant="ghost" className="mb-6">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar para Home
-            </Button>
-          </Link>
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
             <Mail className="inline h-12 w-12 text-tropical mr-4" />
             Contato
@@ -162,6 +157,6 @@ export default function Contato() {
           </div>
         </div>
       </section>
-    </div>
+    </LandingLayout>
   );
 }

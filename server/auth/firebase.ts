@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { db } from '../db.js';
 import { users } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
+import '../types.js';
 
 // Firebase Admin SDK would be ideal here, but for simplicity we'll validate tokens client-side
 // and trust the frontend authentication state for this demo

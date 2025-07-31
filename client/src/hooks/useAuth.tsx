@@ -21,7 +21,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ['/api/auth/user'],
     enabled: !!firebaseUser,
-    retry: false
+    retry: false,
+    queryFn: async () => {
+      const response = await fetch('/api/auth/user', {
+        credentials: 'include'
+      });
+      if (response.status === 401) {
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error('Failed to fetch user');
+      }
+      return response.json();
+    }
   }) as { data: AppUser | null, refetch: () => void };
 
   useEffect(() => {
@@ -61,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Authorization': `Bearer ${idToken}`,
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           uid: firebaseUser.uid,
           email: firebaseUser.email,

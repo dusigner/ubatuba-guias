@@ -446,10 +446,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Guides routes - busca usuários que são guias
+  // Guides routes - busca dados da tabela guides
   app.get('/api/guides', async (req, res) => {
     try {
-      const guides = await storage.getUsersByType('guide');
+      const guides = await storage.getGuides();
       res.json(guides);
     } catch (error) {
       console.error("Erro ao buscar guias:", error);

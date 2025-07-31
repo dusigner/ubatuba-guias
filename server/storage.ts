@@ -351,23 +351,24 @@ export class DatabaseStorage implements IStorage {
       `);
       
       console.log('Guides encontrados na tabela:', result.rows.length);
+      console.log('Dados dos primeiros guides:', result.rows.slice(0, 2));
       
-      // Mapear os dados corretamente
+      // Mapear os dados corretamente - usando IDs da tabela guides
       const formattedGuides = result.rows.map((row: any) => ({
-        id: row[0], // id
-        userId: row[1], // user_id
+        id: row[0], // id da tabela guides (CORRETO)
+        userId: row[1], // user_id (referência)
         name: row[2] || 'Nome não informado', // name
         bio: row[15] || row[3] || '', // bio || description
         description: row[3] || '', // description
-        specialties: Array.isArray(row[4]) ? row[4] : [row[4]].filter(Boolean), // specialties
+        specialties: Array.isArray(row[4]) ? row[4] : (row[4] ? [row[4]] : []), // specialties
         experience: row[16] || '', // experience
-        languages: Array.isArray(row[5]) ? row[5] : [row[5]].filter(Boolean), // languages
+        languages: Array.isArray(row[5]) ? row[5] : (row[5] ? [row[5]] : ['Português']), // languages
         experienceYears: row[6] || 0, // experience_years
         toursCompleted: row[7] || 0, // tours_completed
         rating: parseFloat(row[8]) || 0, // rating
-        imageUrl: row[9], // image_url
-        location: row[10], // location
-        certifications: Array.isArray(row[11]) ? row[11] : [row[11]].filter(Boolean), // certifications
+        imageUrl: row[9] || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face', // image_url
+        location: row[10] || 'Ubatuba, SP', // location
+        certifications: Array.isArray(row[11]) ? row[11] : (row[11] ? [row[11]] : []), // certifications
         whatsapp: row[12], // whatsapp
         instagram: row[13], // instagram
         createdAt: row[14], // created_at

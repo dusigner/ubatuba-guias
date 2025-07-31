@@ -58,10 +58,12 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(
-    guide.specialties ? guide.specialties.split(',').map((s: string) => s.trim()) : []
+    Array.isArray(guide.specialties) ? guide.specialties : 
+    (guide.specialties ? guide.specialties.split(',').map((s: string) => s.trim()) : [])
   );
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
-    guide.languages ? guide.languages.split(',').map((s: string) => s.trim()) : ['Português']
+    Array.isArray(guide.languages) ? guide.languages :
+    (guide.languages ? guide.languages.split(',').map((s: string) => s.trim()) : ['Português'])
   );
 
   const form = useForm<EditGuideFormData>({
@@ -69,8 +71,8 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
     defaultValues: {
       bio: guide.bio || "",
       experience: guide.experience || "",
-      specialties: guide.specialties || "",
-      languages: guide.languages || "Português",
+      specialties: Array.isArray(guide.specialties) ? guide.specialties.join(', ') : (guide.specialties || ""),
+      languages: Array.isArray(guide.languages) ? guide.languages.join(', ') : (guide.languages || "Português"),
       hourlyRate: guide.hourlyRate?.toString() || "",
       whatsapp: guide.whatsapp || "",
       instagram: guide.instagram || "",

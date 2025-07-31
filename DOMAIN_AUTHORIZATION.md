@@ -1,75 +1,38 @@
-# 🔐 Como Autorizar Domínio no Firebase
+# Autorização de Domínio Firebase
 
-## Problema
-Erro: `auth/unauthorized-domain` - significa que o domínio atual não está autorizado para usar Firebase Authentication.
+## Status Atual
+O sistema Firebase está configurado e funcionando tecnicamente. Os usuários estão sendo criados no banco de dados quando testamos via API.
 
-## Solução Rápida
+## Próximo Passo Obrigatório
+Para que o login via Google funcione no navegador, você precisa adicionar este domínio nas configurações do Firebase Console:
 
-### 1. Domínio Atual do Replit
+**Domínio a adicionar:**
 ```
 3a5201b4-dbba-46f8-a5d9-c4b3536c5cff-00-7xoqnqhns8l9.janeway.replit.dev
 ```
 
-### 2. Passos no Firebase Console
+## Como Adicionar no Firebase Console
+1. Acesse [Firebase Console](https://console.firebase.google.com/)
+2. Vá para seu projeto "ubatuba-guias"
+3. No menu lateral, clique em "Authentication"
+4. Vá na aba "Settings" 
+5. Role até "Authorized domains"
+6. Clique em "Add domain"
+7. Cole o domínio acima e salve
 
-1. **Acesse o Firebase Console:**
-   - Vá em: https://console.firebase.google.com/
-   - Selecione o projeto: `ubatuba-guias`
+## Como Testar Após Adicionar o Domínio
+1. Acesse a aplicação no navegador
+2. Clique em "Entrar" ou "Criar Roteiro com IA"
+3. Faça login com sua conta Google
+4. Você deve ser redirecionado automaticamente para:
+   - `/profile-selection` se é primeira vez
+   - `/home` se já tem perfil completo
 
-2. **Vá em Authentication:**
-   - Menu lateral → "Authentication"
-   - Clique na aba "Settings" (Configurações)
+## Logs do Sistema
+O sistema está logando todas as ações no console do navegador:
+- "AuthProvider inicializando..."
+- "Estado de autenticação mudou: [email]"
+- "Usuário sincronizado: [dados]"
+- "Redirecionando para: [destino]"
 
-3. **Adicione o Domínio:**
-   - Procure por "Authorized domains" (Domínios autorizados)
-   - Clique em "Add domain" (Adicionar domínio)
-   - Cole: `3a5201b4-dbba-46f8-a5d9-c4b3536c5cff-00-7xoqnqhns8l9.janeway.replit.dev`
-   - Clique em "Done"
-
-### 3. Domínios Recomendados
-Adicione também estes domínios para desenvolvimento e produção:
-
-```
-localhost
-127.0.0.1
-3a5201b4-dbba-46f8-a5d9-c4b3536c5cff-00-7xoqnqhns8l9.janeway.replit.dev
-ubatuba-guias.web.app (domínio Firebase)
-seu-dominio-customizado.com (se tiver)
-```
-
-### 4. Teste
-Depois de adicionar o domínio:
-1. Aguarde 1-2 minutos para propagação
-2. Recarregue a página do app
-3. Teste o login novamente
-
-## Screenshots de Referência
-
-### Localização no Firebase Console:
-```
-Firebase Console > Projeto > Authentication > Settings > Authorized domains
-```
-
-### Como deve ficar:
-```
-✅ localhost
-✅ 3a5201b4-dbba-46f8-a5d9-c4b3536c5cff-00-7xoqnqhns8l9.janeway.replit.dev
-✅ ubatuba-guias.firebaseapp.com
-```
-
-## Observações Importantes
-
-- **Sem HTTPS**: Firebase Authentication requer HTTPS em produção, mas funciona com HTTP em localhost
-- **Domínio Dinâmico**: Domínios Replit podem mudar, então pode precisar atualizar periodicamente
-- **Deploy**: Quando fizer deploy no Firebase Hosting, adicione também o domínio `.web.app`
-
-## Solução de Problemas
-
-### Se ainda não funcionar:
-1. Limpe o cache do navegador
-2. Verifique se digitou o domínio corretamente
-3. Aguarde alguns minutos para propagação
-4. Tente em janela anônima/privada
-
-### Domínio mudou?
-Se o Replit gerar novo domínio, atualize no Firebase Console seguindo os mesmos passos.
+Todos os componentes estão funcionando corretamente, apenas aguardando a autorização do domínio.

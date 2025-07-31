@@ -37,24 +37,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }) as { data: AppUser | null, refetch: () => void };
 
   useEffect(() => {
+    console.log('AuthProvider inicializando...');
+    
     // Handle redirect result on page load
     handleRedirectResult()
       .then((result) => {
+        console.log('Resultado do redirect:', result);
         if (result?.user) {
+          console.log('Usuário retornou do redirect:', result.user.email);
           // User just signed in, sync with backend
           syncUserWithBackend(result.user);
         }
       })
       .catch((error) => {
-        console.error('Error handling redirect result:', error);
+        console.error('Erro no handleRedirectResult:', error);
       });
 
     // Listen for auth state changes
     const unsubscribe = onAuthStateChange((firebaseUser) => {
+      console.log('Estado de autenticação mudou:', firebaseUser ? firebaseUser.email : 'null');
       setFirebaseUser(firebaseUser);
-      if (firebaseUser) {
-        syncUserWithBackend(firebaseUser);
-      }
       setLoading(false);
     });
 
@@ -63,6 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const syncUserWithBackend = async (firebaseUser: User) => {
     try {
+      console.log('Iniciando sincronização com backend para:', firebaseUser.email);
+      
       // Get Firebase ID token
       const idToken = await firebaseUser.getIdToken();
       
@@ -88,6 +92,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // After successful login, get user data and redirect
       const userData = await response.json();
+      console.log('Usuário sincronizado:', userData);
+      console.log('Redirecionando para:', userData.isProfileComplete ? '/home' : '/profile-selection');
+      
+      // Force refresh user data
+      refetchUser();
       
       // Redirect based on profile completion
       setTimeout(() => {
@@ -96,9 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           window.location.href = '/profile-selection';
         }
-      }, 1000);
+      }, 2000);
     } catch (error) {
-      console.error('Error syncing user with backend:', error);
+      console.error('Erro na sincronização com backend:', error);
     }
   };
 

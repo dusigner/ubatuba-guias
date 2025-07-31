@@ -37,6 +37,8 @@ const eventSchema = z.object({
   startTime: z.string().min(1, "Horário de início é obrigatório"),
   endTime: z.string().min(1, "Horário de fim é obrigatório"),
   ticketPrice: z.string().min(1, "Preço do ingresso é obrigatório"),
+  ticketLink: z.string().url("URL inválida").optional().or(z.literal("")),
+  imageUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   category: z.string().min(1, "Categoria é obrigatória"),
   producerName: z.string().min(2, "Nome do produtor é obrigatório"),
 });
@@ -66,6 +68,8 @@ export default function EventModal({ isOpen, onClose, event, isEditing = false }
       startTime: event?.startTime || "",
       endTime: event?.endTime || "",
       ticketPrice: event?.ticketPrice || "",
+      ticketLink: event?.ticketLink || "",
+      imageUrl: event?.imageUrl || "",
       category: event?.category || "",
       producerName: event?.producerName || (user?.firstName && user?.lastName 
         ? `${user.firstName} ${user.lastName}`
@@ -336,7 +340,37 @@ export default function EventModal({ isOpen, onClose, event, isEditing = false }
                     <FormItem>
                       <FormLabel>Preço dos Ingressos *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ex: R$ 50 - R$ 120, Entrada gratuita" {...field} />
+                        <Input placeholder="Ex: R$ 50 - R$ 120, Gratuito" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="ticketLink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Link para Compra de Ingressos</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ex: https://ingressos.site.com/evento" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Imagem do Evento</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ex: https://exemplo.com/foto-evento.jpg" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

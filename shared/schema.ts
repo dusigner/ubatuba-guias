@@ -113,7 +113,9 @@ export const events = pgTable("events", {
   startTime: varchar("start_time").notNull(),
   endTime: varchar("end_time").notNull(),
   ticketPrice: varchar("ticket_price").notNull(),
+  ticketLink: varchar("ticket_link"), // URL for purchasing tickets
   category: varchar("category").notNull(), // music, cultural, food, etc.
+  imageUrl: varchar("image_url"), // Main event image
   producerId: varchar("producer_id").references(() => users.id),
   producerName: varchar("producer_name").notNull(),
   createdAt: timestamp("created_at").defaultNow(),

@@ -83,12 +83,27 @@ export default function EventProfile() {
     );
   }
 
-  const formatPrice = (price: number) => {
-    if (price === 0) return "Gratuito";
+  const formatPrice = (priceString: string) => {
+    // Handle string prices like "Gratuito", "R$ 50", etc.
+    if (!priceString || priceString.toLowerCase().includes('gratuito') || priceString === '0') {
+      return "Gratuito";
+    }
+    
+    // If it's already formatted, return as is
+    if (priceString.includes('R$') || priceString.includes('-')) {
+      return priceString;
+    }
+    
+    // Try to parse as number
+    const numPrice = parseFloat(priceString);
+    if (isNaN(numPrice) || numPrice === 0) {
+      return "Gratuito";
+    }
+    
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(price);
+    }).format(numPrice);
   };
 
   const formatDate = (dateString: string) => {
@@ -157,8 +172,8 @@ export default function EventProfile() {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `${event.name} - Evento em Ubatuba`,
-        text: `${event.name} em ${event.location} - ${formatDate(event.startDate)}`,
+        title: `${event.title} - Evento em Ubatuba`,
+        text: `${event.title} em ${event.location} - ${formatDate(event.startDate)}`,
         url: window.location.href,
       });
     } else {
@@ -171,7 +186,14 @@ export default function EventProfile() {
   };
 
   const handleTicket = () => {
-    const message = `Olá! Gostaria de informações sobre ingressos para o evento "${event.name}" no dia ${formatDate(event.startDate)}`;
+    // If there's a ticket link, use it directly
+    if (event.ticketLink && event.ticketLink.trim()) {
+      window.open(event.ticketLink, '_blank');
+      return;
+    }
+    
+    // Otherwise, use WhatsApp as fallback
+    const message = `Olá! Gostaria de informações sobre ingressos para o evento "${event.title}" no dia ${formatDate(event.startDate)}`;
     const whatsappUrl = `https://wa.me/5512999990001?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -227,7 +249,7 @@ export default function EventProfile() {
                     <Badge className="bg-yellow-500 text-yellow-900">Acontece em breve!</Badge>
                   )}
                 </div>
-                <h1 className="text-4xl font-bold mb-2">{event.name}</h1>
+                <h1 className="text-4xl font-bold mb-2">{event.title}</h1>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-1 text-white/90">
                     <Calendar className="h-4 w-4" />
@@ -244,7 +266,7 @@ export default function EventProfile() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-2xl font-bold text-green-300">
-                    {formatPrice(event.price)}
+                    {formatPrice(event.ticketPrice)}
                   </div>
                   {event.maxCapacity && (
                     <div className="flex items-center gap-1 text-white/90">
@@ -374,10 +396,10 @@ export default function EventProfile() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center">
-                  <div className={`text-3xl font-bold mb-1 ${event.price === 0 ? 'text-green-600' : 'text-blue-600'}`}>
-                    {formatPrice(event.price)}
+                  <div className={`text-3xl font-bold mb-1 ${event.ticketPrice === '0' || event.ticketPrice?.toLowerCase().includes('gratuito') ? 'text-green-600' : 'text-blue-600'}`}>
+                    {formatPrice(event.ticketPrice)}
                   </div>
-                  {event.price > 0 && <p className="text-sm text-slate-600">por pessoa</p>}
+                  {event.ticketPrice !== '0' && !event.ticketPrice?.toLowerCase().includes('gratuito') && <p className="text-sm text-slate-600">por pessoa</p>}
                 </div>
                 
                 <Separator />
@@ -405,12 +427,6 @@ export default function EventProfile() {
 
                 <div className="space-y-2">
                   {/* Edit button for event producers who created this event */}
-                  {console.log('Debug info:', { 
-                    userType: user?.userType, 
-                    userName: `${user?.firstName} ${user?.lastName}`, 
-                    producerName: event.producerName,
-                    userEmail: user?.email 
-                  })}
                   {(user?.userType === 'eventProducer' || user?.userType === 'event_producer') && 
                    (event.producerName === `${user.firstName} ${user.lastName}` || event.producerName === user.email) && (
                     <Button 

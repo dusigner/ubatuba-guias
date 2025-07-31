@@ -97,6 +97,7 @@ export const boatTours = pgTable("boat_tours", {
   reviewCount: integer("review_count").default(0),
   includes: text("includes").array(), // equipment, food, guide, etc.
   imageUrl: varchar("image_url"),
+  whatsappNumber: varchar("whatsapp_number"),
   isPopular: boolean("is_popular").default(false),
   isRomantic: boolean("is_romantic").default(false),
   createdAt: timestamp("created_at").defaultNow(),

@@ -1,21 +1,25 @@
 import { useParams, useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useBookings } from "@/hooks/useBookings";
 import Navigation from "@/components/Navigation";
+import BoatTourModal from "@/components/BoatTourModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Anchor, Star, MapPin, Clock, Users, ArrowLeft, Share2,
   Heart, Camera, DollarSign, Calendar, Phone, Mail,
-  Waves, Fish, Sun, Shield, Compass, LifeBuoy
+  Waves, Fish, Sun, Shield, Compass, LifeBuoy, Edit2, Trash2, MessageCircle, Save, X
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function BoatTourProfile() {
   const params = useParams();
@@ -25,6 +29,62 @@ export default function BoatTourProfile() {
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const { createBooking, isCreating } = useBookings(user?.id);
   const tourId = params.id;
+  const queryClient = useQueryClient();
+  
+  // Estados para edição
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isEditingWhatsApp, setIsEditingWhatsApp] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  // Verificar se o usuário pode editar este passeio
+  const canEdit = user?.userType === 'boat_tour_operator';
+
+  // Mutação para deletar passeio
+  const deleteTourMutation = useMutation({
+    mutationFn: () => apiRequest(`/api/boat-tours/${tourId}`, 'DELETE'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/boat-tours'] });
+      toast({
+        title: "Passeio excluído",
+        description: "O passeio foi removido com sucesso.",
+      });
+      setLocation('/boat-tours');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao excluir",
+        description: error.message || "Não foi possível excluir o passeio.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutação para atualizar WhatsApp
+  const updateWhatsAppMutation = useMutation({
+    mutationFn: (whatsapp: string) => apiRequest(`/api/boat-tours/${tourId}`, 'PUT', { whatsappNumber: whatsapp }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/boat-tours', tourId] });
+      toast({
+        title: "WhatsApp atualizado",
+        description: "Número do WhatsApp foi salvo com sucesso.",
+      });
+      setIsEditingWhatsApp(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao salvar",
+        description: error.message || "Não foi possível salvar o WhatsApp.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Inicializar WhatsApp quando o tour carregar
+  useEffect(() => {
+    if (tour?.whatsappNumber) {
+      setWhatsappNumber(tour.whatsappNumber);
+    }
+  }, [tour]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -95,6 +155,46 @@ export default function BoatTourProfile() {
     });
   };
 
+  const handleDelete = () => {
+    if (window.confirm('Tem certeza que deseja excluir este passeio? Esta ação não pode ser desfeita.')) {
+      deleteTourMutation.mutate();
+    }
+  };
+
+  const handleSaveWhatsApp = () => {
+    if (whatsappNumber.trim()) {
+      updateWhatsAppMutation.mutate(whatsappNumber.trim());
+    }
+  };
+
+  const handleCancelWhatsApp = () => {
+    setWhatsappNumber(tour?.whatsappNumber || "");
+    setIsEditingWhatsApp(false);
+  };
+
+  const handleBooking = () => {
+    const number = whatsappNumber || "(12) 99999-0001";
+    const message = `Olá! Gostaria de fazer uma reserva para o passeio "${tour.name}". Poderiam me passar mais informações?`;
+    const whatsappUrl = `https://wa.me/55${number.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: tour.name,
+        text: tour.description,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link copiado!",
+        description: "O link do passeio foi copiado para a área de transferência.",
+      });
+    }
+  };
+
   const getIncludeIcon = (item: string) => {
     const itemLower = item.toLowerCase();
     if (itemLower.includes('equipamento') || itemLower.includes('snorkel')) return <LifeBuoy className="h-4 w-4" />;
@@ -103,28 +203,6 @@ export default function BoatTourProfile() {
     if (itemLower.includes('guia')) return <Users className="h-4 w-4" />;
     if (itemLower.includes('seguro')) return <Shield className="h-4 w-4" />;
     return <Anchor className="h-4 w-4" />;
-  };
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: `${tour.name} - Passeio de Barco em Ubatuba`,
-        text: `Conheça o passeio ${tour.name} em Ubatuba - ${tour.duration}h por ${formatPrice(tour.price)}`,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link copiado!",
-        description: "O link do passeio foi copiado para a área de transferência",
-      });
-    }
-  };
-
-  const handleBooking = () => {
-    const message = `Olá! Gostaria de agendar o passeio "${tour.name}" para ${tour.maxCapacity} pessoas. Podem me ajudar com as informações?`;
-    const whatsappUrl = `https://wa.me/5512999990001?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -142,15 +220,28 @@ export default function BoatTourProfile() {
               Voltar para Passeios de Barco
             </Button>
             
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                onClick={() => setLocation("/")}
-                className="text-sm text-foreground hover:text-foreground"
-              >
-                UbatubaIA
-              </Button>
-            </div>
+            {canEdit && (
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setShowEditModal(true)}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  disabled={deleteTourMutation.isPending}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {deleteTourMutation.isPending ? "Excluindo..." : "Excluir"}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -398,10 +489,52 @@ export default function BoatTourProfile() {
 
                 <div className="space-y-2">
                   <h4 className="font-semibold text-slate-800">Contato Direto</h4>
+                  
+                  {/* WhatsApp editável para operadores */}
                   <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <Phone className="h-4 w-4" />
-                    <span>(12) 99999-0001</span>
+                    <MessageCircle className="h-4 w-4" />
+                    {canEdit && isEditingWhatsApp ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <Input
+                          value={whatsappNumber}
+                          onChange={(e) => setWhatsappNumber(e.target.value)}
+                          placeholder="(11) 99999-9999"
+                          className="text-sm h-8"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleSaveWhatsApp}
+                          disabled={updateWhatsAppMutation.isPending}
+                          className="h-8 px-2"
+                        >
+                          <Save className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleCancelWhatsApp}
+                          className="h-8 px-2"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 flex-1">
+                        <span>{whatsappNumber || "(12) 99999-0001"}</span>
+                        {canEdit && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setIsEditingWhatsApp(true)}
+                            className="h-6 px-1"
+                          >
+                            <Edit2 className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
+                  
                   <div className="flex items-center gap-2 text-sm text-slate-600">
                     <Mail className="h-4 w-4" />
                     <span>contato@passeiosubatuba.com</span>
@@ -412,6 +545,13 @@ export default function BoatTourProfile() {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <BoatTourModal 
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        tour={tour}
+      />
     </div>
   );
 }

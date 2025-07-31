@@ -115,12 +115,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      console.log('Fazendo logout...');
+      
+      // Logout from backend session
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      // Logout from Firebase
       const { signOutUser } = await import('@/lib/firebase');
       await signOutUser();
-      // Also clear backend session
-      await fetch('/api/auth/logout', { method: 'POST' });
+      console.log('Logout realizado com sucesso');
+      
+      // Refresh user data
+      refetchUser();
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('Erro no logout:', error);
     }
   };
 

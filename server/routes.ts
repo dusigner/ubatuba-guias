@@ -58,14 +58,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User profile routes
   app.put("/api/auth/user", authMiddleware, async (req: any, res) => {
     try {
-      // Find the actual database user by email
-      let user = await storage.getUserByEmail(req.user.claims.email);
-      if (!user) {
-        return res.status(404).json({ message: "Usuário não encontrado" });
+      // Firebase Auth: get user from session
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
       }
 
       const updateData = req.body;
-      const updatedUser = await storage.updateUser(user.id, updateData);
+      const updatedUser = await storage.updateUser(userId, updateData);
       res.json(updatedUser);
     } catch (error) {
       console.error("Erro ao atualizar usuário:", error);
@@ -76,31 +76,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Profile completion route
   app.post("/api/profile", authMiddleware, async (req: any, res) => {
     try {
-      console.log("req", req);
-      const replitUserId = req.user.claims.sub;
+      console.log("Firebase Auth - Criando perfil");
+      const userId = req.session.userId;
       const profileData = req.body;
 
       console.log(
         "Criando perfil para usuário:",
-        replitUserId,
+        userId,
         "com dados:",
         profileData,
       );
 
-      // Find the actual database user by email first
-      let user = await storage.getUserByEmail(req.user.claims.email);
-
+      // Get user from database
+      let user = await storage.getUserById(userId);
       if (!user) {
-        // If user doesn't exist, create them first
-        user = await storage.upsertUser({
-          id: replitUserId,
-          email: req.user.claims.email,
-          firstName: req.user.claims.first_name,
-          lastName: req.user.claims.last_name,
-          profileImageUrl: req.user.claims.profile_image_url,
-          userType: "tourist",
-          isProfileComplete: false,
-        });
+        return res.status(404).json({ message: "Usuário não encontrado" });
       }
 
       console.log("Atualizando perfil do usuário da database:", user.id);

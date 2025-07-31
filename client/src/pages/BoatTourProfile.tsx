@@ -79,13 +79,6 @@ export default function BoatTourProfile() {
     },
   });
 
-  // Inicializar WhatsApp quando o tour carregar
-  useEffect(() => {
-    if (tour?.whatsappNumber) {
-      setWhatsappNumber(tour.whatsappNumber);
-    }
-  }, [tour]);
-
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
@@ -105,6 +98,13 @@ export default function BoatTourProfile() {
     retry: false,
     enabled: isAuthenticated && !!tourId,
   });
+
+  // Inicializar WhatsApp quando o tour carregar
+  useEffect(() => {
+    if (tour?.whatsappNumber) {
+      setWhatsappNumber(tour.whatsappNumber);
+    }
+  }, [tour]);
 
   if (error && isUnauthorizedError(error as Error)) {
     toast({

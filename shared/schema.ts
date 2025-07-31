@@ -123,23 +123,25 @@ export const events = pgTable("events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Guides table - dados específicos do perfil de guia
+// Guides table - corresponde exatamente à estrutura do banco
 export const guides = pgTable("guides", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  bio: text("bio").notNull(),
-  specialties: varchar("specialties").notNull(),
-  experience: text("experience").notNull(),
-  languages: varchar("languages").notNull().default("Português"),
-  hourlyRate: decimal("hourly_rate", { precision: 8, scale: 2 }),
-  rating: decimal("rating", { precision: 2, scale: 1 }).default("0"),
-  reviewCount: integer("review_count").default(0),
-  toursCompleted: integer("tours_completed").default(0),
-  profileImageUrl: varchar("profile_image_url"),
+  id: varchar("id").primaryKey(),
+  userId: varchar("user_id"),
+  name: varchar("name"),
+  description: text("description"),
+  specialties: text("specialties").array(),
+  languages: text("languages").array(),
+  experienceYears: integer("experience_years"),
+  toursCompleted: integer("tours_completed"),
+  rating: decimal("rating", { precision: 2, scale: 1 }),
+  imageUrl: varchar("image_url"),
+  location: varchar("location"),
+  certifications: text("certifications").array(),
   whatsapp: varchar("whatsapp"),
   instagram: varchar("instagram"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at"),
+  bio: text("bio"),
+  experience: text("experience"),
 });
 
 // Itineraries table

@@ -340,11 +340,13 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log('Iniciando busca de guias...');
       
-      // Abordagem simples: usar o ORM diretamente e mapear corretamente
+      // Usar o ORM com schema corrigido
       const guidesData = await db.select().from(guides);
       
       console.log('Guides raw encontrados:', guidesData.length);
-      console.log('Primeiro guide:', guidesData[0]);
+      if (guidesData.length > 0) {
+        console.log('Primeiro guide:', JSON.stringify(guidesData[0], null, 2));
+      }
       
       // Mapear para o formato esperado pelo frontend
       const formattedGuides = guidesData.map((guide: any) => ({
@@ -353,15 +355,15 @@ export class DatabaseStorage implements IStorage {
         name: guide.name || 'Nome não informado',
         bio: guide.bio || guide.description || '',
         description: guide.description || '',
-        specialties: Array.isArray(guide.specialties) ? guide.specialties : [guide.specialties].filter(Boolean),
+        specialties: guide.specialties || [],
         experience: guide.experience || '',
-        languages: Array.isArray(guide.languages) ? guide.languages : [guide.languages].filter(Boolean),
+        languages: guide.languages || [],
         experienceYears: guide.experienceYears || 0,
         toursCompleted: guide.toursCompleted || 0,
         rating: parseFloat(guide.rating) || 0,
         imageUrl: guide.imageUrl,
         location: guide.location,
-        certifications: Array.isArray(guide.certifications) ? guide.certifications : [guide.certifications].filter(Boolean),
+        certifications: guide.certifications || [],
         whatsapp: guide.whatsapp,
         instagram: guide.instagram,
         createdAt: guide.createdAt,

@@ -1,13 +1,17 @@
-# Configuração Local - UbatubaIA
+# 🏖️ UbatubaIA - Configuração Local
 
-## Opção 1: Download Direto do Replit
+Siga este guia para executar o projeto UbatubaIA em sua máquina pessoal.
+
+## 📦 Como Obter o Projeto
+
+### Opção 1: Download Direto do Replit
 
 1. No Replit, vá em **Files** > **Show hidden files**
 2. Selecione todos os arquivos (Ctrl+A)
 3. Clique com botão direito e **Download**
-4. Extraia o arquivo ZIP
+4. Extraia o arquivo ZIP em sua máquina
 
-## Opção 2: Clone via Git (se disponível)
+### Opção 2: Clone via Git (se disponível)
 
 ```bash
 git clone <url-do-repositorio>
@@ -55,36 +59,48 @@ GRANT ALL PRIVILEGES ON DATABASE ubatuba_tourism TO ubatuba_user;
 
 ### 4. Configurar Projeto
 ```bash
-# Se você baixou do Replit, renomeie os arquivos:
+# Navegue até a pasta do projeto
+cd ubatuba-tourism-app
+
+# Se você baixou do Replit, renomeie os arquivos para desenvolvimento local:
 mv package-local.json package.json
 mv vite.config.local.ts vite.config.ts
+mv drizzle.config.local.ts drizzle.config.ts
 
 # Instalar dependências
 npm install
 
-# Se der erro de módulos, limpe o cache:
+# Se der erro de módulos, limpe o cache e reinstale:
 rm -rf node_modules package-lock.json
 npm install
 ```
 
 ### 5. Variáveis de Ambiente
-Crie arquivo `.env` na raiz:
+Crie arquivo `.env` na raiz do projeto:
 
 ```env
-# Database - Ajuste conforme sua configuração
+# Database - Ajuste conforme sua configuração PostgreSQL
 DATABASE_URL=postgresql://postgres:sua_senha@localhost:5432/ubatuba_tourism
 
-# OpenAI - Obtenha em https://platform.openai.com/api-keys
-OPENAI_API_KEY=sk-proj-sua-chave-aqui
+# Google Gemini API - Obtenha em https://aistudio.google.com/app/apikey
+GOOGLE_GENAI_API_KEY=sua-chave-google-gemini-aqui
 
 # Session Secret - String aleatória para segurança
-SESSION_SECRET=sua-string-secreta-muito-longa-e-aleatoria-aqui
+SESSION_SECRET=sua-string-secreta-muito-longa-e-aleatoria-para-sessoes
 
-# Para desenvolvimento local (opcional)
+# Ambiente de desenvolvimento
+NODE_ENV=development
+
+# Configurações locais (opcional)
 REPL_ID=local-dev
-ISSUER_URL=https://replit.com/oidc
 REPLIT_DOMAINS=localhost:5000
 ```
+
+**⚠️ Importante:** O projeto agora usa Google Gemini (gratuito) ao invés do OpenAI (pago). Para obter sua chave:
+1. Acesse https://aistudio.google.com/app/apikey
+2. Faça login com sua conta Google
+3. Clique em "Create API Key"
+4. Copie a chave e cole no arquivo .env
 
 ### 6. Inicializar Banco
 ```bash
@@ -93,31 +109,39 @@ npm run db:push
 ```
 
 ### 7. Executar Aplicação
+
 ```bash
-# Desenvolvimento (com hot-reload)
+# Desenvolvimento completo (recomendado)
 npm run dev
 
-# Produção
-npm run build
-npm start
+# Ou executar separadamente:
+# Terminal 1 - Servidor backend
+npm run server:dev
+
+# Terminal 2 - Cliente frontend  
+npm run client:dev
 ```
 
-## Acessos
+## 🌐 Acessos
 
-- **Aplicação**: http://localhost:5000
-- **Cliente (dev)**: http://localhost:3000 (se usar npm run dev)
+- **Aplicação Completa**: http://localhost:3000 (desenvolvimento)
+- **Servidor API**: http://localhost:5000 (backend apenas)
+- **Cliente Produção**: http://localhost:5000 (após build)
 
-### 8. Login Local
-Como o sistema Replit Auth não funciona localmente, foi criado um sistema de login simples:
+### 8. 🔐 Login Local Automático
 
-1. Acesse: http://localhost:3000/api/login (será redirecionado automaticamente)
-2. Um usuário de teste será criado automaticamente com privilégios de admin
-3. Você será redirecionado para a página inicial já logado
+O sistema de autenticação Replit não funciona localmente, então criamos um sistema simplificado:
 
-**Dados do usuário de teste:**
-- Email: teste@ubatuba.local
-- Nome: Usuário Teste
-- Tipo: Administrador
+1. **Acesse**: http://localhost:3000
+2. **Clique em qualquer botão de login** - será redirecionado automaticamente
+3. **Usuário admin será criado** automaticamente na primeira execução
+4. **Login automático** - você será redirecionado já autenticado
+
+**👤 Dados do usuário local:**
+- **Email**: admin@ubatuba.local  
+- **Nome**: Admin Local
+- **Tipo**: Administrador (acesso total)
+- **Perfil**: Completo (pode acessar todas as funcionalidades)
 
 ## Criar Usuário Admin
 

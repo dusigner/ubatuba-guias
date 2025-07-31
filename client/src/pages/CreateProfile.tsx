@@ -14,13 +14,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { 
-  User, 
-  MapPin, 
-  Calendar, 
-  Ship, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  User,
+  MapPin,
+  Calendar,
+  Ship,
   Compass,
   ArrowLeft,
   CheckCircle,
@@ -30,7 +43,7 @@ import {
   Star,
   DollarSign,
   Clock,
-  Users
+  Users,
 } from "lucide-react";
 import { formatPhone, formatPrice } from "@/lib/masks";
 
@@ -78,7 +91,11 @@ const boatTourOperatorProfileSchema = z.object({
   licenses: z.string().min(1, "Licenças são obrigatórias"),
 });
 
-type ProfileType = 'tourist' | 'guide' | 'event_producer' | 'boat_tour_operator';
+type ProfileType =
+  | "tourist"
+  | "guide"
+  | "event_producer"
+  | "boat_tour_operator";
 
 export default function CreateProfile() {
   const [match, params] = useRoute("/create-profile/:type");
@@ -92,50 +109,57 @@ export default function CreateProfile() {
   // Configurações específicas por tipo
   const getProfileConfig = (type: ProfileType) => {
     switch (type) {
-      case 'tourist':
+      case "tourist":
         return {
-          title: 'Perfil de Turista',
-          description: 'Complete seu perfil básico para começar a explorar Ubatuba',
+          title: "Perfil de Turista",
+          description:
+            "Complete seu perfil básico para começar a explorar Ubatuba",
           icon: User,
-          color: 'from-blue-500 to-cyan-600',
-          schema: touristProfileSchema
+          color: "from-blue-500 to-cyan-600",
+          schema: touristProfileSchema,
         };
-      case 'guide':
+      case "guide":
         return {
-          title: 'Perfil de Guia Local',
-          description: 'Crie um perfil profissional completo para atrair turistas',
+          title: "Perfil de Guia Local",
+          description:
+            "Crie um perfil profissional completo para atrair turistas",
           icon: MapPin,
-          color: 'from-green-500 to-emerald-600',
-          schema: guideProfileSchema
+          color: "from-green-500 to-emerald-600",
+          schema: guideProfileSchema,
         };
-      case 'event_producer':
+      case "event_producer":
         return {
-          title: 'Perfil de Produtor de Eventos',
-          description: 'Configure seu perfil para começar a criar eventos incríveis',
+          title: "Perfil de Produtor de Eventos",
+          description:
+            "Configure seu perfil para começar a criar eventos incríveis",
           icon: Calendar,
-          color: 'from-purple-500 to-violet-600',
-          schema: eventProducerProfileSchema
+          color: "from-purple-500 to-violet-600",
+          schema: eventProducerProfileSchema,
         };
-      case 'boat_tour_operator':
+      case "boat_tour_operator":
         return {
-          title: 'Perfil de Operador de Passeios',
-          description: 'Configure seu perfil para oferecer experiências náuticas',
+          title: "Perfil de Operador de Passeios",
+          description:
+            "Configure seu perfil para oferecer experiências náuticas",
           icon: Ship,
-          color: 'from-cyan-500 to-blue-600',
-          schema: boatTourOperatorProfileSchema
+          color: "from-cyan-500 to-blue-600",
+          schema: boatTourOperatorProfileSchema,
         };
       default:
         return {
-          title: 'Perfil de Turista',
-          description: 'Complete seu perfil básico para começar a explorar Ubatuba',
+          title: "Perfil de Turista",
+          description:
+            "Complete seu perfil básico para começar a explorar Ubatuba",
           icon: User,
-          color: 'from-blue-500 to-cyan-600',
-          schema: touristProfileSchema
+          color: "from-blue-500 to-cyan-600",
+          schema: touristProfileSchema,
         };
     }
   };
 
-  const config = profileType ? getProfileConfig(profileType) : getProfileConfig('tourist');
+  const config = profileType
+    ? getProfileConfig(profileType)
+    : getProfileConfig("tourist");
 
   const getDefaultValues = (type: ProfileType) => {
     const baseDefaults = {
@@ -145,14 +169,14 @@ export default function CreateProfile() {
     };
 
     switch (type) {
-      case 'tourist':
+      case "tourist":
         return {
           ...baseDefaults,
           interests: "",
           travelStyle: "",
           budget: "",
         };
-      case 'guide':
+      case "guide":
         return {
           ...baseDefaults,
           specialties: "",
@@ -164,14 +188,14 @@ export default function CreateProfile() {
           whatsapp: "",
           instagram: "",
         };
-      case 'event_producer':
+      case "event_producer":
         return {
           ...baseDefaults,
           companyName: "",
           eventTypes: "",
           experience: "",
         };
-      case 'boat_tour_operator':
+      case "boat_tour_operator":
         return {
           ...baseDefaults,
           companyName: "",
@@ -187,38 +211,39 @@ export default function CreateProfile() {
 
   const form = useForm({
     resolver: zodResolver(config.schema),
-    defaultValues: getDefaultValues(profileType || 'tourist'),
+    defaultValues: getDefaultValues(profileType || "tourist"),
   });
 
   const createProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest('/api/profile', 'POST', {
+      return apiRequest("/api/profile", "POST", {
         ...data,
-        userType: profileType || 'tourist',
-        isProfileComplete: true
+        userType: profileType || "tourist",
+        isProfileComplete: true,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Perfil criado com sucesso!",
-        description: "Você pode agora explorar todas as funcionalidades da plataforma.",
+        description:
+          "Você pode agora explorar todas as funcionalidades da plataforma.",
       });
-      
+      console.log("profileType", profileType);
       // Redirect based on user type
       switch (profileType) {
-        case 'guide':
-          setLocation('/guides');
+        case "guide":
+          setLocation("/guides");
           break;
-        case 'event_producer':
-          setLocation('/events');
+        case "event_producer":
+          setLocation("/events");
           break;
-        case 'boat_tour_operator':
-          setLocation('/boat-tours');
+        case "boat_tour_operator":
+          setLocation("/boat-tours");
           break;
-        case 'tourist':
+        case "tourist":
         default:
-          setLocation('/');
+          setLocation("/");
           break;
       }
     },
@@ -244,13 +269,23 @@ export default function CreateProfile() {
 
   // Redirect se não há match ou tipo inválido - AFTER all hooks
   useEffect(() => {
-    if (!match || !['tourist', 'guide', 'event_producer', 'boat_tour_operator'].includes(profileType)) {
-      setLocation('/profile-selection');
+    if (
+      !match ||
+      !["tourist", "guide", "event_producer", "boat_tour_operator"].includes(
+        profileType,
+      )
+    ) {
+      setLocation("/profile-selection");
     }
   }, [match, profileType, setLocation]);
 
   // Only render null AFTER all hooks have been called
-  if (!match || !['tourist', 'guide', 'event_producer', 'boat_tour_operator'].includes(profileType)) {
+  if (
+    !match ||
+    !["tourist", "guide", "event_producer", "boat_tour_operator"].includes(
+      profileType,
+    )
+  ) {
     return null;
   }
 
@@ -269,14 +304,16 @@ export default function CreateProfile() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation('/profile-selection')}
+              onClick={() => setLocation("/profile-selection")}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
               Voltar
             </Button>
             <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 bg-gradient-to-br ${config.color} rounded-lg flex items-center justify-center`}>
+              <div
+                className={`w-8 h-8 bg-gradient-to-br ${config.color} rounded-lg flex items-center justify-center`}
+              >
                 <IconComponent className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -298,7 +335,9 @@ export default function CreateProfile() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <div className={`w-10 h-10 bg-gradient-to-br ${config.color} rounded-lg flex items-center justify-center`}>
+                <div
+                  className={`w-10 h-10 bg-gradient-to-br ${config.color} rounded-lg flex items-center justify-center`}
+                >
                   <IconComponent className="h-6 w-6 text-white" />
                 </div>
                 Complete seu perfil
@@ -307,9 +346,12 @@ export default function CreateProfile() {
 
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   {/* Campos comuns para todos */}
-                  {profileType !== 'tourist' && (
+                  {profileType !== "tourist" && (
                     <>
                       <FormField
                         control={form.control}
@@ -321,8 +363,8 @@ export default function CreateProfile() {
                               Telefone/WhatsApp
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="(12) 99999-9999" 
+                              <Input
+                                placeholder="(12) 99999-9999"
                                 {...field}
                                 onChange={(e) => {
                                   const formatted = formatPhone(e.target.value);
@@ -345,10 +387,10 @@ export default function CreateProfile() {
                               Biografia
                             </FormLabel>
                             <FormControl>
-                              <Textarea 
-                                placeholder="Conte um pouco sobre você e sua experiência..." 
+                              <Textarea
+                                placeholder="Conte um pouco sobre você e sua experiência..."
                                 rows={4}
-                                {...field} 
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -359,7 +401,7 @@ export default function CreateProfile() {
                   )}
 
                   {/* Campos específicos por tipo */}
-                  {profileType === 'tourist' && (
+                  {profileType === "tourist" && (
                     <>
                       <FormField
                         control={form.control}
@@ -371,10 +413,7 @@ export default function CreateProfile() {
                               Telefone (opcional)
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="(12) 99999-9999" 
-                                {...field} 
-                              />
+                              <Input placeholder="(12) 99999-9999" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -391,10 +430,10 @@ export default function CreateProfile() {
                               Sobre você
                             </FormLabel>
                             <FormControl>
-                              <Textarea 
-                                placeholder="Conte um pouco sobre você e seus interesses de viagem..." 
+                              <Textarea
+                                placeholder="Conte um pouco sobre você e seus interesses de viagem..."
                                 rows={3}
-                                {...field} 
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -412,9 +451,9 @@ export default function CreateProfile() {
                               Interesses
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Ex: Praias, Trilhas, História, Gastronomia..." 
-                                {...field} 
+                              <Input
+                                placeholder="Ex: Praias, Trilhas, História, Gastronomia..."
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -429,19 +468,34 @@ export default function CreateProfile() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Estilo de viagem</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Selecione seu estilo" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="aventura">Aventura</SelectItem>
-                                  <SelectItem value="relaxante">Relaxante</SelectItem>
-                                  <SelectItem value="cultural">Cultural</SelectItem>
-                                  <SelectItem value="gastronomico">Gastronômico</SelectItem>
-                                  <SelectItem value="familiar">Familiar</SelectItem>
-                                  <SelectItem value="romantico">Romântico</SelectItem>
+                                  <SelectItem value="aventura">
+                                    Aventura
+                                  </SelectItem>
+                                  <SelectItem value="relaxante">
+                                    Relaxante
+                                  </SelectItem>
+                                  <SelectItem value="cultural">
+                                    Cultural
+                                  </SelectItem>
+                                  <SelectItem value="gastronomico">
+                                    Gastronômico
+                                  </SelectItem>
+                                  <SelectItem value="familiar">
+                                    Familiar
+                                  </SelectItem>
+                                  <SelectItem value="romantico">
+                                    Romântico
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -458,17 +512,28 @@ export default function CreateProfile() {
                                 <DollarSign className="h-4 w-4" />
                                 Orçamento por dia
                               </FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Selecione seu orçamento" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="economico">Econômico (até R$ 100)</SelectItem>
-                                  <SelectItem value="medio">Médio (R$ 100-300)</SelectItem>
-                                  <SelectItem value="premium">Premium (R$ 300-500)</SelectItem>
-                                  <SelectItem value="luxo">Luxo (acima de R$ 500)</SelectItem>
+                                  <SelectItem value="economico">
+                                    Econômico (até R$ 100)
+                                  </SelectItem>
+                                  <SelectItem value="medio">
+                                    Médio (R$ 100-300)
+                                  </SelectItem>
+                                  <SelectItem value="premium">
+                                    Premium (R$ 300-500)
+                                  </SelectItem>
+                                  <SelectItem value="luxo">
+                                    Luxo (acima de R$ 500)
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -487,9 +552,9 @@ export default function CreateProfile() {
                               Localização
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Ex: São Paulo, Rio de Janeiro..." 
-                                {...field} 
+                              <Input
+                                placeholder="Ex: São Paulo, Rio de Janeiro..."
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -500,7 +565,7 @@ export default function CreateProfile() {
                   )}
 
                   {/* Guia */}
-                  {profileType === 'guide' && (
+                  {profileType === "guide" && (
                     <>
                       <FormField
                         control={form.control}
@@ -512,9 +577,9 @@ export default function CreateProfile() {
                               Especialidades
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Ex: Trilhas, História Local, Ecoturismo..." 
-                                {...field} 
+                              <Input
+                                placeholder="Ex: Trilhas, História Local, Ecoturismo..."
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -532,10 +597,10 @@ export default function CreateProfile() {
                               Experiência
                             </FormLabel>
                             <FormControl>
-                              <Textarea 
-                                placeholder="Descreva sua experiência como guia turístico..." 
+                              <Textarea
+                                placeholder="Descreva sua experiência como guia turístico..."
                                 rows={3}
-                                {...field} 
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -551,9 +616,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Idiomas</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: Português, Inglês, Espanhol..." 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: Português, Inglês, Espanhol..."
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -570,17 +635,28 @@ export default function CreateProfile() {
                                 <Calendar className="h-4 w-4" />
                                 Disponibilidade
                               </FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Selecione sua disponibilidade" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="todos_os_dias">Todos os dias</SelectItem>
-                                  <SelectItem value="fins_de_semana">Fins de semana</SelectItem>
-                                  <SelectItem value="dias_uteis">Dias úteis</SelectItem>
-                                  <SelectItem value="por_agendamento">Por agendamento</SelectItem>
+                                  <SelectItem value="todos_os_dias">
+                                    Todos os dias
+                                  </SelectItem>
+                                  <SelectItem value="fins_de_semana">
+                                    Fins de semana
+                                  </SelectItem>
+                                  <SelectItem value="dias_uteis">
+                                    Dias úteis
+                                  </SelectItem>
+                                  <SelectItem value="por_agendamento">
+                                    Por agendamento
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -599,8 +675,8 @@ export default function CreateProfile() {
                               Valor do serviço
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Ex: R$ 150,00 por passeio" 
+                              <Input
+                                placeholder="Ex: R$ 150,00 por passeio"
                                 {...field}
                                 onChange={(e) => {
                                   const formatted = `R$ ${formatPrice(e.target.value)}`;
@@ -623,10 +699,10 @@ export default function CreateProfile() {
                               Certificações (opcional)
                             </FormLabel>
                             <FormControl>
-                              <Textarea 
-                                placeholder="Descreva suas certificações, cursos ou qualificações relevantes..." 
+                              <Textarea
+                                placeholder="Descreva suas certificações, cursos ou qualificações relevantes..."
                                 rows={2}
-                                {...field} 
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -645,11 +721,13 @@ export default function CreateProfile() {
                                 WhatsApp (opcional)
                               </FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="(12) 99999-9999" 
+                                <Input
+                                  placeholder="(12) 99999-9999"
                                   {...field}
                                   onChange={(e) => {
-                                    const formatted = formatPhone(e.target.value);
+                                    const formatted = formatPhone(
+                                      e.target.value,
+                                    );
                                     field.onChange(formatted);
                                   }}
                                 />
@@ -669,10 +747,7 @@ export default function CreateProfile() {
                                 Instagram (opcional)
                               </FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="@seuinstagram" 
-                                  {...field} 
-                                />
+                                <Input placeholder="@seuinstagram" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -682,7 +757,7 @@ export default function CreateProfile() {
                     </>
                   )}
 
-                  {profileType === 'event_producer' && (
+                  {profileType === "event_producer" && (
                     <>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
@@ -692,9 +767,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Nome da Empresa</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: Eventos Ubatuba Ltda" 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: Eventos Ubatuba Ltda"
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -709,9 +784,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Tipos de Eventos</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: Música, Cultura, Esporte..." 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: Música, Cultura, Esporte..."
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -728,9 +803,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Experiência</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: 3 anos organizando eventos..." 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: 3 anos organizando eventos..."
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -745,9 +820,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Localização</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: Ubatuba e região..." 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: Ubatuba e região..."
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -758,7 +833,7 @@ export default function CreateProfile() {
                     </>
                   )}
 
-                  {profileType === 'boat_tour_operator' && (
+                  {profileType === "boat_tour_operator" && (
                     <>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
@@ -768,9 +843,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Nome da Empresa</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: Passeios Marítimos Ubatuba" 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: Passeios Marítimos Ubatuba"
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -785,9 +860,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Tipos de Embarcação</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: Lancha, Veleiro, Catamarã..." 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: Lancha, Veleiro, Catamarã..."
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -807,9 +882,9 @@ export default function CreateProfile() {
                                 Capacidade máxima
                               </FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: 12 pessoas" 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: 12 pessoas"
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -824,9 +899,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Experiência</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: 10 anos navegando..." 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: 10 anos navegando..."
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -843,9 +918,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Porto base</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: Marina Ubatuba..." 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: Marina Ubatuba..."
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -860,9 +935,9 @@ export default function CreateProfile() {
                             <FormItem>
                               <FormLabel>Licenças/Certificações</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Ex: Arrais Amador, Capitão..." 
-                                  {...field} 
+                                <Input
+                                  placeholder="Ex: Arrais Amador, Capitão..."
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -877,7 +952,7 @@ export default function CreateProfile() {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setLocation('/profile-selection')}
+                      onClick={() => setLocation("/profile-selection")}
                       className="flex-1"
                     >
                       Voltar

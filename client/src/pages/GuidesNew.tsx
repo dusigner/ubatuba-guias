@@ -173,14 +173,14 @@ export default function GuidesNew() {
                                 <Star
                                   key={i}
                                   className={`h-4 w-4 ${
-                                    i < Math.floor(guide.rating)
+                                    i < Math.floor(guide.rating || 0)
                                       ? 'text-yellow-400 fill-current'
                                       : 'text-gray-300 dark:text-gray-600'
                                   }`}
                                 />
                               ))}
                               <span className="ml-1 text-sm text-gray-600 dark:text-gray-300">
-                                {guide.rating.toFixed(1)}
+                                {(guide.rating || 0).toFixed(1)}
                               </span>
                             </div>
                           </div>

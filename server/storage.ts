@@ -353,25 +353,25 @@ export class DatabaseStorage implements IStorage {
       console.log('Guides encontrados na tabela:', result.rows.length);
       console.log('Dados dos primeiros guides:', result.rows.slice(0, 2));
       
-      // Mapear os dados corretamente - usando IDs da tabela guides
-      const formattedGuides = result.rows.map((row: any) => ({
-        id: row[0], // id da tabela guides (CORRETO)
-        userId: row[1], // user_id (referência)
-        name: row[2] || 'Nome não informado', // name
-        bio: row[15] || row[3] || '', // bio || description
-        description: row[3] || '', // description
-        specialties: Array.isArray(row[4]) ? row[4] : (row[4] ? [row[4]] : []), // specialties
-        experience: row[16] || '', // experience
-        languages: Array.isArray(row[5]) ? row[5] : (row[5] ? [row[5]] : ['Português']), // languages
-        experienceYears: row[6] || 0, // experience_years
-        toursCompleted: row[7] || 0, // tours_completed
-        rating: parseFloat(row[8]) || 0, // rating
-        imageUrl: row[9] || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face', // image_url
-        location: row[10] || 'Ubatuba, SP', // location
-        certifications: Array.isArray(row[11]) ? row[11] : (row[11] ? [row[11]] : []), // certifications
-        whatsapp: row[12], // whatsapp
-        instagram: row[13], // instagram
-        createdAt: row[14], // created_at
+      // Mapear os dados corretamente usando os nomes das colunas
+      const formattedGuides = result.rows.map((guide: any) => ({
+        id: guide.id,
+        userId: guide.user_id,
+        name: guide.name || 'Nome não informado',
+        bio: guide.bio || guide.description || '',
+        description: guide.description || '',
+        specialties: Array.isArray(guide.specialties) ? guide.specialties : (guide.specialties ? [guide.specialties] : []),
+        experience: guide.experience || '',
+        languages: Array.isArray(guide.languages) ? guide.languages : (guide.languages ? [guide.languages] : ['Português']),
+        experienceYears: guide.experience_years || 0,
+        toursCompleted: guide.tours_completed || 0,
+        rating: parseFloat(guide.rating) || 0,
+        imageUrl: guide.image_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+        location: guide.location || 'Ubatuba, SP',
+        certifications: Array.isArray(guide.certifications) ? guide.certifications : (guide.certifications ? [guide.certifications] : []),
+        whatsapp: guide.whatsapp,
+        instagram: guide.instagram,
+        createdAt: guide.created_at,
       }));
       
       console.log('Guides formatados e retornados:', formattedGuides.length);

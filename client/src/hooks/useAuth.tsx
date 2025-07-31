@@ -22,11 +22,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/auth/user'],
     enabled: !!firebaseUser,
     retry: false,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
       const response = await fetch('/api/auth/user', {
         credentials: 'include'
       });
       if (response.status === 401) {
+        console.log('Backend session not found, will sync with Firebase user');
         return null;
       }
       if (!response.ok) {
@@ -57,6 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChange((firebaseUser) => {
       console.log('Estado de autenticação mudou:', firebaseUser ? firebaseUser.email : 'null');
       setFirebaseUser(firebaseUser);
+      
+      // If user is logged in but we don't have backend session, sync
+      if (firebaseUser && !user) {
+        console.log('Firebase user found but no backend session, syncing...');
+        syncUserWithBackend(firebaseUser);
+      }
+      
       setLoading(false);
     });
 

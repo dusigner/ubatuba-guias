@@ -1,10 +1,11 @@
 import { useParams, useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useBookings } from "@/hooks/useBookings";
 import Navigation from "@/components/Navigation";
+import EventModal from "@/components/EventModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { 
   Calendar, Star, MapPin, Clock, Users, ArrowLeft, Share2,
   Heart, Camera, DollarSign, Phone, Mail, Music, 
-  Ticket, PartyPopper, Coffee, Car, Utensils, Gift
+  Ticket, PartyPopper, Coffee, Car, Utensils, Gift, Edit
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -24,6 +25,7 @@ export default function EventProfile() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const { createBooking, isCreating } = useBookings(user?.id);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const eventId = params.id;
 
   useEffect(() => {
@@ -402,6 +404,18 @@ export default function EventProfile() {
                 <Separator />
 
                 <div className="space-y-2">
+                  {/* Edit button for event producers who created this event */}
+                  {user?.userType === 'eventProducer' && event.producerName === `${user.firstName} ${user.lastName}` && (
+                    <Button 
+                      onClick={() => setIsEditModalOpen(true)}
+                      variant="outline"
+                      className="w-full border-sunset text-sunset hover:bg-sunset hover:text-white"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar Evento
+                    </Button>
+                  )}
+                  
                   {!isEventPast && (
                     <Button 
                       onClick={handleTicket}
@@ -455,6 +469,14 @@ export default function EventProfile() {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <EventModal 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        event={event}
+        isEditing={true}
+      />
     </div>
   );
 }

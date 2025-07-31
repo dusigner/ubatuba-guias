@@ -46,9 +46,11 @@ type EventFormData = z.infer<typeof eventSchema>;
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
+  event?: any; // Event data for editing
+  isEditing?: boolean;
 }
 
-export default function EventModal({ isOpen, onClose }: EventModalProps) {
+export default function EventModal({ isOpen, onClose, event, isEditing = false }: EventModalProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -56,31 +58,36 @@ export default function EventModal({ isOpen, onClose }: EventModalProps) {
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      startDate: "",
-      endDate: "",
-      location: "",
-      startTime: "",
-      endTime: "",
-      ticketPrice: "",
-      category: "",
-      producerName: user?.firstName && user?.lastName 
+      title: event?.title || "",
+      description: event?.description || "",
+      startDate: event?.startDate ? new Date(event.startDate).toISOString().split('T')[0] : "",
+      endDate: event?.endDate ? new Date(event.endDate).toISOString().split('T')[0] : "",
+      location: event?.location || "",
+      startTime: event?.startTime || "",
+      endTime: event?.endTime || "",
+      ticketPrice: event?.ticketPrice || "",
+      category: event?.category || "",
+      producerName: event?.producerName || (user?.firstName && user?.lastName 
         ? `${user.firstName} ${user.lastName}`
-        : user?.email || "",
+        : user?.email || ""),
     },
   });
 
-  const createEventMutation = useMutation({
+  const eventMutation = useMutation({
     mutationFn: async (eventData: EventFormData) => {
-      const response = await apiRequest('/api/events', 'POST', eventData);
+      const url = isEditing ? `/api/events/${event.id}` : '/api/events';
+      const method = isEditing ? 'PUT' : 'POST';
+      const response = await apiRequest(url, method, eventData);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+      if (isEditing) {
+        queryClient.invalidateQueries({ queryKey: ['/api/events', event.id] });
+      }
       toast({
-        title: "Evento criado com sucesso!",
-        description: "Seu evento foi cadastrado e já está visível para os turistas.",
+        title: isEditing ? "Evento atualizado com sucesso!" : "Evento criado com sucesso!",
+        description: isEditing ? "As alterações foram salvas." : "Seu evento foi cadastrado e já está visível para os turistas.",
       });
       form.reset();
       onClose();
@@ -98,8 +105,8 @@ export default function EventModal({ isOpen, onClose }: EventModalProps) {
         return;
       }
       toast({
-        title: "Erro ao criar evento",
-        description: "Houve um problema ao cadastrar seu evento. Tente novamente.",
+        title: isEditing ? "Erro ao atualizar evento" : "Erro ao criar evento",
+        description: isEditing ? "Houve um problema ao salvar as alterações. Tente novamente." : "Houve um problema ao cadastrar seu evento. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -119,7 +126,7 @@ export default function EventModal({ isOpen, onClose }: EventModalProps) {
       return;
     }
 
-    createEventMutation.mutate(data);
+    eventMutation.mutate(data);
   };
 
   const handleClose = () => {
@@ -145,10 +152,10 @@ export default function EventModal({ isOpen, onClose }: EventModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center text-2xl">
             <Calendar className="h-6 w-6 text-sunset mr-2" />
-            Cadastrar Novo Evento
+            {isEditing ? "Editar Evento" : "Cadastrar Novo Evento"}
           </DialogTitle>
           <DialogDescription>
-            Divulgue seu evento para milhares de turistas em Ubatuba
+            {isEditing ? "Atualize as informações do seu evento" : "Divulgue seu evento para milhares de turistas em Ubatuba"}
           </DialogDescription>
         </DialogHeader>
 
@@ -345,18 +352,18 @@ export default function EventModal({ isOpen, onClose }: EventModalProps) {
               </Button>
               <Button 
                 type="submit" 
-                disabled={createEventMutation.isPending}
+                disabled={eventMutation.isPending}
                 className="bg-gradient-to-r from-sunset to-ocean text-white hover:opacity-90"
               >
-                {createEventMutation.isPending ? (
+                {eventMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Cadastrando...
+                    {isEditing ? "Salvando..." : "Cadastrando..."}
                   </>
                 ) : (
                   <>
                     <Calendar className="h-4 w-4 mr-2" />
-                    Cadastrar Evento
+                    {isEditing ? "Salvar Alterações" : "Cadastrar Evento"}
                   </>
                 )}
               </Button>

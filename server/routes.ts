@@ -345,6 +345,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/events/:id', authMiddleware, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const eventData = insertEventSchema.parse(req.body);
+      const updatedEvent = await storage.updateEvent(id, eventData);
+      if (!updatedEvent) {
+        return res.status(404).json({ message: "Evento não encontrado" });
+      }
+      res.json(updatedEvent);
+    } catch (error) {
+      console.error("Erro ao atualizar evento:", error);
+      res.status(500).json({ message: "Falha ao atualizar evento" });
+    }
+  });
+
   // Guides routes - busca usuários que são guias
   app.get('/api/guides', async (req, res) => {
     try {

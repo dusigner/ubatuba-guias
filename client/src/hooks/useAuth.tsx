@@ -18,11 +18,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // Get app user data from backend when Firebase user exists
-  const { data: user } = useQuery({
+  const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ['/api/auth/user'],
     enabled: !!firebaseUser,
     retry: false
-  });
+  }) as { data: AppUser | null, refetch: () => void };
 
   useEffect(() => {
     // Handle redirect result on page load
@@ -72,6 +72,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!response.ok) {
         throw new Error('Failed to sync user with backend');
       }
+
+      // After successful login, get user data and redirect
+      const userData = await response.json();
+      
+      // Redirect based on profile completion
+      setTimeout(() => {
+        if (userData.isProfileComplete) {
+          window.location.href = '/home';
+        } else {
+          window.location.href = '/profile-selection';
+        }
+      }, 1000);
     } catch (error) {
       console.error('Error syncing user with backend:', error);
     }

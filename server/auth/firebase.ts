@@ -62,7 +62,7 @@ export async function handleFirebaseLogin(req: Request, res: Response) {
     req.session.user = user;
 
     console.log('✅ Firebase login realizado:', user.email);
-    res.json({ user, message: 'Login realizado com sucesso' });
+    res.json(user);
   } catch (error) {
     console.error('❌ Erro no login Firebase:', error);
     res.status(500).json({ error: 'Erro no login' });

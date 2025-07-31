@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, User } from "firebase/auth";
 
 const firebaseConfig = {
@@ -6,12 +6,15 @@ const firebaseConfig = {
   authDomain: "ubatuba-guias.firebaseapp.com",
   projectId: "ubatuba-guias",
   storageBucket: "ubatuba-guias.firebasestorage.app",
-  messagingSenderId: "123456789", // Optional, can be added if needed
+  messagingSenderId: "1063851833654",
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: "G-6MHBRY7G3K"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+import { getApp, getApps } from 'firebase/app';
+
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 
 // Google Auth Provider

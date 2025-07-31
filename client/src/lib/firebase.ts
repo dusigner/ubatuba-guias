@@ -1,5 +1,5 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
-import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, User } from "firebase/auth";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, User } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -22,6 +22,10 @@ googleProvider.addScope('profile');
 
 // Auth functions
 export const signInWithGoogle = () => {
+  return signInWithPopup(auth, googleProvider);
+};
+
+export const signInWithGoogleRedirect = () => {
   return signInWithRedirect(auth, googleProvider);
 };
 

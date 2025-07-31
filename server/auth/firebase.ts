@@ -1,8 +1,31 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, Express } from 'express';
 import { db } from '../db.js';
 import { users } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
+import session from 'express-session';
+import MemoryStore from 'memorystore';
 import '../types.js';
+
+const MemStore = MemoryStore(session);
+
+export function setupFirebaseAuth(app: Express) {
+  // Configure session middleware with memory storage
+  app.use(session({
+    store: new MemStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
+    secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 * 7, // 7 days
+    },
+  }));
+
+  console.log('✅ Firebase Auth e Sessions configurados com MemoryStore');
+}
 
 // Firebase Admin SDK would be ideal here, but for simplicity we'll validate tokens client-side
 // and trust the frontend authentication state for this demo

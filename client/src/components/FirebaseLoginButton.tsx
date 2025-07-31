@@ -16,9 +16,18 @@ export default function FirebaseLoginButton({
 }: FirebaseLoginButtonProps) {
   const handleSignIn = async () => {
     try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.error('Erro no login:', error);
+      console.log('Iniciando login Google via popup...');
+      const result = await signInWithGoogle();
+      console.log('Login Google realizado com sucesso:', result.user.email);
+      
+      // O AuthProvider vai capturar automaticamente via onAuthStateChanged
+      // Não precisamos fazer nada aqui, apenas aguardar
+    } catch (error: any) {
+      console.error('Erro durante login Google:', error);
+      // Verificar se o erro é por causa do domínio não autorizado
+      if (error.code === 'auth/unauthorized-domain') {
+        alert('Domínio não autorizado no Firebase. Verifique as configurações do projeto.');
+      }
     }
   };
 

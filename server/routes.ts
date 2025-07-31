@@ -13,33 +13,16 @@ import {
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Verificar se estamos em desenvolvimento local ou no Replit
-  const isDevelopment =
-    process.env.NODE_ENV === "development" && !process.env.REPLIT_DOMAINS;
-
-  console.log("Configurando autenticação:", isDevelopment ? "Local" : "Replit");
+  console.log("Configurando autenticação: Firebase");
   console.log("NODE_ENV:", process.env.NODE_ENV);
   console.log("REPLIT_DOMAINS:", process.env.REPLIT_DOMAINS);
 
-  let authMiddleware: any;
+  // Usar Firebase Auth
+  const { setupFirebaseAuth, requireAuth, getCurrentUser, handleLogout, handleFirebaseLogin } = await import("./auth/firebase");
+  setupFirebaseAuth(app);
+  const authMiddleware = requireAuth;
 
-  if (isDevelopment) {
-    // Usar autenticação local
-    const { setupLocalAuth, isAuthenticatedLocal } = await import(
-      "./localAuth"
-    );
-    setupLocalAuth(app);
-    authMiddleware = isAuthenticatedLocal;
-  } else {
-    // Usar Replit Auth
-    const { setupAuth, isAuthenticated } = await import("./replitAuth");
-    await setupAuth(app);
-    authMiddleware = isAuthenticated;
-  }
-
-  // Firebase Auth routes (add them after imports are loaded)
-  const { handleFirebaseLogin, getCurrentUser, handleLogout, requireAuth } = await import("./auth/firebase.js");
-  
+  // Firebase Auth routes
   app.post("/api/auth/firebase-login", handleFirebaseLogin);
   app.get("/api/auth/user", getCurrentUser);
   app.post("/api/auth/logout", handleLogout);

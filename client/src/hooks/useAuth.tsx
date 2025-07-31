@@ -57,6 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChange((firebaseUser) => {
       console.log('Estado de autenticação mudou:', firebaseUser ? firebaseUser.email : 'null');
       setFirebaseUser(firebaseUser);
+      if (firebaseUser) {
+        console.log('Usuário Firebase detectado, sincronizando com backend...');
+        syncUserWithBackend(firebaseUser);
+      }
       setLoading(false);
     });
 

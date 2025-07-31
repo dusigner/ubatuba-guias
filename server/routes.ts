@@ -558,7 +558,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Apenas operadores de passeios podem criar passeios" });
       }
 
-      const tourData = insertBoatTourSchema.parse(req.body);
+      const tourData = insertBoatTourSchema.parse({
+        ...req.body,
+        operatorId: user.id
+      });
       const newTour = await storage.createBoatTour(tourData);
       
       res.status(201).json(newTour);
@@ -568,8 +571,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/boat-tours/:id', authMiddleware, async (req, res) => {
+  app.put('/api/boat-tours/:id', authMiddleware, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      
+      // Get user and tour to check ownership
+      const user = await storage.getUserByEmail(req.user.claims.email);
+      const tour = await storage.getBoatTour(req.params.id);
+      
+      if (!user || !tour) {
+        return res.status(404).json({ message: "Passeio não encontrado" });
+      }
+      
+      // Only tour owner or admin can edit
+      if (tour.operatorId !== user.id && !user.isAdmin) {
+        return res.status(403).json({ message: "Você só pode editar seus próprios passeios" });
+      }
+
       const tourData = insertBoatTourSchema.partial().parse(req.body);
       const updatedTour = await storage.updateBoatTour(req.params.id, tourData);
       res.json(updatedTour);
@@ -579,8 +597,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/boat-tours/:id', authMiddleware, async (req, res) => {
+  app.delete('/api/boat-tours/:id', authMiddleware, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      
+      // Get user and tour to check ownership
+      const user = await storage.getUserByEmail(req.user.claims.email);
+      const tour = await storage.getBoatTour(req.params.id);
+      
+      if (!user || !tour) {
+        return res.status(404).json({ message: "Passeio não encontrado" });
+      }
+      
+      // Only tour owner or admin can delete
+      if (tour.operatorId !== user.id && !user.isAdmin) {
+        return res.status(403).json({ message: "Você só pode excluir seus próprios passeios" });
+      }
+
       await storage.deleteBoatTour(req.params.id);
       res.status(204).send();
     } catch (error) {

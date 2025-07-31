@@ -93,6 +93,7 @@ export const boatTours = pgTable("boat_tours", {
   maxPeople: integer("max_people").notNull(),
   price: decimal("price", { precision: 8, scale: 2 }).notNull(),
   companyName: varchar("company_name").notNull(),
+  operatorId: varchar("operator_id").references(() => users.id, { onDelete: "cascade" }),
   rating: decimal("rating", { precision: 2, scale: 1 }).default("0"),
   reviewCount: integer("review_count").default(0),
   includes: text("includes").array(), // equipment, food, guide, etc.

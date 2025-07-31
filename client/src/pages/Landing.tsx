@@ -796,26 +796,26 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold mb-4">Sobre</h4>
               <ul className="space-y-2 text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">Como Funciona</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Nossa História</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Parcerias</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contato</a></li>
+                <li><a href="/como-funciona" className="hover:text-white transition-colors">Como Funciona</a></li>
+                <li><a href="/nossa-historia" className="hover:text-white transition-colors">Nossa História</a></li>
+                <li><a href="/parcerias" className="hover:text-white transition-colors">Parcerias</a></li>
+                <li><a href="/contato" className="hover:text-white transition-colors">Contato</a></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Suporte</h4>
               <ul className="space-y-2 text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">Central de Ajuda</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Termos de Uso</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacidade</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Para Empresas</a></li>
+                <li><a href="/central-ajuda" className="hover:text-white transition-colors">Central de Ajuda</a></li>
+                <li><a href="/termos-uso" className="hover:text-white transition-colors">Termos de Uso</a></li>
+                <li><a href="/privacidade" className="hover:text-white transition-colors">Privacidade</a></li>
+                <li><a href="/para-empresas" className="hover:text-white transition-colors">Para Empresas</a></li>
               </ul>
             </div>
           </div>
           
           <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400">
-            <p>&copy; 2024 UbatubaIA. Todos os direitos reservados. Desenvolvido com <Heart className="inline h-4 w-4 text-red-500" /> para Ubatuba.</p>
+            <p>&copy; 2025 UbatubaIA. Todos os direitos reservados. Desenvolvido com <Heart className="inline h-4 w-4 text-red-500" /> para Ubatuba.</p>
           </div>
         </div>
       </footer>

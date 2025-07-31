@@ -47,6 +47,14 @@ import RegisterNew from "@/pages/RegisterNew";
 import Settings from "@/pages/Settings";
 import ProfileSelection from "@/pages/ProfileSelection";
 import CreateProfile from "@/pages/CreateProfile";
+import ComoFunciona from "@/pages/ComoFunciona";
+import NossaHistoria from "@/pages/NossaHistoria";
+import Parcerias from "@/pages/Parcerias";
+import Contato from "@/pages/Contato";
+import CentralAjuda from "@/pages/CentralAjuda";
+import TermosUso from "@/pages/TermosUso";
+import Privacidade from "@/pages/Privacidade";
+import ParaEmpresas from "@/pages/ParaEmpresas";
 import NotFound from "@/pages/not-found";
 
 function Navigation() {
@@ -248,6 +256,17 @@ function Router() {
               <Route path="/admin" component={Admin} />
             </>
           )}
+          
+          {/* Páginas do Footer - Disponíveis para todos */}
+          <Route path="/como-funciona" component={ComoFunciona} />
+          <Route path="/nossa-historia" component={NossaHistoria} />
+          <Route path="/parcerias" component={Parcerias} />
+          <Route path="/contato" component={Contato} />
+          <Route path="/central-ajuda" component={CentralAjuda} />
+          <Route path="/termos-uso" component={TermosUso} />
+          <Route path="/privacidade" component={Privacidade} />
+          <Route path="/para-empresas" component={ParaEmpresas} />
+          
           <Route component={NotFound} />
         </Switch>
       </main>

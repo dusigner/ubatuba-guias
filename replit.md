@@ -8,6 +8,15 @@ UbatubaIA is a comprehensive tourism web application focused on Ubatuba, São Pa
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### January 2025 - Footer Pages Implementation
+- Created 8 comprehensive footer pages with detailed content and consistent UI
+- Updated copyright from 2024 to 2025
+- Implemented proper routing for all footer pages
+- Pages include: Como Funciona, Nossa História, Parcerias, Contato, Central de Ajuda, Termos de Uso, Privacidade, Para Empresas
+- All pages feature responsive design with back navigation and appropriate icons
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -58,6 +67,7 @@ Preferred communication style: Simple, everyday language.
 4. **Events Module**: Local events with CRUD operations for producers
 5. **Guides Module**: Local guide profiles created from user profiles with guide type
 6. **Profile Management**: Post-login profile selection and creation system
+7. **Footer Pages**: Complete set of institutional pages (Como Funciona, Nossa História, Parcerias, Contato, Central de Ajuda, Termos de Uso, Privacidade, Para Empresas)
 
 ### UI/UX Design
 - **Theme**: Tropical/coastal design with custom color palette

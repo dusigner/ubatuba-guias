@@ -252,7 +252,7 @@ export default function RegisterNew() {
         <CardContent className="space-y-6">
           {/* Login com Google */}
           <Button
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/firebase-login'}
             variant="outline"
             className="w-full flex items-center justify-center space-x-2"
           >

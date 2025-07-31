@@ -223,15 +223,20 @@ export default function CreateProfile() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Perfil criado com sucesso!",
         description:
           "Você pode agora explorar todas as funcionalidades da plataforma.",
       });
       console.log("Perfil criado, redirecionando para home");
-      // Redirect to home page after profile creation
-      setLocation("/");
+      
+      // Force refresh user data then redirect
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      // Wait a bit for queries to update then redirect
+      setTimeout(() => {
+        setLocation("/");
+      }, 500);
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {

@@ -42,7 +42,7 @@ export default function GuidesNew() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/firebase-login";
       }, 1000);
     }
   }, [isAuthenticated, isLoading, toast]);

@@ -109,7 +109,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/firebase-login";
         }, 500);
         return;
       }

@@ -32,7 +32,7 @@ export default function BeachProfile() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/firebase-login";
       }, 500);
       return;
     }
@@ -51,7 +51,7 @@ export default function BeachProfile() {
       variant: "destructive",
     });
     setTimeout(() => {
-      window.location.href = "/api/login";
+      window.location.href = "/firebase-login";
     }, 500);
     return null;
   }

@@ -30,7 +30,7 @@ export default function LoginInstructions() {
   }, [countdown, autoRedirect]);
 
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    window.location.href = "/firebase-login";
   };
 
   const handleAutoRedirect = () => {

@@ -168,7 +168,7 @@ export default function Register() {
               Você precisa estar logado para completar seu cadastro.
             </p>
             <Button 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/firebase-login'}
               className="bg-ocean text-white hover:bg-ocean/90"
             >
               Fazer Login

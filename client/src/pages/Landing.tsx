@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { 
   Compass, Mountain, Umbrella, Ship, Calendar, Users, Sparkles, Play, Award, Leaf, Heart,
   MapPin, Clock, Star, ArrowRight, Waves, Sun, Navigation, Bot, Smartphone, Globe,
@@ -796,20 +797,20 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold mb-4">Sobre</h4>
               <ul className="space-y-2 text-slate-400">
-                <li><a href="/como-funciona" className="hover:text-white transition-colors">Como Funciona</a></li>
-                <li><a href="/nossa-historia" className="hover:text-white transition-colors">Nossa História</a></li>
-                <li><a href="/parcerias" className="hover:text-white transition-colors">Parcerias</a></li>
-                <li><a href="/contato" className="hover:text-white transition-colors">Contato</a></li>
+                <li><Link href="/como-funciona" className="hover:text-white transition-colors">Como Funciona</Link></li>
+                <li><Link href="/nossa-historia" className="hover:text-white transition-colors">Nossa História</Link></li>
+                <li><Link href="/parcerias" className="hover:text-white transition-colors">Parcerias</Link></li>
+                <li><Link href="/contato" className="hover:text-white transition-colors">Contato</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Suporte</h4>
               <ul className="space-y-2 text-slate-400">
-                <li><a href="/central-ajuda" className="hover:text-white transition-colors">Central de Ajuda</a></li>
-                <li><a href="/termos-uso" className="hover:text-white transition-colors">Termos de Uso</a></li>
-                <li><a href="/privacidade" className="hover:text-white transition-colors">Privacidade</a></li>
-                <li><a href="/para-empresas" className="hover:text-white transition-colors">Para Empresas</a></li>
+                <li><Link href="/central-ajuda" className="hover:text-white transition-colors">Central de Ajuda</Link></li>
+                <li><Link href="/termos-uso" className="hover:text-white transition-colors">Termos de Uso</Link></li>
+                <li><Link href="/privacidade" className="hover:text-white transition-colors">Privacidade</Link></li>
+                <li><Link href="/para-empresas" className="hover:text-white transition-colors">Para Empresas</Link></li>
               </ul>
             </div>
           </div>

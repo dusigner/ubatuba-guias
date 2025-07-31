@@ -62,7 +62,7 @@ export default function AIItinerary({ children }: AIItineraryProps) {
           variant: "destructive",
         });
         setTimeout(() => {
-          (window as any).location.href = "/api/login";
+          (window as any).location.href = "/firebase-login";
         }, 500);
         return;
       }

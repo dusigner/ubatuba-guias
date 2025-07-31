@@ -104,7 +104,7 @@ export default function EventModal({ isOpen, onClose, event, isEditing = false }
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/firebase-login";
         }, 500);
         return;
       }

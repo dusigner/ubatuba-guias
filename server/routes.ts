@@ -892,8 +892,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/itineraries", authMiddleware, async (req: any, res) => {
     try {
       const userClaims = req.user?.claims;
-      const user = await storage.getUserByEmail(userClaims.email);
+      if (!userClaims?.email) {
+        return res.status(401).json({ message: "Unauthorized - no user claims" });
+      }
 
+      const user = await storage.getUserByEmail(userClaims.email);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }

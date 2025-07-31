@@ -623,7 +623,7 @@ export default function Landing() {
 
           <div className="text-center">
             <Button
-              onClick={() => (window.location.href = "/api/login")}
+              onClick={() => (window.location.href = "/firebase-login")}
               className="bg-ocean text-white hover:bg-ocean/90"
             >
               Ver Todos os Passeios
@@ -737,7 +737,7 @@ export default function Landing() {
 
           <div className="text-center">
             <Button
-              onClick={() => (window.location.href = "/api/login")}
+              onClick={() => (window.location.href = "/firebase-login")}
               className="bg-tropical text-white hover:bg-tropical/90"
             >
               Ver Todos os Eventos

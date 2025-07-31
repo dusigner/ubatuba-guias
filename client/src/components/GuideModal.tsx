@@ -91,7 +91,7 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/firebase-login";
         }, 500);
         return;
       }

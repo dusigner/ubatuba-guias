@@ -83,6 +83,8 @@ export default function EventProfile() {
     );
   }
 
+
+
   const formatPrice = (priceString: string) => {
     // Handle string prices like "Gratuito", "R$ 50", etc.
     if (!priceString || priceString.toLowerCase().includes('gratuito') || priceString === '0') {
@@ -186,20 +188,13 @@ export default function EventProfile() {
   };
 
   const handleTicket = () => {
-    console.log('Ticket button clicked. Event data:', { 
-      ticketLink: event.ticketLink, 
-      title: event.title 
-    });
-    
     // If there's a ticket link, use it directly
     if (event.ticketLink && event.ticketLink.trim()) {
-      console.log('Opening ticket link:', event.ticketLink);
       window.open(event.ticketLink, '_blank');
       return;
     }
     
     // Otherwise, use WhatsApp as fallback
-    console.log('Using WhatsApp fallback');
     const message = `Olá! Gostaria de informações sobre ingressos para o evento "${event.title}" no dia ${formatDate(event.startDate)}`;
     const whatsappUrl = `https://wa.me/5512999990001?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');

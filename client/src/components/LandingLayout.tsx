@@ -1,6 +1,7 @@
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { useEffect } from "react";
 import { 
   Compass, 
   Mountain, 
@@ -17,6 +18,11 @@ interface LandingLayoutProps {
 }
 
 export function LandingLayout({ children }: LandingLayoutProps) {
+  // Scroll para o topo quando a página carregar
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Navegação suave para landing page
   const scrollToSection = (sectionId: string) => {
     // Se não estamos na landing page, navegar para ela primeiro
@@ -117,20 +123,20 @@ export function LandingLayout({ children }: LandingLayoutProps) {
             <div>
               <h4 className="font-semibold mb-4">Sobre</h4>
               <ul className="space-y-2 text-slate-400">
-                <li><Link href="/como-funciona" className="hover:text-white transition-colors">Como Funciona</Link></li>
-                <li><Link href="/nossa-historia" className="hover:text-white transition-colors">Nossa História</Link></li>
-                <li><Link href="/parcerias" className="hover:text-white transition-colors">Parcerias</Link></li>
-                <li><Link href="/contato" className="hover:text-white transition-colors">Contato</Link></li>
+                <li><Link href="/como-funciona" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Como Funciona</Link></li>
+                <li><Link href="/nossa-historia" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Nossa História</Link></li>
+                <li><Link href="/parcerias" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Parcerias</Link></li>
+                <li><Link href="/contato" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Contato</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Suporte</h4>
               <ul className="space-y-2 text-slate-400">
-                <li><Link href="/central-ajuda" className="hover:text-white transition-colors">Central de Ajuda</Link></li>
-                <li><Link href="/termos-uso" className="hover:text-white transition-colors">Termos de Uso</Link></li>
-                <li><Link href="/privacidade" className="hover:text-white transition-colors">Privacidade</Link></li>
-                <li><Link href="/para-empresas" className="hover:text-white transition-colors">Para Empresas</Link></li>
+                <li><Link href="/central-ajuda" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Central de Ajuda</Link></li>
+                <li><Link href="/termos-uso" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Termos de Uso</Link></li>
+                <li><Link href="/privacidade" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Privacidade</Link></li>
+                <li><Link href="/para-empresas" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Para Empresas</Link></li>
               </ul>
             </div>
           </div>

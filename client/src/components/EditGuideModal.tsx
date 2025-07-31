@@ -89,11 +89,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
         hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
       };
       
-      return await apiRequest(`/api/guides/${guide.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      return await apiRequest(`/api/guides/${guide.id}`, 'PUT', formData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/guides'] });

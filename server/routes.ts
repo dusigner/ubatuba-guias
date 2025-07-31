@@ -345,18 +345,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/events/:id', authMiddleware, async (req, res) => {
+  app.put('/api/events/:id', authMiddleware, async (req: any, res) => {
     try {
-      const { id } = req.params;
-      const eventData = insertEventSchema.parse(req.body);
-      const updatedEvent = await storage.updateEvent(id, eventData);
-      if (!updatedEvent) {
+      const userId = req.user.claims.sub;
+      const eventId = req.params.id;
+      
+      // Get the event to check ownership
+      const existingEvent = await storage.getEventById(eventId);
+      if (!existingEvent) {
         return res.status(404).json({ message: "Evento não encontrado" });
       }
+      
+      // Get user to check if they are the producer
+      let user = await storage.getUserByEmail(req.user.claims.email);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
+      // Check if user is event producer and owns this event
+      if (user.userType !== 'eventProducer' && user.userType !== 'event_producer') {
+        return res.status(403).json({ message: "Apenas produtores de eventos podem editar eventos" });
+      }
+      
+      // Check if this user created this event
+      const userFullName = `${user.firstName} ${user.lastName}`;
+      if (existingEvent.producerName !== userFullName && existingEvent.producerName !== user.email) {
+        return res.status(403).json({ message: "Você só pode editar eventos que você criou" });
+      }
+      
+      const eventData = insertEventSchema.partial().parse(req.body);
+      const updatedEvent = await storage.updateEvent(eventId, eventData);
       res.json(updatedEvent);
     } catch (error) {
       console.error("Erro ao atualizar evento:", error);
       res.status(500).json({ message: "Falha ao atualizar evento" });
+    }
+  });
+
+  // Delete an event (only event producers can delete their own events)
+  app.delete('/api/events/:id', authMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const eventId = req.params.id;
+      
+      // Get the event to check ownership
+      const existingEvent = await storage.getEventById(eventId);
+      if (!existingEvent) {
+        return res.status(404).json({ message: "Evento não encontrado" });
+      }
+      
+      // Get user to check if they are the producer
+      let user = await storage.getUserByEmail(req.user.claims.email);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
+      // Check if user is event producer and owns this event
+      if (user.userType !== 'eventProducer' && user.userType !== 'event_producer') {
+        return res.status(403).json({ message: "Apenas produtores de eventos podem excluir eventos" });
+      }
+      
+      // Check if this user created this event
+      const userFullName = `${user.firstName} ${user.lastName}`;
+      if (existingEvent.producerName !== userFullName && existingEvent.producerName !== user.email) {
+        return res.status(403).json({ message: "Você só pode excluir eventos que você criou" });
+      }
+      
+      await storage.deleteEvent(eventId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao excluir evento:", error);
+      res.status(500).json({ message: "Falha ao excluir evento" });
     }
   });
 

@@ -13,10 +13,22 @@ import { Separator } from "@/components/ui/separator";
 import { 
   Calendar, Star, MapPin, Clock, Users, ArrowLeft, Share2,
   Heart, Camera, DollarSign, Phone, Mail, Music, 
-  Ticket, PartyPopper, Coffee, Car, Utensils, Gift, Edit
+  Ticket, PartyPopper, Coffee, Car, Utensils, Gift, Edit, Trash2
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { apiRequest } from "@/lib/queryClient";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function EventProfile() {
   const params = useParams();
@@ -26,7 +38,28 @@ export default function EventProfile() {
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const { createBooking, isCreating } = useBookings(user?.id);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   const eventId = params.id;
+
+  // Delete event mutation
+  const deleteEventMutation = useMutation({
+    mutationFn: (id: string) => apiRequest(`/api/events/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      toast({
+        title: "Evento excluído!",
+        description: "O evento foi removido com sucesso.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+      setLocation("/events");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao excluir",
+        description: error.message || "Não foi possível excluir o evento.",
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -439,6 +472,40 @@ export default function EventProfile() {
                       <Edit className="h-4 w-4 mr-2" />
                       Editar Evento
                     </Button>
+                  )}
+
+                  {/* Delete button for event producers who created this event */}
+                  {(user?.userType === 'eventProducer' || user?.userType === 'event_producer') && 
+                   (event.producerName === `${user.firstName} ${user.lastName}` || event.producerName === user.email) && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          variant="outline"
+                          className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Excluir Evento
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta ação não pode ser desfeita. O evento "{event.title}" será permanentemente removido do sistema.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => deleteEventMutation.mutate(event.id)}
+                            disabled={deleteEventMutation.isPending}
+                            className="bg-red-500 hover:bg-red-600"
+                          >
+                            {deleteEventMutation.isPending ? "Excluindo..." : "Sim, excluir"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
                   
                   {!isEventPast && (

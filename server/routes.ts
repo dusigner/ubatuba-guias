@@ -547,6 +547,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create boat tour (only for boat tour operators)
+  app.post('/api/boat-tours', authMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Get user to check type
+      const user = await storage.getUserByEmail(req.user.claims.email);
+      if (!user || user.userType !== 'boat_tour_operator') {
+        return res.status(403).json({ message: "Apenas operadores de passeios podem criar passeios" });
+      }
+
+      const tourData = insertBoatTourSchema.parse(req.body);
+      const newTour = await storage.createBoatTour(tourData);
+      
+      res.status(201).json(newTour);
+    } catch (error) {
+      console.error("Erro ao criar passeio:", error);
+      res.status(500).json({ message: "Falha ao criar passeio" });
+    }
+  });
+
   app.put('/api/boat-tours/:id', authMiddleware, async (req, res) => {
     try {
       const tourData = insertBoatTourSchema.partial().parse(req.body);

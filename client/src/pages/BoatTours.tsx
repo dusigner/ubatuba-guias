@@ -1,19 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import BoatTourModal from "@/components/BoatTourModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Ship, Clock, Users, Star, Check, CalendarPlus, Heart, Flame } from "lucide-react";
+import { Ship, Clock, Users, Star, Check, CalendarPlus, Heart, Flame, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
 export default function BoatTours() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
+  const [showTourModal, setShowTourModal] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -55,20 +57,33 @@ export default function BoatTours() {
     );
   }
 
+  const canCreateTour = user?.userType === 'boat_tour_operator';
+
   return (
     <div className="min-h-screen bg-background">
       
       {/* Header */}
       <section className="bg-gradient-to-br from-ocean/20 via-tropical/10 to-sunset/10 dark:from-ocean/30 dark:via-tropical/20 dark:to-sunset/20 py-16 border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              <Ship className="inline h-12 w-12 text-ocean mr-4" />
-              Passeios de Lancha
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Explore as ilhas e enseadas de Ubatuba com conforto e segurança. Reserve seu passeio com empresas confiáveis
-            </p>
+          <div className="flex flex-col lg:flex-row items-center justify-between">
+            <div>
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+                <Ship className="inline h-12 w-12 text-ocean mr-4" />
+                Passeios de Lancha
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-3xl">
+                Explore as ilhas e enseadas de Ubatuba com conforto e segurança. Reserve seu passeio com empresas confiáveis
+              </p>
+            </div>
+            {canCreateTour && (
+              <Button 
+                onClick={() => setShowTourModal(true)}
+                className="bg-gradient-to-r from-ocean to-sunset text-white hover:opacity-90 mt-6 lg:mt-0"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Cadastrar Passeio
+              </Button>
+            )}
           </div>
         </div>
       </section>
@@ -192,6 +207,12 @@ export default function BoatTours() {
           )}
         </div>
       </section>
+
+      {/* Boat Tour Modal */}
+      <BoatTourModal 
+        isOpen={showTourModal}
+        onClose={() => setShowTourModal(false)}
+      />
     </div>
   );
 }

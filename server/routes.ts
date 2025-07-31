@@ -733,13 +733,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Itinerary generation route
-  app.post('/api/itineraries/generate', authMiddleware, async (req, res) => {
+  app.post('/api/itineraries/generate', authMiddleware, async (req: any, res) => {
     try {
       const { preferences } = req.body;
-      const userId = (req.user as any)?.claims?.sub;
+      const userClaims = req.user?.claims;
       
       if (!preferences) {
         return res.status(400).json({ message: "Preferências são obrigatórias" });
+      }
+
+      // Buscar usuário pelo email para ter o ID correto do banco
+      const user = await storage.getUserByEmail(userClaims.email);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
       }
 
       // Buscar dados reais do banco de dados
@@ -765,9 +771,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Criar título baseado nas preferências
       const title = `Roteiro ${preferences.duration} dias - ${preferences.interests?.slice(0, 2).join(', ') || 'Ubatuba'}`;
       
-      // Salvar roteiro no banco
+      // Salvar roteiro no banco usando o ID correto do usuário
       const savedItinerary = await storage.createItinerary({
-        userId,
+        userId: user.id,
         title,
         duration: preferences.duration,
         preferences,
@@ -782,10 +788,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user itineraries
-  app.get('/api/itineraries', authMiddleware, async (req, res) => {
+  app.get('/api/itineraries', authMiddleware, async (req: any, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
-      const itineraries = await storage.getUserItineraries(userId);
+      const userClaims = req.user?.claims;
+      const user = await storage.getUserByEmail(userClaims.email);
+      
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
+      const itineraries = await storage.getUserItineraries(user.id);
       res.json(itineraries);
     } catch (error) {
       console.error("Erro ao buscar roteiros:", error);

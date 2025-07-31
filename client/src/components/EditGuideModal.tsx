@@ -39,7 +39,7 @@ const editGuideSchema = z.object({
   hourlyRate: z.string().optional(),
   whatsapp: z.string().optional(),
   instagram: z.string().optional(),
-  profileImageUrl: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 type EditGuideFormData = z.infer<typeof editGuideSchema>;
@@ -76,7 +76,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
       hourlyRate: guide.hourlyRate?.toString() || "",
       whatsapp: guide.whatsapp || "",
       instagram: guide.instagram || "",
-      profileImageUrl: guide.profileImageUrl || "",
+      imageUrl: guide.imageUrl || "",
     },
   });
 
@@ -273,7 +273,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
 
             <FormField
               control={form.control}
-              name="profileImageUrl"
+              name="imageUrl"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>URL da Foto de Perfil</FormLabel>

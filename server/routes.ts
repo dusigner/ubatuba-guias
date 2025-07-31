@@ -2,9 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateItinerary, analyzeUserPreferences } from "./gemini";
-import { 
-  insertEventSchema, 
-  insertGuideSchema, 
+import {
+  insertEventSchema,
+  insertGuideSchema,
   insertItinerarySchema,
   insertTrailSchema,
   insertBeachSchema,
@@ -14,17 +14,20 @@ import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Verificar se estamos em desenvolvimento local ou no Replit
-  const isDevelopment = process.env.NODE_ENV === 'development' && !process.env.REPLIT_DOMAINS;
-  
-  console.log('Configurando autenticação:', isDevelopment ? 'Local' : 'Replit');
-  console.log('NODE_ENV:', process.env.NODE_ENV);
-  console.log('REPLIT_DOMAINS:', process.env.REPLIT_DOMAINS);
-  
+  const isDevelopment =
+    process.env.NODE_ENV === "development" && !process.env.REPLIT_DOMAINS;
+
+  console.log("Configurando autenticação:", isDevelopment ? "Local" : "Replit");
+  console.log("NODE_ENV:", process.env.NODE_ENV);
+  console.log("REPLIT_DOMAINS:", process.env.REPLIT_DOMAINS);
+
   let authMiddleware: any;
-  
+
   if (isDevelopment) {
     // Usar autenticação local
-    const { setupLocalAuth, isAuthenticatedLocal } = await import("./localAuth");
+    const { setupLocalAuth, isAuthenticatedLocal } = await import(
+      "./localAuth"
+    );
     setupLocalAuth(app);
     authMiddleware = isAuthenticatedLocal;
   } else {
@@ -35,13 +38,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Auth routes
-  app.get('/api/auth/user', authMiddleware, async (req: any, res) => {
+  app.get("/api/auth/user", authMiddleware, async (req: any, res) => {
     try {
       const replitUserId = req.user.claims.sub;
-      
+
       // First try to find user by email (most reliable for Replit auth)
       let user = await storage.getUserByEmail(req.user.claims.email);
-      
+
       // Se o usuário não existe no banco (primeiro login via Replit), criar
       if (!user && req.user.claims) {
         user = await storage.upsertUser({
@@ -50,11 +53,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           firstName: req.user.claims.first_name,
           lastName: req.user.claims.last_name,
           profileImageUrl: req.user.claims.profile_image_url,
-          userType: 'tourist',
-          isProfileComplete: false
+          userType: "tourist",
+          isProfileComplete: false,
         });
       }
-      
+
       res.json(user);
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
@@ -63,14 +66,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User profile routes
-  app.put('/api/auth/user', authMiddleware, async (req: any, res) => {
+  app.put("/api/auth/user", authMiddleware, async (req: any, res) => {
     try {
       // Find the actual database user by email
       let user = await storage.getUserByEmail(req.user.claims.email);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
-      
+
       const updateData = req.body;
       const updatedUser = await storage.updateUser(user.id, updateData);
       res.json(updatedUser);
@@ -80,17 +83,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Profile completion route  
-  app.post('/api/profile', authMiddleware, async (req: any, res) => {
+  // Profile completion route
+  app.post("/api/profile", authMiddleware, async (req: any, res) => {
     try {
+      console.log("req", req);
       const replitUserId = req.user.claims.sub;
       const profileData = req.body;
-      
-      console.log('Criando perfil para usuário:', replitUserId, 'com dados:', profileData);
-      
+
+      console.log(
+        "Criando perfil para usuário:",
+        replitUserId,
+        "com dados:",
+        profileData,
+      );
+
       // Find the actual database user by email first
       let user = await storage.getUserByEmail(req.user.claims.email);
-      
+
       if (!user) {
         // If user doesn't exist, create them first
         user = await storage.upsertUser({
@@ -99,45 +108,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
           firstName: req.user.claims.first_name,
           lastName: req.user.claims.last_name,
           profileImageUrl: req.user.claims.profile_image_url,
-          userType: 'tourist',
-          isProfileComplete: false
+          userType: "tourist",
+          isProfileComplete: false,
         });
       }
-      
-      console.log('Atualizando perfil do usuário da database:', user.id);
-      
+
+      console.log("Atualizando perfil do usuário da database:", user.id);
+
       const updatedUser = await storage.updateUserProfile(user.id, {
         ...profileData,
-        isProfileComplete: true
+        isProfileComplete: true,
       });
-      
+
       // Se o usuário é um guia, criar entrada na tabela guides
-      if (profileData.userType === 'guide') {
-        console.log('Criando registro de guia para usuário:', user.id);
-        
+      if (profileData.userType === "guide") {
+        console.log("Criando registro de guia para usuário:", user.id);
+
         // Verificar se já existe um guia para este usuário
         const existingGuide = await storage.getGuideByUserId(user.id);
-        
+
         if (!existingGuide) {
           // Criar novo registro de guia
           await storage.createGuideFromProfile(user.id, {
             name: `${updatedUser.firstName} ${updatedUser.lastName}`,
-            description: profileData.bio || '',
-            bio: profileData.bio || '',
-            specialties: profileData.specialties ? profileData.specialties.split(',').map((s: string) => s.trim()) : [],
-            experience: profileData.experience || '',
-            languages: profileData.languages ? profileData.languages.split(',').map((l: string) => l.trim()) : ['Português'],
-            experienceYears: parseInt(profileData.experience?.match(/\d+/)?.[0] || '0'),
+            description: profileData.bio || "",
+            bio: profileData.bio || "",
+            specialties: profileData.specialties
+              ? profileData.specialties.split(",").map((s: string) => s.trim())
+              : [],
+            experience: profileData.experience || "",
+            languages: profileData.languages
+              ? profileData.languages.split(",").map((l: string) => l.trim())
+              : ["Português"],
+            experienceYears: parseInt(
+              profileData.experience?.match(/\d+/)?.[0] || "0",
+            ),
             location: profileData.location || updatedUser.location,
             whatsapp: updatedUser.phone,
             imageUrl: updatedUser.profileImageUrl,
             rating: 0,
             toursCompleted: 0,
-            certifications: []
+            certifications: [],
           });
         }
       }
-      
+
       res.json(updatedUser);
     } catch (error) {
       console.error("Erro ao criar perfil:", error);
@@ -146,21 +161,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Profile completion route (legacy)
-  app.post('/api/profile/complete', authMiddleware, async (req: any, res) => {
+  app.post("/api/profile/complete", authMiddleware, async (req: any, res) => {
     try {
       // Find the actual database user by email
       let user = await storage.getUserByEmail(req.user.claims.email);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
-      
+
       const profileData = req.body;
-      
+
       const updatedUser = await storage.updateUserProfile(user.id, {
         ...profileData,
-        isProfileComplete: true
+        isProfileComplete: true,
       });
-      
+
       res.json(updatedUser);
     } catch (error) {
       console.error("Erro ao completar perfil:", error);
@@ -169,10 +184,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Local authentication routes (for email/password)
-  app.post('/api/auth/register', async (req, res) => {
+  app.post("/api/auth/register", async (req, res) => {
     try {
       const { email, password, firstName, lastName } = req.body;
-      
+
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
@@ -185,8 +200,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password,
         firstName,
         lastName,
-        userType: 'tourist',
-        isProfileComplete: false
+        userType: "tourist",
+        isProfileComplete: false,
       });
 
       // Create session for the new user
@@ -195,8 +210,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sub: newUser.id,
           email: newUser.email,
           first_name: newUser.firstName,
-          last_name: newUser.lastName
-        }
+          last_name: newUser.lastName,
+        },
       };
 
       res.json({ success: true, user: newUser });
@@ -206,10 +221,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/auth/login', async (req, res) => {
+  app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password } = req.body;
-      
+
       const user = await storage.authenticateUser(email, password);
       if (!user) {
         return res.status(401).json({ message: "Email ou senha incorretos" });
@@ -221,8 +236,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sub: user.id,
           email: user.email,
           first_name: user.firstName,
-          last_name: user.lastName
-        }
+          last_name: user.lastName,
+        },
       };
 
       res.json({ success: true, user });
@@ -233,7 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Trails routes
-  app.get('/api/trails', async (req, res) => {
+  app.get("/api/trails", async (req, res) => {
     try {
       const trails = await storage.getTrails();
       res.json(trails);
@@ -243,7 +258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/trails/:id', async (req, res) => {
+  app.get("/api/trails/:id", async (req, res) => {
     try {
       const trail = await storage.getTrailById(req.params.id);
       if (!trail) {
@@ -256,7 +271,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/trails', authMiddleware, async (req, res) => {
+  app.post("/api/trails", authMiddleware, async (req, res) => {
     try {
       const trailData = insertTrailSchema.parse(req.body);
       const newTrail = await storage.createTrail(trailData);
@@ -268,7 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Beaches routes
-  app.get('/api/beaches', async (req, res) => {
+  app.get("/api/beaches", async (req, res) => {
     try {
       const beaches = await storage.getBeaches();
       res.json(beaches);
@@ -278,7 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/beaches/:id', async (req, res) => {
+  app.get("/api/beaches/:id", async (req, res) => {
     try {
       const beach = await storage.getBeachById(req.params.id);
       if (!beach) {
@@ -291,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/beaches', authMiddleware, async (req, res) => {
+  app.post("/api/beaches", authMiddleware, async (req, res) => {
     try {
       const beachData = insertBeachSchema.parse(req.body);
       const newBeach = await storage.createBeach(beachData);
@@ -303,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Boat tours routes
-  app.get('/api/boat-tours', async (req, res) => {
+  app.get("/api/boat-tours", async (req, res) => {
     try {
       const tours = await storage.getBoatTours();
       res.json(tours);
@@ -313,7 +328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/boat-tours/:id', async (req, res) => {
+  app.get("/api/boat-tours/:id", async (req, res) => {
     try {
       const tour = await storage.getBoatTourById(req.params.id);
       if (!tour) {
@@ -326,7 +341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/boat-tours', authMiddleware, async (req, res) => {
+  app.post("/api/boat-tours", authMiddleware, async (req, res) => {
     try {
       const tourData = insertBoatTourSchema.parse(req.body);
       const newTour = await storage.createBoatTour(tourData);
@@ -338,7 +353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Events routes
-  app.get('/api/events', async (req, res) => {
+  app.get("/api/events", async (req, res) => {
     try {
       const events = await storage.getEvents();
       res.json(events);
@@ -348,7 +363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/events/:id', async (req, res) => {
+  app.get("/api/events/:id", async (req, res) => {
     try {
       const event = await storage.getEventById(req.params.id);
       if (!event) {
@@ -361,7 +376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/events', authMiddleware, async (req, res) => {
+  app.post("/api/events", authMiddleware, async (req, res) => {
     try {
       const eventData = insertEventSchema.parse(req.body);
       const newEvent = await storage.createEvent(eventData);
@@ -372,34 +387,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/events/:id', authMiddleware, async (req: any, res) => {
+  app.put("/api/events/:id", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const eventId = req.params.id;
-      
+
       // Get the event to check ownership
       const existingEvent = await storage.getEventById(eventId);
       if (!existingEvent) {
         return res.status(404).json({ message: "Evento não encontrado" });
       }
-      
+
       // Get user to check if they are the producer
       let user = await storage.getUserByEmail(req.user.claims.email);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
-      
+
       // Check if user is event producer and owns this event
-      if (user.userType !== 'eventProducer' && user.userType !== 'event_producer') {
-        return res.status(403).json({ message: "Apenas produtores de eventos podem editar eventos" });
+      if (
+        user.userType !== "eventProducer" &&
+        user.userType !== "event_producer"
+      ) {
+        return res
+          .status(403)
+          .json({
+            message: "Apenas produtores de eventos podem editar eventos",
+          });
       }
-      
+
       // Check if this user created this event
       const userFullName = `${user.firstName} ${user.lastName}`;
-      if (existingEvent.producerName !== userFullName && existingEvent.producerName !== user.email) {
-        return res.status(403).json({ message: "Você só pode editar eventos que você criou" });
+      if (
+        existingEvent.producerName !== userFullName &&
+        existingEvent.producerName !== user.email
+      ) {
+        return res
+          .status(403)
+          .json({ message: "Você só pode editar eventos que você criou" });
       }
-      
+
       const eventData = insertEventSchema.partial().parse(req.body);
       const updatedEvent = await storage.updateEvent(eventId, eventData);
       res.json(updatedEvent);
@@ -410,34 +437,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete an event (only event producers can delete their own events)
-  app.delete('/api/events/:id', authMiddleware, async (req: any, res) => {
+  app.delete("/api/events/:id", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const eventId = req.params.id;
-      
+
       // Get the event to check ownership
       const existingEvent = await storage.getEventById(eventId);
       if (!existingEvent) {
         return res.status(404).json({ message: "Evento não encontrado" });
       }
-      
+
       // Get user to check if they are the producer
       let user = await storage.getUserByEmail(req.user.claims.email);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
-      
+
       // Check if user is event producer and owns this event
-      if (user.userType !== 'eventProducer' && user.userType !== 'event_producer') {
-        return res.status(403).json({ message: "Apenas produtores de eventos podem excluir eventos" });
+      if (
+        user.userType !== "eventProducer" &&
+        user.userType !== "event_producer"
+      ) {
+        return res
+          .status(403)
+          .json({
+            message: "Apenas produtores de eventos podem excluir eventos",
+          });
       }
-      
+
       // Check if this user created this event
       const userFullName = `${user.firstName} ${user.lastName}`;
-      if (existingEvent.producerName !== userFullName && existingEvent.producerName !== user.email) {
-        return res.status(403).json({ message: "Você só pode excluir eventos que você criou" });
+      if (
+        existingEvent.producerName !== userFullName &&
+        existingEvent.producerName !== user.email
+      ) {
+        return res
+          .status(403)
+          .json({ message: "Você só pode excluir eventos que você criou" });
       }
-      
+
       await storage.deleteEvent(eventId);
       res.status(204).send();
     } catch (error) {
@@ -447,7 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guides routes - busca dados da tabela guides
-  app.get('/api/guides', async (req, res) => {
+  app.get("/api/guides", async (req, res) => {
     try {
       const guides = await storage.getGuides();
       res.json(guides);
@@ -457,7 +496,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/guides/:id', async (req, res) => {
+  app.get("/api/guides/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const guide = await storage.getGuide(id);
@@ -472,28 +511,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Criar perfil de guia (separado dos dados do usuário)
-  app.post('/api/guides', authMiddleware, async (req: any, res) => {
+  app.post("/api/guides", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      
+
       // Verificar se o usuário é do tipo guide
       const user = await storage.getUser(userId);
-      if (!user || user.userType !== 'guide') {
-        return res.status(403).json({ message: "Apenas usuários do tipo 'guide' podem criar perfis de guia" });
+      if (!user || user.userType !== "guide") {
+        return res
+          .status(403)
+          .json({
+            message:
+              "Apenas usuários do tipo 'guide' podem criar perfis de guia",
+          });
       }
 
       // Verificar se já tem perfil de guia
       const existingGuide = await storage.getGuideByUserId(userId);
       if (existingGuide) {
-        return res.status(400).json({ message: "Usuário já possui perfil de guia" });
+        return res
+          .status(400)
+          .json({ message: "Usuário já possui perfil de guia" });
       }
 
       // Criar perfil de guia na tabela guides
       const newGuide = await storage.createGuide(userId, req.body);
-      
+
       // Marcar perfil do usuário como completo
       await storage.updateUser(userId, { isProfileComplete: true });
-      
+
       res.status(201).json(newGuide);
     } catch (error) {
       console.error("Error creating guide profile:", error);
@@ -502,11 +548,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Editar perfil de guia (apenas o próprio usuário pode editar)
-  app.put('/api/guides/:id', authMiddleware, async (req: any, res) => {
+  app.put("/api/guides/:id", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const guideId = req.params.id;
-      
+
       // Buscar o guia para verificar se pertence ao usuário
       const guide = await storage.getGuide(guideId);
       if (!guide) {
@@ -517,13 +563,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (guide.userId !== userId) {
         const currentUser = await storage.getUser(userId);
         if (!currentUser?.isAdmin) {
-          return res.status(403).json({ message: "Você só pode editar seu próprio perfil" });
+          return res
+            .status(403)
+            .json({ message: "Você só pode editar seu próprio perfil" });
         }
       }
 
       // Atualizar dados do guia
       const updatedGuide = await storage.updateGuide(guideId, req.body);
-      
+
       res.json(updatedGuide);
     } catch (error) {
       console.error("Error updating guide profile:", error);
@@ -532,7 +580,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes for updating content
-  app.put('/api/trails/:id', authMiddleware, async (req, res) => {
+  app.put("/api/trails/:id", authMiddleware, async (req, res) => {
     try {
       const trailData = insertTrailSchema.partial().parse(req.body);
       const updatedTrail = await storage.updateTrail(req.params.id, trailData);
@@ -543,7 +591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/trails/:id', authMiddleware, async (req, res) => {
+  app.delete("/api/trails/:id", authMiddleware, async (req, res) => {
     try {
       await storage.deleteTrail(req.params.id);
       res.status(204).send();
@@ -553,7 +601,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/beaches/:id', authMiddleware, async (req, res) => {
+  app.put("/api/beaches/:id", authMiddleware, async (req, res) => {
     try {
       const beachData = insertBeachSchema.partial().parse(req.body);
       const updatedBeach = await storage.updateBeach(req.params.id, beachData);
@@ -564,7 +612,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/beaches/:id', authMiddleware, async (req, res) => {
+  app.delete("/api/beaches/:id", authMiddleware, async (req, res) => {
     try {
       await storage.deleteBeach(req.params.id);
       res.status(204).send();
@@ -575,22 +623,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create boat tour (only for boat tour operators)
-  app.post('/api/boat-tours', authMiddleware, async (req: any, res) => {
+  app.post("/api/boat-tours", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      
+
       // Get user to check type
       const user = await storage.getUserByEmail(req.user.claims.email);
-      if (!user || user.userType !== 'boat_tour_operator') {
-        return res.status(403).json({ message: "Apenas operadores de passeios podem criar passeios" });
+      if (!user || user.userType !== "boat_tour_operator") {
+        return res
+          .status(403)
+          .json({
+            message: "Apenas operadores de passeios podem criar passeios",
+          });
       }
 
       const tourData = insertBoatTourSchema.parse({
         ...req.body,
-        operatorId: user.id
+        operatorId: user.id,
       });
       const newTour = await storage.createBoatTour(tourData);
-      
+
       res.status(201).json(newTour);
     } catch (error) {
       console.error("Erro ao criar passeio:", error);
@@ -598,21 +650,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/boat-tours/:id', authMiddleware, async (req: any, res) => {
+  app.put("/api/boat-tours/:id", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      
+
       // Get user and tour to check ownership
       const user = await storage.getUserByEmail(req.user.claims.email);
       const tour = await storage.getBoatTour(req.params.id);
-      
+
       if (!user || !tour) {
         return res.status(404).json({ message: "Passeio não encontrado" });
       }
-      
+
       // Only tour owner or admin can edit
       if (tour.operatorId !== user.id && !user.isAdmin) {
-        return res.status(403).json({ message: "Você só pode editar seus próprios passeios" });
+        return res
+          .status(403)
+          .json({ message: "Você só pode editar seus próprios passeios" });
       }
 
       const tourData = insertBoatTourSchema.partial().parse(req.body);
@@ -624,21 +678,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/boat-tours/:id', authMiddleware, async (req: any, res) => {
+  app.delete("/api/boat-tours/:id", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      
+
       // Get user and tour to check ownership
       const user = await storage.getUserByEmail(req.user.claims.email);
       const tour = await storage.getBoatTour(req.params.id);
-      
+
       if (!user || !tour) {
         return res.status(404).json({ message: "Passeio não encontrado" });
       }
-      
+
       // Only tour owner or admin can delete
       if (tour.operatorId !== user.id && !user.isAdmin) {
-        return res.status(403).json({ message: "Você só pode excluir seus próprios passeios" });
+        return res
+          .status(403)
+          .json({ message: "Você só pode excluir seus próprios passeios" });
       }
 
       await storage.deleteBoatTour(req.params.id);
@@ -649,7 +705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/events/:id', authMiddleware, async (req, res) => {
+  app.put("/api/events/:id", authMiddleware, async (req, res) => {
     try {
       const eventData = insertEventSchema.partial().parse(req.body);
       const updatedEvent = await storage.updateEvent(req.params.id, eventData);
@@ -660,7 +716,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/events/:id', authMiddleware, async (req, res) => {
+  app.delete("/api/events/:id", authMiddleware, async (req, res) => {
     try {
       await storage.deleteEvent(req.params.id);
       res.status(204).send();
@@ -670,7 +726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/guides/:id', authMiddleware, async (req, res) => {
+  app.put("/api/guides/:id", authMiddleware, async (req, res) => {
     try {
       const guideData = insertGuideSchema.partial().parse(req.body);
       const updatedGuide = await storage.updateGuide(req.params.id, guideData);
@@ -681,7 +737,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/guides/:id', authMiddleware, async (req, res) => {
+  app.delete("/api/guides/:id", authMiddleware, async (req, res) => {
     try {
       await storage.deleteGuide(req.params.id);
       res.status(204).send();
@@ -692,13 +748,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin user management routes
-  app.get('/api/admin/users', authMiddleware, async (req: any, res) => {
+  app.get("/api/admin/users", authMiddleware, async (req: any, res) => {
     try {
       const currentUser = await storage.getUser(req.user.claims.sub);
-      if (!currentUser || (currentUser.userType !== 'admin' && !currentUser.isAdmin)) {
-        return res.status(403).json({ message: "Acesso negado. Apenas administradores podem acessar esta funcionalidade." });
+      if (
+        !currentUser ||
+        (currentUser.userType !== "admin" && !currentUser.isAdmin)
+      ) {
+        return res
+          .status(403)
+          .json({
+            message:
+              "Acesso negado. Apenas administradores podem acessar esta funcionalidade.",
+          });
       }
-      
+
       const users = await storage.getAllUsers();
       res.json(users);
     } catch (error) {
@@ -707,15 +771,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/users/:id', authMiddleware, async (req: any, res) => {
+  app.put("/api/admin/users/:id", authMiddleware, async (req: any, res) => {
     try {
       const currentUser = await storage.getUser(req.user.claims.sub);
-      if (!currentUser || (currentUser.userType !== 'admin' && !currentUser.isAdmin)) {
-        return res.status(403).json({ message: "Acesso negado. Apenas administradores podem acessar esta funcionalidade." });
+      if (
+        !currentUser ||
+        (currentUser.userType !== "admin" && !currentUser.isAdmin)
+      ) {
+        return res
+          .status(403)
+          .json({
+            message:
+              "Acesso negado. Apenas administradores podem acessar esta funcionalidade.",
+          });
       }
-      
+
       const userData = req.body;
-      const updatedUser = await storage.adminUpdateUser(req.params.id, userData);
+      const updatedUser = await storage.adminUpdateUser(
+        req.params.id,
+        userData,
+      );
       res.json(updatedUser);
     } catch (error) {
       console.error("Erro ao atualizar usuário:", error);
@@ -724,17 +799,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Profile creation route
-  app.post('/api/profile', authMiddleware, async (req: any, res) => {
+  app.post("/api/profile", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const profileData = req.body;
-      
+
       const updatedUser = await storage.updateUserProfile(userId, {
         ...profileData,
         isProfileComplete: true,
         updatedAt: new Date(),
       });
-      
+
       res.json(updatedUser);
     } catch (error) {
       console.error("Erro ao criar perfil:", error);
@@ -743,12 +818,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze user preferences from text
-  app.post('/api/itineraries/analyze', authMiddleware, async (req, res) => {
+  app.post("/api/itineraries/analyze", authMiddleware, async (req, res) => {
     try {
       const { userInput } = req.body;
-      
+
       if (!userInput) {
-        return res.status(400).json({ message: "Texto de entrada é obrigatório" });
+        return res
+          .status(400)
+          .json({ message: "Texto de entrada é obrigatório" });
       }
 
       const preferences = await analyzeUserPreferences(userInput);
@@ -760,70 +837,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Itinerary generation route
-  app.post('/api/itineraries/generate', authMiddleware, async (req: any, res) => {
-    try {
-      const { preferences } = req.body;
-      const userClaims = req.user?.claims;
-      
-      if (!preferences) {
-        return res.status(400).json({ message: "Preferências são obrigatórias" });
+  app.post(
+    "/api/itineraries/generate",
+    authMiddleware,
+    async (req: any, res) => {
+      try {
+        const { preferences } = req.body;
+        const userClaims = req.user?.claims;
+
+        if (!preferences) {
+          return res
+            .status(400)
+            .json({ message: "Preferências são obrigatórias" });
+        }
+
+        // Buscar usuário pelo email para ter o ID correto do banco
+        const user = await storage.getUserByEmail(userClaims.email);
+        if (!user) {
+          return res.status(404).json({ message: "Usuário não encontrado" });
+        }
+
+        // Buscar dados reais do banco de dados
+        const [trails, beaches, boatTours, events, guides] = await Promise.all([
+          storage.getTrails(),
+          storage.getBeaches(),
+          storage.getBoatTours(),
+          storage.getEvents(),
+          storage.getGuides(),
+        ]);
+
+        const availableData = {
+          trails,
+          beaches,
+          boatTours,
+          events,
+          guides,
+        };
+
+        // Gerar roteiro com dados reais
+        const itinerary = await generateItinerary(preferences, availableData);
+
+        // Criar título baseado nas preferências
+        const title = `Roteiro ${preferences.duration} dias - ${preferences.interests?.slice(0, 2).join(", ") || "Ubatuba"}`;
+
+        // Salvar roteiro no banco usando o ID correto do usuário
+        const savedItinerary = await storage.createItinerary({
+          userId: user.id,
+          title,
+          duration: preferences.duration,
+          preferences,
+          content: itinerary,
+        });
+
+        res.json(savedItinerary);
+      } catch (error) {
+        console.error("Erro ao gerar roteiro:", error);
+        res.status(500).json({ message: "Falha ao gerar roteiro" });
       }
-
-      // Buscar usuário pelo email para ter o ID correto do banco
-      const user = await storage.getUserByEmail(userClaims.email);
-      if (!user) {
-        return res.status(404).json({ message: "Usuário não encontrado" });
-      }
-
-      // Buscar dados reais do banco de dados
-      const [trails, beaches, boatTours, events, guides] = await Promise.all([
-        storage.getTrails(),
-        storage.getBeaches(),
-        storage.getBoatTours(),
-        storage.getEvents(),
-        storage.getGuides()
-      ]);
-
-      const availableData = {
-        trails,
-        beaches,
-        boatTours,
-        events,
-        guides
-      };
-
-      // Gerar roteiro com dados reais
-      const itinerary = await generateItinerary(preferences, availableData);
-      
-      // Criar título baseado nas preferências
-      const title = `Roteiro ${preferences.duration} dias - ${preferences.interests?.slice(0, 2).join(', ') || 'Ubatuba'}`;
-      
-      // Salvar roteiro no banco usando o ID correto do usuário
-      const savedItinerary = await storage.createItinerary({
-        userId: user.id,
-        title,
-        duration: preferences.duration,
-        preferences,
-        content: itinerary,
-      });
-
-      res.json(savedItinerary);
-    } catch (error) {
-      console.error("Erro ao gerar roteiro:", error);
-      res.status(500).json({ message: "Falha ao gerar roteiro" });
-    }
-  });
+    },
+  );
 
   // Get user itineraries
-  app.get('/api/itineraries', authMiddleware, async (req: any, res) => {
+  app.get("/api/itineraries", authMiddleware, async (req: any, res) => {
     try {
       const userClaims = req.user?.claims;
       const user = await storage.getUserByEmail(userClaims.email);
-      
+
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
-      
+
       const itineraries = await storage.getUserItineraries(user.id);
       res.json(itineraries);
     } catch (error) {
@@ -833,7 +916,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Favorites routes
-  app.get('/api/favorites', authMiddleware, async (req, res) => {
+  app.get("/api/favorites", authMiddleware, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       const favorites = await storage.getUserFavorites(userId);
@@ -844,7 +927,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/favorites', authMiddleware, async (req, res) => {
+  app.post("/api/favorites", authMiddleware, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       const favoriteData = { ...req.body, userId };
@@ -856,32 +939,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/favorites/:itemType/:itemId', authMiddleware, async (req, res) => {
-    try {
-      const userId = (req.user as any)?.claims?.sub;
-      const { itemType, itemId } = req.params;
-      await storage.removeFavorite(userId, itemType, itemId);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Erro ao remover favorito:", error);
-      res.status(500).json({ message: "Falha ao remover favorito" });
-    }
-  });
+  app.delete(
+    "/api/favorites/:itemType/:itemId",
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const userId = (req.user as any)?.claims?.sub;
+        const { itemType, itemId } = req.params;
+        await storage.removeFavorite(userId, itemType, itemId);
+        res.status(204).send();
+      } catch (error) {
+        console.error("Erro ao remover favorito:", error);
+        res.status(500).json({ message: "Falha ao remover favorito" });
+      }
+    },
+  );
 
-  app.get('/api/favorites/:itemType/:itemId', authMiddleware, async (req, res) => {
-    try {
-      const userId = (req.user as any)?.claims?.sub;
-      const { itemType, itemId } = req.params;
-      const isFavorited = await storage.isFavorite(userId, itemType, itemId);
-      res.json({ isFavorited });
-    } catch (error) {
-      console.error("Erro ao verificar favorito:", error);
-      res.status(500).json({ message: "Falha ao verificar favorito" });
-    }
-  });
+  app.get(
+    "/api/favorites/:itemType/:itemId",
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const userId = (req.user as any)?.claims?.sub;
+        const { itemType, itemId } = req.params;
+        const isFavorited = await storage.isFavorite(userId, itemType, itemId);
+        res.json({ isFavorited });
+      } catch (error) {
+        console.error("Erro ao verificar favorito:", error);
+        res.status(500).json({ message: "Falha ao verificar favorito" });
+      }
+    },
+  );
 
   // Bookings routes
-  app.get('/api/bookings', authMiddleware, async (req, res) => {
+  app.get("/api/bookings", authMiddleware, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       const bookings = await storage.getUserBookings(userId);
@@ -892,7 +983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/bookings', authMiddleware, async (req, res) => {
+  app.post("/api/bookings", authMiddleware, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       const bookingData = { ...req.body, userId };
@@ -904,7 +995,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/bookings/:id', authMiddleware, async (req, res) => {
+  app.get("/api/bookings/:id", authMiddleware, async (req, res) => {
     try {
       const booking = await storage.getBooking(req.params.id);
       if (!booking) {
@@ -917,10 +1008,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/bookings/:id/status', authMiddleware, async (req, res) => {
+  app.patch("/api/bookings/:id/status", authMiddleware, async (req, res) => {
     try {
       const { status } = req.body;
-      const updatedBooking = await storage.updateBookingStatus(req.params.id, status);
+      const updatedBooking = await storage.updateBookingStatus(
+        req.params.id,
+        status,
+      );
       res.json(updatedBooking);
     } catch (error) {
       console.error("Erro ao atualizar status da reserva:", error);

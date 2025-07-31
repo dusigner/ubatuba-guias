@@ -460,10 +460,7 @@ export class DatabaseStorage implements IStorage {
   async updateGuide(id: string, guideData: any): Promise<any> {
     const [updatedGuide] = await db
       .update(guides)
-      .set({
-        ...guideData,
-        updatedAt: new Date(),
-      })
+      .set(guideData)
       .where(eq(guides.id, id))
       .returning();
       
@@ -486,36 +483,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getGuideByUserId(userId: string): Promise<any | undefined> {
-    // Buscar guia por userId
-    const [result] = await db
-      .select({
-        id: guides.id,
-        userId: guides.userId,
-        bio: guides.bio,
-        specialties: guides.specialties,
-        experience: guides.experience,
-        languages: guides.languages,
-        hourlyRate: guides.hourlyRate,
-        rating: guides.rating,
-        reviewCount: guides.reviewCount,
-        toursCompleted: guides.toursCompleted,
-        profileImageUrl: guides.profileImageUrl,
-        whatsapp: guides.whatsapp,
-        instagram: guides.instagram,
-        createdAt: guides.createdAt,
-        updatedAt: guides.updatedAt,
-        // Dados do usuário
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-        phone: users.phone,
-        location: users.location,
-        userProfileImageUrl: users.profileImageUrl,
-      })
-      .from(guides)
-      .leftJoin(users, eq(guides.userId, users.id))
-      .where(eq(guides.userId, userId));
-    return result;
+    // Buscar guia por userId simples
+    const [guide] = await db.select().from(guides).where(eq(guides.userId, userId));
+    return guide;
   }
 
 

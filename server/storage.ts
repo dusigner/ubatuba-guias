@@ -28,7 +28,7 @@ import {
   type InsertBooking,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -337,36 +337,43 @@ export class DatabaseStorage implements IStorage {
   // Guides
   // Guides  
   async getGuides(): Promise<any[]> {
-    // Buscar guias da tabela legada que tem os dados completos
-    const result = await db.query(`
-      SELECT id, user_id, name, description, specialties, languages, 
-             experience_years, tours_completed, rating, image_url, 
-             location, certifications, whatsapp, instagram, created_at, 
-             bio, experience
-      FROM guides 
-      ORDER BY rating DESC NULLS LAST
-    `);
-    
-    // Mapear os dados para o formato esperado pelo frontend
-    return result.rows.map((guide: any) => ({
-      id: guide.id,
-      userId: guide.user_id,
-      name: guide.name || 'Nome não informado',
-      bio: guide.bio || guide.description || '',
-      description: guide.description || '',
-      specialties: guide.specialties,
-      experience: guide.experience || '',  
-      languages: guide.languages,
-      experienceYears: guide.experience_years || 0,
-      toursCompleted: guide.tours_completed || 0,
-      rating: parseFloat(guide.rating) || 0,
-      imageUrl: guide.image_url,
-      location: guide.location,
-      certifications: guide.certifications,
-      whatsapp: guide.whatsapp,
-      instagram: guide.instagram,
-      createdAt: guide.created_at,
-    }));
+    try {
+      // Usar sql template para query raw com o Drizzle
+      const result = await db.execute(sql`
+        SELECT id, user_id, name, description, specialties, languages, 
+               experience_years, tours_completed, rating, image_url, 
+               location, certifications, whatsapp, instagram, created_at, 
+               bio, experience
+        FROM guides 
+        ORDER BY rating DESC NULLS LAST
+      `);
+      
+      console.log('Guides encontrados:', result.rows.length);
+      
+      // Mapear os dados para o formato esperado pelo frontend
+      return result.rows.map((guide: any) => ({
+        id: guide[0], // id
+        userId: guide[1], // user_id
+        name: guide[2] || 'Nome não informado', // name
+        bio: guide[15] || guide[3] || '', // bio || description
+        description: guide[3] || '', // description
+        specialties: guide[4] || '', // specialties
+        experience: guide[16] || '', // experience
+        languages: guide[5] || '', // languages
+        experienceYears: guide[6] || 0, // experience_years
+        toursCompleted: guide[7] || 0, // tours_completed
+        rating: parseFloat(guide[8]) || 0, // rating
+        imageUrl: guide[9], // image_url
+        location: guide[10], // location
+        certifications: guide[11], // certifications
+        whatsapp: guide[12], // whatsapp
+        instagram: guide[13], // instagram
+        createdAt: guide[14], // created_at
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar guias:', error);
+      return [];
+    }
   }
 
   async getAllGuides(): Promise<Guide[]> {

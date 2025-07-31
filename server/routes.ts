@@ -550,8 +550,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Editar perfil de guia (apenas o próprio usuário pode editar)
   app.put("/api/guides/:id", authMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const replitUserId = req.user.claims.sub;
       const guideId = req.params.id;
+
+      // Buscar o usuário do banco de dados pelo email
+      const currentUser = await storage.getUserByEmail(req.user.claims.email);
+      if (!currentUser) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
 
       // Buscar o guia para verificar se pertence ao usuário
       const guide = await storage.getGuide(guideId);
@@ -560,8 +566,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Verificar se o usuário está editando seu próprio perfil
-      if (guide.userId !== userId) {
-        const currentUser = await storage.getUser(userId);
+      if (guide.userId !== currentUser.id) {
         if (!currentUser?.isAdmin) {
           return res
             .status(403)

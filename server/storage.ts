@@ -337,27 +337,35 @@ export class DatabaseStorage implements IStorage {
   // Guides
   // Guides  
   async getGuides(): Promise<any[]> {
-    // Buscar guias usando os dados da tabela guides diretamente (que contém os dados originais)
-    const result = await db.select().from(guides).orderBy(desc(guides.rating));
+    // Buscar guias da tabela legada que tem os dados completos
+    const result = await db.query(`
+      SELECT id, user_id, name, description, specialties, languages, 
+             experience_years, tours_completed, rating, image_url, 
+             location, certifications, whatsapp, instagram, created_at, 
+             bio, experience
+      FROM guides 
+      ORDER BY rating DESC NULLS LAST
+    `);
     
     // Mapear os dados para o formato esperado pelo frontend
-    return result.map(guide => ({
+    return result.rows.map((guide: any) => ({
       id: guide.id,
+      userId: guide.user_id,
       name: guide.name || 'Nome não informado',
-      bio: guide.bio,
-      description: guide.description,
+      bio: guide.bio || guide.description || '',
+      description: guide.description || '',
       specialties: guide.specialties,
-      experience: guide.experience,
+      experience: guide.experience || '',  
       languages: guide.languages,
-      experienceYears: guide.experienceYears,
-      toursCompleted: guide.toursCompleted,
-      rating: guide.rating,
-      imageUrl: guide.imageUrl,
+      experienceYears: guide.experience_years || 0,
+      toursCompleted: guide.tours_completed || 0,
+      rating: parseFloat(guide.rating) || 0,
+      imageUrl: guide.image_url,
       location: guide.location,
       certifications: guide.certifications,
       whatsapp: guide.whatsapp,
       instagram: guide.instagram,
-      createdAt: guide.createdAt,
+      createdAt: guide.created_at,
     }));
   }
 

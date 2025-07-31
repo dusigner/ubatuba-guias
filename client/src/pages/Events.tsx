@@ -6,7 +6,10 @@ import Navigation from "@/components/Navigation";
 import EventModal from "@/components/EventModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, Ticket, ArrowRight, Plus, Music, Leaf, Fish, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, MapPin, Clock, Ticket, ArrowRight, Plus, Music, Leaf, Fish, User, Filter, ArrowUpDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
@@ -15,6 +18,13 @@ export default function Events() {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [showEventModal, setShowEventModal] = useState(false);
   const [, setLocation] = useLocation();
+  
+  // Filter and sort states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("todos");
+  const [priceFilter, setPriceFilter] = useState("todos");
+  const [sortBy, setSortBy] = useState("data");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -81,6 +91,67 @@ export default function Events() {
 
   const canCreateEvent = user?.userType === 'event_producer';
 
+  // Format price for filtering
+  const getEventPrice = (event: any) => {
+    if (!event.ticketPrice || event.ticketPrice === '0' || event.ticketPrice.toLowerCase().includes('gratuito')) {
+      return 0;
+    }
+    return parseFloat(event.ticketPrice.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+  };
+
+  // Filter and sort events
+  const filteredAndSortedEvents = events
+    .filter((event: any) => {
+      // Search term filter
+      if (searchTerm && !event.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !event.description.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !event.location.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return false;
+      }
+
+      // Category filter
+      if (categoryFilter !== "todos" && event.category.toLowerCase() !== categoryFilter.toLowerCase()) {
+        return false;
+      }
+
+      // Price filter
+      if (priceFilter !== "todos") {
+        const price = getEventPrice(event);
+        if (priceFilter === "gratuito" && price > 0) return false;
+        if (priceFilter === "pago" && price === 0) return false;
+      }
+
+      return true;
+    })
+    .sort((a: any, b: any) => {
+      let compareValue = 0;
+      
+      switch (sortBy) {
+        case "data":
+          compareValue = new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+          break;
+        case "nome":
+          compareValue = a.title.localeCompare(b.title);
+          break;
+        case "preco":
+          compareValue = getEventPrice(a) - getEventPrice(b);
+          break;
+        case "categoria":
+          compareValue = a.category.localeCompare(b.category);
+          break;
+        default:
+          compareValue = 0;
+      }
+      
+      return sortOrder === "asc" ? compareValue : -compareValue;
+    });
+
+  const categories = [...new Set(events.map((event: any) => event.category))];
+
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       
@@ -106,6 +177,104 @@ export default function Events() {
                 Cadastrar Evento
               </Button>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* Filters Section */}
+      <section className="py-8 bg-muted/30 border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-muted-foreground" />
+              <span className="font-medium text-foreground">Filtrar:</span>
+            </div>
+            
+            <div className="flex flex-wrap gap-4 flex-1">
+              {/* Search */}
+              <Input
+                placeholder="Buscar eventos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full lg:w-64"
+              />
+              
+              {/* Category Filter */}
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full lg:w-40">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {/* Price Filter */}
+              <Select value={priceFilter} onValueChange={setPriceFilter}>
+                <SelectTrigger className="w-full lg:w-32">
+                  <SelectValue placeholder="Preço" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="gratuito">Gratuito</SelectItem>
+                  <SelectItem value="pago">Pago</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Ordenar:</span>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="data">Data</SelectItem>
+                  <SelectItem value="nome">Nome</SelectItem>
+                  <SelectItem value="preco">Preço</SelectItem>
+                  <SelectItem value="categoria">Categoria</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleSortOrder}
+                className="p-2"
+              >
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          
+          {/* Results count */}
+          <div className="mt-4 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              {filteredAndSortedEvents.length} evento{filteredAndSortedEvents.length !== 1 ? 's' : ''} encontrado{filteredAndSortedEvents.length !== 1 ? 's' : ''}
+            </p>
+            
+            {/* Active filters */}
+            <div className="flex gap-2">
+              {searchTerm && (
+                <Badge variant="secondary" className="cursor-pointer" onClick={() => setSearchTerm("")}>
+                  "{searchTerm}" ✕
+                </Badge>
+              )}
+              {categoryFilter !== "todos" && (
+                <Badge variant="secondary" className="cursor-pointer" onClick={() => setCategoryFilter("todos")}>
+                  {categoryFilter} ✕
+                </Badge>
+              )}
+              {priceFilter !== "todos" && (
+                <Badge variant="secondary" className="cursor-pointer" onClick={() => setPriceFilter("todos")}>
+                  {priceFilter} ✕
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -139,9 +308,9 @@ export default function Events() {
                 </Card>
               ))}
             </div>
-          ) : events && events.length > 0 ? (
+          ) : filteredAndSortedEvents && filteredAndSortedEvents.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {events.map((event: any) => {
+              {filteredAndSortedEvents.map((event: any) => {
                 const CategoryIcon = getCategoryIcon(event.category);
                 return (
                   <Card key={event.id} className="bg-gradient-to-br from-background to-muted/30 border border-border hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/events/${event.id}`)}>
@@ -192,6 +361,37 @@ export default function Events() {
                   </Card>
                 );
               })}
+            </div>
+          ) : events && events.length > 0 ? (
+            <div className="text-center py-12">
+              <Filter className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-2xl font-semibold text-muted-foreground mb-2">
+                Nenhum evento encontrado
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Não encontramos eventos com os filtros aplicados. Tente ajustar os filtros ou limpar a busca.
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Button 
+                  onClick={() => {
+                    setSearchTerm("");
+                    setCategoryFilter("todos");
+                    setPriceFilter("todos");
+                  }}
+                  variant="outline"
+                >
+                  Limpar Filtros
+                </Button>
+                {canCreateEvent && (
+                  <Button 
+                    onClick={() => setShowEventModal(true)}
+                    className="bg-gradient-to-r from-sunset to-ocean text-white hover:opacity-90"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Cadastrar Evento
+                  </Button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="text-center py-16">

@@ -43,7 +43,7 @@ export default function EventProfile() {
 
   // Delete event mutation
   const deleteEventMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/events/${id}`, { method: 'DELETE' }),
+    mutationFn: (id: string) => apiRequest(`/api/events/${id}`, 'DELETE'),
     onSuccess: () => {
       toast({
         title: "Evento excluído!",

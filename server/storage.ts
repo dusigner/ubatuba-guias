@@ -455,11 +455,6 @@ export class DatabaseStorage implements IStorage {
     return tour;
   }
 
-  async getEventById(id: string): Promise<Event | undefined> {
-    const [event] = await db.select().from(events).where(eq(events.id, id));
-    return event;
-  }
-
   async getGuideByUserId(userId: string): Promise<any | undefined> {
     // Buscar guia por userId
     const [result] = await db

@@ -195,7 +195,23 @@ export default function CreateProfile() {
         title: "Perfil criado com sucesso!",
         description: "Você pode agora explorar todas as funcionalidades da plataforma.",
       });
-      setLocation('/');
+      
+      // Redirect based on user type
+      switch (profileType) {
+        case 'guide':
+          setLocation('/guides');
+          break;
+        case 'event_producer':
+          setLocation('/events');
+          break;
+        case 'boat_tour_operator':
+          setLocation('/boat-tours');
+          break;
+        case 'tourist':
+        default:
+          setLocation('/');
+          break;
+      }
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {

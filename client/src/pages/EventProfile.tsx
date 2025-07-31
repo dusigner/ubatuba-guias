@@ -405,7 +405,14 @@ export default function EventProfile() {
 
                 <div className="space-y-2">
                   {/* Edit button for event producers who created this event */}
-                  {user?.userType === 'eventProducer' && event.producerName === `${user.firstName} ${user.lastName}` && (
+                  {console.log('Debug info:', { 
+                    userType: user?.userType, 
+                    userName: `${user?.firstName} ${user?.lastName}`, 
+                    producerName: event.producerName,
+                    userEmail: user?.email 
+                  })}
+                  {(user?.userType === 'eventProducer' || user?.userType === 'event_producer') && 
+                   (event.producerName === `${user.firstName} ${user.lastName}` || event.producerName === user.email) && (
                     <Button 
                       onClick={() => setIsEditModalOpen(true)}
                       variant="outline"

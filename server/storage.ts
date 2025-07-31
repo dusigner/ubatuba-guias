@@ -338,38 +338,38 @@ export class DatabaseStorage implements IStorage {
   // Guides  
   async getGuides(): Promise<any[]> {
     try {
-      // Usar sql template para query raw com o Drizzle
-      const result = await db.execute(sql`
-        SELECT id, user_id, name, description, specialties, languages, 
-               experience_years, tours_completed, rating, image_url, 
-               location, certifications, whatsapp, instagram, created_at, 
-               bio, experience
-        FROM guides 
-        ORDER BY rating DESC NULLS LAST
-      `);
+      console.log('Iniciando busca de guias...');
       
-      console.log('Guides encontrados:', result.rows.length);
+      // Abordagem simples: usar o ORM diretamente e mapear corretamente
+      const guidesData = await db.select().from(guides);
       
-      // Mapear os dados para o formato esperado pelo frontend
-      return result.rows.map((guide: any) => ({
-        id: guide[0], // id
-        userId: guide[1], // user_id
-        name: guide[2] || 'Nome não informado', // name
-        bio: guide[15] || guide[3] || '', // bio || description
-        description: guide[3] || '', // description
-        specialties: guide[4] || '', // specialties
-        experience: guide[16] || '', // experience
-        languages: guide[5] || '', // languages
-        experienceYears: guide[6] || 0, // experience_years
-        toursCompleted: guide[7] || 0, // tours_completed
-        rating: parseFloat(guide[8]) || 0, // rating
-        imageUrl: guide[9], // image_url
-        location: guide[10], // location
-        certifications: guide[11], // certifications
-        whatsapp: guide[12], // whatsapp
-        instagram: guide[13], // instagram
-        createdAt: guide[14], // created_at
+      console.log('Guides raw encontrados:', guidesData.length);
+      console.log('Primeiro guide:', guidesData[0]);
+      
+      // Mapear para o formato esperado pelo frontend
+      const formattedGuides = guidesData.map((guide: any) => ({
+        id: guide.id,
+        userId: guide.userId,
+        name: guide.name || 'Nome não informado',
+        bio: guide.bio || guide.description || '',
+        description: guide.description || '',
+        specialties: Array.isArray(guide.specialties) ? guide.specialties : [guide.specialties].filter(Boolean),
+        experience: guide.experience || '',
+        languages: Array.isArray(guide.languages) ? guide.languages : [guide.languages].filter(Boolean),
+        experienceYears: guide.experienceYears || 0,
+        toursCompleted: guide.toursCompleted || 0,
+        rating: parseFloat(guide.rating) || 0,
+        imageUrl: guide.imageUrl,
+        location: guide.location,
+        certifications: Array.isArray(guide.certifications) ? guide.certifications : [guide.certifications].filter(Boolean),
+        whatsapp: guide.whatsapp,
+        instagram: guide.instagram,
+        createdAt: guide.createdAt,
       }));
+      
+      console.log('Guides formatados:', formattedGuides.length);
+      return formattedGuides;
+      
     } catch (error) {
       console.error('Erro ao buscar guias:', error);
       return [];

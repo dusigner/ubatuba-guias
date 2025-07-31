@@ -219,6 +219,15 @@ function Router() {
             <>
               <Route path="/" component={Landing} />
               <Route path="/register" component={RegisterNew} />
+              {/* Páginas do Footer - Disponíveis para usuários não autenticados */}
+              <Route path="/como-funciona" component={ComoFunciona} />
+              <Route path="/nossa-historia" component={NossaHistoria} />
+              <Route path="/parcerias" component={Parcerias} />
+              <Route path="/contato" component={Contato} />
+              <Route path="/central-ajuda" component={CentralAjuda} />
+              <Route path="/termos-uso" component={TermosUso} />
+              <Route path="/privacidade" component={Privacidade} />
+              <Route path="/para-empresas" component={ParaEmpresas} />
               <Route component={Landing} />
             </>
           ) : user && !user.userType ? (
@@ -226,6 +235,15 @@ function Router() {
               <Route path="/" component={ProfileSelection} />
               <Route path="/profile-selection" component={ProfileSelection} />
               <Route path="/create-profile/:type" component={CreateProfile} />
+              {/* Páginas do Footer - Disponíveis durante seleção de perfil */}
+              <Route path="/como-funciona" component={ComoFunciona} />
+              <Route path="/nossa-historia" component={NossaHistoria} />
+              <Route path="/parcerias" component={Parcerias} />
+              <Route path="/contato" component={Contato} />
+              <Route path="/central-ajuda" component={CentralAjuda} />
+              <Route path="/termos-uso" component={TermosUso} />
+              <Route path="/privacidade" component={Privacidade} />
+              <Route path="/para-empresas" component={ParaEmpresas} />
               <Route component={ProfileSelection} />
             </>
           ) : user && !user.isProfileComplete ? (
@@ -233,6 +251,15 @@ function Router() {
               <Route path="/" component={CreateProfile} />
               <Route path="/profile-selection" component={ProfileSelection} />
               <Route path="/create-profile/:type" component={CreateProfile} />
+              {/* Páginas do Footer - Disponíveis durante criação de perfil */}
+              <Route path="/como-funciona" component={ComoFunciona} />
+              <Route path="/nossa-historia" component={NossaHistoria} />
+              <Route path="/parcerias" component={Parcerias} />
+              <Route path="/contato" component={Contato} />
+              <Route path="/central-ajuda" component={CentralAjuda} />
+              <Route path="/termos-uso" component={TermosUso} />
+              <Route path="/privacidade" component={Privacidade} />
+              <Route path="/para-empresas" component={ParaEmpresas} />
               <Route component={CreateProfile} />
             </>
           ) : (

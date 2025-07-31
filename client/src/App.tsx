@@ -35,7 +35,7 @@ import Trails from "@/pages/Trails";
 import Beaches from "@/pages/Beaches";
 import BoatTours from "@/pages/BoatTours";
 import Events from "@/pages/Events";
-import Guides from "@/pages/Guides";
+import GuidesNew from "@/pages/GuidesNew";
 import GuideProfile from "@/pages/GuideProfile";
 import TrailProfile from "@/pages/TrailProfile";
 import BeachProfile from "@/pages/BeachProfile";
@@ -234,7 +234,7 @@ function Router() {
               <Route path="/beaches" component={Beaches} />
               <Route path="/boat-tours" component={BoatTours} />
               <Route path="/events" component={Events} />
-              <Route path="/guides" component={Guides} />
+              <Route path="/guides" component={GuidesNew} />
               <Route path="/guides/:id" component={GuideProfile} />
               <Route path="/trails/:id" component={TrailProfile} />
               <Route path="/beaches/:id" component={BeachProfile} />

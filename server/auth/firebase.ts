@@ -64,7 +64,7 @@ export async function handleFirebaseLogin(req: Request, res: Response) {
           firstName: firstName,
           lastName: lastName,
           profileImageUrl: photoURL || null,
-          userType: 'tourist', // Default type
+          userType: null, // No default type - force profile selection
           isProfileComplete: false
         })
         .returning();

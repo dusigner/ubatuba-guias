@@ -62,13 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setFirebaseUser(firebaseUser);
       
       // Sync when Firebase state changes if we don't have backend user data
-      if (firebaseUser) {
-        setTimeout(() => {
-          if (!user) {
-            console.log('Firebase user found but no backend session, syncing...');
-            syncUserWithBackend(firebaseUser);
-          }
-        }, 100);
+      if (firebaseUser && !user) {
+        console.log('Firebase user found but no backend session, syncing...');
+        syncUserWithBackend(firebaseUser);
       }
       
       setLoading(false);

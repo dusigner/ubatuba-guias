@@ -236,7 +236,7 @@ function Router() {
               <Route path="/login-instructions" component={LoginInstructions} />
               <Route component={Landing} />
             </>
-          ) : firebaseUser && (!user || !user.userType) ? (
+          ) : firebaseUser && !user ? (
             <>
               <Route path="/" component={ProfileSelection} />
               <Route path="/profile-selection" component={ProfileSelection} />
@@ -252,7 +252,7 @@ function Router() {
               <Route path="/para-empresas" component={ParaEmpresas} />
               <Route component={ProfileSelection} />
             </>
-          ) : user && !user.isProfileComplete ? (
+          ) : user && (!user.userType || !user.isProfileComplete) ? (
             <>
               <Route path="/" component={CreateProfile} />
               <Route path="/profile-selection" component={ProfileSelection} />

@@ -137,7 +137,7 @@ export default function Landing() {
             <div className="flex items-center space-x-4">
               <ThemeToggle />
               <Button
-                onClick={() => (window.location.href = "/login-instructions")}
+                onClick={() => (window.location.href = "/firebase-login")}
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Users className="h-4 w-4 mr-2" />
@@ -194,7 +194,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                onClick={() => (window.location.href = "/login-instructions")}
+                onClick={() => (window.location.href = "/firebase-login")}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 text-lg px-8 py-6 shadow-2xl"
               >
                 <Sparkles className="h-5 w-5 mr-2" />

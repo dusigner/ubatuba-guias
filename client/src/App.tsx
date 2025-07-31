@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator 
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, AuthProvider } from "@/hooks/useAuth";
 import { 
   User, 
   Settings as SettingsIcon, 
@@ -57,6 +57,7 @@ import Privacidade from "@/pages/Privacidade";
 import ParaEmpresas from "@/pages/ParaEmpresas";
 import LoginInstructions from "@/pages/LoginInstructions";
 import NotFound from "@/pages/not-found";
+import FirebaseLogin from "@/pages/FirebaseLogin";
 
 function Navigation() {
   const { user } = useAuth();
@@ -196,7 +197,9 @@ function Navigation() {
 }
 
 function Router() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, firebaseUser, loading } = useAuth();
+  const isAuthenticated = !!user;
+  const isLoading = loading;
 
   // Loading state
   if (isLoading) {
@@ -216,9 +219,10 @@ function Router() {
       
       <main>
         <Switch>
-          {!isAuthenticated ? (
+          {!firebaseUser ? (
             <>
               <Route path="/" component={Landing} />
+              <Route path="/firebase-login" component={FirebaseLogin} />
               <Route path="/register" component={RegisterNew} />
               {/* Páginas do Footer - Disponíveis para usuários não autenticados */}
               <Route path="/como-funciona" component={ComoFunciona} />
@@ -232,7 +236,7 @@ function Router() {
               <Route path="/login-instructions" component={LoginInstructions} />
               <Route component={Landing} />
             </>
-          ) : user && !user.userType ? (
+          ) : firebaseUser && (!user || !user.userType) ? (
             <>
               <Route path="/" component={ProfileSelection} />
               <Route path="/profile-selection" component={ProfileSelection} />
@@ -306,10 +310,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+            <Router />
+          </div>
+          <Toaster />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

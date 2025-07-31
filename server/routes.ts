@@ -37,8 +37,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     authMiddleware = isAuthenticated;
   }
 
-  // Auth routes
-  app.get("/api/auth/user", authMiddleware, async (req: any, res) => {
+  // Firebase Auth routes (add them after imports are loaded)
+  const { handleFirebaseLogin, getCurrentUser, handleLogout, requireAuth } = await import("./auth/firebase.js");
+  
+  app.post("/api/auth/firebase-login", handleFirebaseLogin);
+  app.get("/api/auth/user", getCurrentUser);
+  app.post("/api/auth/logout", handleLogout);
+
+  // Legacy auth route handling for both systems
+  app.get("/api/auth/user-legacy", authMiddleware, async (req: any, res) => {
     try {
       const replitUserId = req.user.claims.sub;
 

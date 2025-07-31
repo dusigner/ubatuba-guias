@@ -10,6 +10,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### January 2025 - Firebase Authentication Implementation
+- Migrated from Replit Auth to Firebase Authentication with Google Sign-In
+- Implemented Firebase SDK integration with React frontend
+- Created Firebase hosting configuration for deployment
+- Added local development setup with PostgreSQL support
+- Updated authentication flow to use Firebase tokens
+- Created deployment documentation for Firebase hosting
+- Maintained backward compatibility during transition
+
 ### January 2025 - Footer Pages Implementation
 - Created 8 comprehensive footer pages with detailed content and consistent UI
 - Updated copyright from 2024 to 2025
@@ -45,11 +54,11 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Authentication System
-- **Provider**: Replit Auth using OpenID Connect with local fallback
-- **Session Management**: Express sessions stored in PostgreSQL
+- **Provider**: Firebase Authentication with Google Sign-In (replacing Replit Auth)
+- **Session Management**: Firebase Authentication with backend session synchronization
 - **User Types**: Four distinct user roles (tourists, guides, event producers, boat tour operators)
 - **Profile Flow**: Post-login profile selection and creation system
-- **Authorization**: Route-level protection with middleware
+- **Authorization**: Route-level protection with Firebase middleware
 
 ### AI-Powered Itinerary Generation
 - **Service**: Google Gemini AI integration (free alternative to OpenAI)

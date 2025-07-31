@@ -61,10 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('Estado de autenticação mudou:', firebaseUser ? firebaseUser.email : 'null');
       setFirebaseUser(firebaseUser);
       
-      // If user is logged in but we don't have backend session, sync
-      if (firebaseUser && !user) {
-        console.log('Firebase user found but no backend session, syncing...');
-        syncUserWithBackend(firebaseUser);
+      // Sync when Firebase state changes if we don't have backend user data
+      if (firebaseUser) {
+        setTimeout(() => {
+          if (!user) {
+            console.log('Firebase user found but no backend session, syncing...');
+            syncUserWithBackend(firebaseUser);
+          }
+        }, 100);
       }
       
       setLoading(false);

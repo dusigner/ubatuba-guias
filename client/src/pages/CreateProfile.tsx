@@ -229,23 +229,9 @@ export default function CreateProfile() {
         description:
           "Você pode agora explorar todas as funcionalidades da plataforma.",
       });
-      console.log("profileType", profileType);
-      // Redirect based on user type
-      switch (profileType) {
-        case "guide":
-          setLocation("/guides");
-          break;
-        case "event_producer":
-          setLocation("/events");
-          break;
-        case "boat_tour_operator":
-          setLocation("/boat-tours");
-          break;
-        case "tourist":
-        default:
-          setLocation("/");
-          break;
-      }
+      console.log("Perfil criado, redirecionando para home");
+      // Redirect to home page after profile creation
+      setLocation("/");
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {
@@ -255,7 +241,7 @@ export default function CreateProfile() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/firebase-login";
         }, 500);
         return;
       }

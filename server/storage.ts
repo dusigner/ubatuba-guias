@@ -337,36 +337,28 @@ export class DatabaseStorage implements IStorage {
   // Guides
   // Guides  
   async getGuides(): Promise<any[]> {
-    // Buscar guias com dados do usuário associado
-    const result = await db
-      .select({
-        id: guides.id,
-        userId: guides.userId,
-        bio: guides.bio,
-        specialties: guides.specialties,
-        experience: guides.experience,
-        languages: guides.languages,
-        hourlyRate: guides.hourlyRate,
-        rating: guides.rating,
-        reviewCount: guides.reviewCount,
-        toursCompleted: guides.toursCompleted,
-        profileImageUrl: guides.profileImageUrl,
-        whatsapp: guides.whatsapp,
-        instagram: guides.instagram,
-        createdAt: guides.createdAt,
-        updatedAt: guides.updatedAt,
-        // Dados do usuário
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-        phone: users.phone,
-        location: users.location,
-        userProfileImageUrl: users.profileImageUrl,
-      })
-      .from(guides)
-      .leftJoin(users, eq(guides.userId, users.id))
-      .orderBy(desc(guides.rating));
-    return result;
+    // Buscar guias usando os dados da tabela guides diretamente (que contém os dados originais)
+    const result = await db.select().from(guides).orderBy(desc(guides.rating));
+    
+    // Mapear os dados para o formato esperado pelo frontend
+    return result.map(guide => ({
+      id: guide.id,
+      name: guide.name || 'Nome não informado',
+      bio: guide.bio,
+      description: guide.description,
+      specialties: guide.specialties,
+      experience: guide.experience,
+      languages: guide.languages,
+      experienceYears: guide.experienceYears,
+      toursCompleted: guide.toursCompleted,
+      rating: guide.rating,
+      imageUrl: guide.imageUrl,
+      location: guide.location,
+      certifications: guide.certifications,
+      whatsapp: guide.whatsapp,
+      instagram: guide.instagram,
+      createdAt: guide.createdAt,
+    }));
   }
 
   async getAllGuides(): Promise<Guide[]> {

@@ -60,7 +60,7 @@ import NotFound from "@/pages/not-found";
 import FirebaseLogin from "@/pages/FirebaseLogin";
 
 function Navigation() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [location] = useLocation();
 
   const navItems = [
@@ -158,7 +158,7 @@ function Navigation() {
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
-                  onClick={() => window.location.href = '/api/logout'}
+                  onClick={signOut}
                   className="text-red-600 dark:text-red-400"
                 >
                   <LogOut className="mr-2 h-4 w-4" />

@@ -21,6 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Ship, Clock, Users, DollarSign, Star, Camera, MessageCircle } from "lucide-react";
+import { formatPhone, formatPrice } from "@/lib/masks";
 
 const boatTourSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório").max(100, "Nome muito longo"),
@@ -233,7 +234,14 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                       Preço (R$)
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: 250,00" {...field} />
+                      <Input 
+                        placeholder="Ex: 250,00" 
+                        {...field} 
+                        onChange={(e) => {
+                          const formatted = formatPrice(e.target.value);
+                          field.onChange(formatted);
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -288,6 +296,10 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                     <Input 
                       placeholder="Ex: (12) 99999-9999"
                       {...field}
+                      onChange={(e) => {
+                        const formatted = formatPhone(e.target.value);
+                        field.onChange(formatted);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

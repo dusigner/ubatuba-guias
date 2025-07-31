@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Edit, Trash2, Plus, Ship } from "lucide-react";
+import { formatPrice, formatPhone } from "@/lib/masks";
 import type { BoatTour, InsertBoatTour } from "@shared/schema";
 
 export default function AdminBoatTours() {
@@ -219,8 +220,11 @@ export default function AdminBoatTours() {
                   <label className="block text-sm font-medium mb-2">Preço (R$)</label>
                   <Input
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="280.00"
+                    onChange={(e) => {
+                      const formatted = formatPrice(e.target.value);
+                      setFormData({ ...formData, price: formatted });
+                    }}
+                    placeholder="280,00"
                     required
                   />
                 </div>

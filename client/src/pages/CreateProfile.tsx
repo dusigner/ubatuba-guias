@@ -32,6 +32,7 @@ import {
   Clock,
   Users
 } from "lucide-react";
+import { formatPhone } from "@/lib/masks";
 
 // Schemas para validação
 const touristProfileSchema = z.object({
@@ -314,7 +315,11 @@ export default function CreateProfile() {
                             <FormControl>
                               <Input 
                                 placeholder="(12) 99999-9999" 
-                                {...field} 
+                                {...field}
+                                onChange={(e) => {
+                                  const formatted = formatPhone(e.target.value);
+                                  field.onChange(formatted);
+                                }}
                               />
                             </FormControl>
                             <FormMessage />

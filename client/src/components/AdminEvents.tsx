@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Edit, Trash2, Plus, Calendar } from "lucide-react";
+import { formatPrice } from "@/lib/masks";
 import type { Event, InsertEvent } from "@shared/schema";
 
 export default function AdminEvents() {
@@ -246,8 +247,11 @@ export default function AdminEvents() {
                   <label className="block text-sm font-medium mb-2">Preço Ingresso</label>
                   <Input
                     value={formData.ticketPrice}
-                    onChange={(e) => setFormData({ ...formData, ticketPrice: e.target.value })}
-                    placeholder="0.00 ou 50.00"
+                    onChange={(e) => {
+                      const formatted = formatPrice(e.target.value);
+                      setFormData({ ...formData, ticketPrice: formatted });
+                    }}
+                    placeholder="0,00 ou 50,00"
                     required
                   />
                 </div>

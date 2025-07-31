@@ -340,36 +340,42 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log('Iniciando busca de guias...');
       
-      // Usar o ORM com schema corrigido
-      const guidesData = await db.select().from(guides);
+      // Usar SQL direto para garantir que funciona
+      const result = await db.execute(sql`
+        SELECT id, user_id, name, description, specialties, languages, 
+               experience_years, tours_completed, rating, image_url, 
+               location, certifications, whatsapp, instagram, created_at, 
+               bio, experience
+        FROM guides 
+        ORDER BY created_at DESC
+      `);
       
-      console.log('Guides raw encontrados:', guidesData.length);
-      if (guidesData.length > 0) {
-        console.log('Primeiro guide:', JSON.stringify(guidesData[0], null, 2));
-      }
+      console.log('Guides encontrados na tabela:', result.rows.length);
       
-      // Mapear para o formato esperado pelo frontend
-      const formattedGuides = guidesData.map((guide: any) => ({
-        id: guide.id,
-        userId: guide.userId,
-        name: guide.name || 'Nome não informado',
-        bio: guide.bio || guide.description || '',
-        description: guide.description || '',
-        specialties: guide.specialties || [],
-        experience: guide.experience || '',
-        languages: guide.languages || [],
-        experienceYears: guide.experienceYears || 0,
-        toursCompleted: guide.toursCompleted || 0,
-        rating: parseFloat(guide.rating) || 0,
-        imageUrl: guide.imageUrl,
-        location: guide.location,
-        certifications: guide.certifications || [],
-        whatsapp: guide.whatsapp,
-        instagram: guide.instagram,
-        createdAt: guide.createdAt,
+      // Mapear os dados corretamente
+      const formattedGuides = result.rows.map((row: any) => ({
+        id: row[0], // id
+        userId: row[1], // user_id
+        name: row[2] || 'Nome não informado', // name
+        bio: row[15] || row[3] || '', // bio || description
+        description: row[3] || '', // description
+        specialties: Array.isArray(row[4]) ? row[4] : [row[4]].filter(Boolean), // specialties
+        experience: row[16] || '', // experience
+        languages: Array.isArray(row[5]) ? row[5] : [row[5]].filter(Boolean), // languages
+        experienceYears: row[6] || 0, // experience_years
+        toursCompleted: row[7] || 0, // tours_completed
+        rating: parseFloat(row[8]) || 0, // rating
+        imageUrl: row[9], // image_url
+        location: row[10], // location
+        certifications: Array.isArray(row[11]) ? row[11] : [row[11]].filter(Boolean), // certifications
+        whatsapp: row[12], // whatsapp
+        instagram: row[13], // instagram
+        createdAt: row[14], // created_at
       }));
       
-      console.log('Guides formatados:', formattedGuides.length);
+      console.log('Guides formatados e retornados:', formattedGuides.length);
+      console.log('IDs dos guias:', formattedGuides.map(g => g.id));
+      
       return formattedGuides;
       
     } catch (error) {

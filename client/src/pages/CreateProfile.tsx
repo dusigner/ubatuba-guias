@@ -84,13 +84,6 @@ export default function CreateProfile() {
 
   const profileType = params?.type as ProfileType;
 
-  // Redirect se não há match ou tipo inválido
-  useEffect(() => {
-    if (!match || !['tourist', 'guide', 'event_producer', 'boat_tour_operator'].includes(profileType)) {
-      setLocation('/profile-selection');
-    }
-  }, [match, profileType, setLocation]);
-
   // Configurações específicas por tipo
   const getProfileConfig = (type: ProfileType) => {
     switch (type) {
@@ -127,15 +120,17 @@ export default function CreateProfile() {
           schema: boatTourOperatorProfileSchema
         };
       default:
-        return null;
+        return {
+          title: 'Perfil de Turista',
+          description: 'Complete seu perfil básico para começar a explorar Ubatuba',
+          icon: User,
+          color: 'from-blue-500 to-cyan-600',
+          schema: touristProfileSchema
+        };
     }
   };
 
-  const config = profileType ? getProfileConfig(profileType) : null;
-  
-  if (!config) {
-    return null;
-  }
+  const config = profileType ? getProfileConfig(profileType) : getProfileConfig('tourist');
 
   const getDefaultValues = (type: ProfileType) => {
     const baseDefaults = {
@@ -183,14 +178,14 @@ export default function CreateProfile() {
 
   const form = useForm({
     resolver: zodResolver(config.schema),
-    defaultValues: getDefaultValues(profileType),
+    defaultValues: getDefaultValues(profileType || 'tourist'),
   });
 
   const createProfileMutation = useMutation({
     mutationFn: async (data: any) => {
       return apiRequest('/api/profile', 'POST', {
         ...data,
-        userType: profileType,
+        userType: profileType || 'tourist',
         isProfileComplete: true
       });
     },
@@ -221,6 +216,18 @@ export default function CreateProfile() {
       });
     },
   });
+
+  // Redirect se não há match ou tipo inválido - AFTER all hooks
+  useEffect(() => {
+    if (!match || !['tourist', 'guide', 'event_producer', 'boat_tour_operator'].includes(profileType)) {
+      setLocation('/profile-selection');
+    }
+  }, [match, profileType, setLocation]);
+
+  // Only render null AFTER all hooks have been called
+  if (!match || !['tourist', 'guide', 'event_producer', 'boat_tour_operator'].includes(profileType)) {
+    return null;
+  }
 
   const onSubmit = (data: any) => {
     createProfileMutation.mutate(data);

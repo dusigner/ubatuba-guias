@@ -6,6 +6,7 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { formatPhone } from "@/lib/masks";
 import {
   Dialog,
   DialogContent,
@@ -224,13 +225,20 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
               name="hourlyRate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Valor por Hora (R$) - Opcional</FormLabel>
+                  <FormLabel>Valor do Serviço - Opcional</FormLabel>
                   <FormControl>
                     <Input 
-                      type="number" 
-                      step="0.01"
-                      placeholder="150.00"
+                      placeholder="Ex: R$ 150,00 por passeio"
                       {...field}
+                      onChange={(e) => {
+                        // Simple currency formatting without importing formatCurrency
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value) {
+                          value = (parseInt(value) / 100).toFixed(2);
+                          value = `R$ ${value.replace('.', ',')}`;
+                        }
+                        field.onChange(value);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -248,6 +256,10 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
                     <Input 
                       placeholder="(12) 99999-9999"
                       {...field}
+                      onChange={(e) => {
+                        const formatted = formatPhone(e.target.value);
+                        field.onChange(formatted);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

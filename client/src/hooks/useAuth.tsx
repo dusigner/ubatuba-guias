@@ -39,13 +39,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log('AuthProvider inicializando...');
     
-    // Handle redirect result on page load
+    // Handle redirect result on page load (for redirect flow only)
     handleRedirectResult()
       .then((result) => {
         console.log('Resultado do redirect:', result);
         if (result?.user) {
           console.log('Usuário retornou do redirect:', result.user.email);
-          // User just signed in, sync with backend
+          // User just signed in via redirect, sync with backend
           syncUserWithBackend(result.user);
         }
       })
@@ -57,10 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChange((firebaseUser) => {
       console.log('Estado de autenticação mudou:', firebaseUser ? firebaseUser.email : 'null');
       setFirebaseUser(firebaseUser);
-      if (firebaseUser) {
-        console.log('Usuário Firebase detectado, sincronizando com backend...');
-        syncUserWithBackend(firebaseUser);
-      }
       setLoading(false);
     });
 
@@ -94,22 +90,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('Failed to sync user with backend');
       }
 
-      // After successful login, get user data and redirect
+      // After successful login, get user data
       const userData = await response.json();
       console.log('Usuário sincronizado:', userData);
-      console.log('Redirecionando para:', userData.isProfileComplete ? '/home' : '/profile-selection');
       
-      // Force refresh user data
+      // Force refresh user data to update the UI
       refetchUser();
       
-      // Redirect based on profile completion
-      setTimeout(() => {
-        if (userData.isProfileComplete) {
-          window.location.href = '/home';
-        } else {
-          window.location.href = '/profile-selection';
-        }
-      }, 2000);
+      console.log('Sincronização completa. AuthProvider deve gerenciar redirecionamento.');
     } catch (error) {
       console.error('Erro na sincronização com backend:', error);
     }

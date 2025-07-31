@@ -1,0 +1,65 @@
+1:17:25 PM [express] GET /api/auth/user 200 in 309ms :: {"id":"56a2d1ec-49bd-49a3-8145-af8078b3ca74"…
+Criando perfil para usuário: 45698740 com dados: {
+  phone: '(11) 97693-0259',
+  bio: 'A página de guias deve mostrar todos os 6 guias cadastrados com dados completos!',
+  specialties: 'trilha',
+  experience: '5 anos',
+  languages: 'Português',
+  hourlyRate: '50',
+  location: 'Ubatuba, SP',
+  userType: 'guide',
+  isProfileComplete: true
+}
+Atualizando perfil do usuário da database: 56a2d1ec-49bd-49a3-8145-af8078b3ca74
+Atualizando perfil do usuário: 56a2d1ec-49bd-49a3-8145-af8078b3ca74 com dados: {
+  phone: '(11) 97693-0259',
+  bio: 'A página de guias deve mostrar todos os 6 guias cadastrados com dados completos!',
+  specialties: 'trilha',
+  experience: '5 anos',
+  languages: 'Português',
+  hourlyRate: '50',
+  location: 'Ubatuba, SP',
+  userType: 'guide',
+  isProfileComplete: true
+}
+Perfil atualizado com sucesso: {
+  id: '56a2d1ec-49bd-49a3-8145-af8078b3ca74',
+  email: 'myemailedu@gmail.com',
+  password: null,
+  firstName: 'Eduardo',
+  lastName: 'Soares',
+  profileImageUrl: null,
+  userType: 'guide',
+  phone: '(11) 97693-0259',
+  location: 'Ubatuba, SP',
+  bio: 'A página de guias deve mostrar todos os 6 guias cadastrados com dados completos!',
+  interests: null,
+  travelStyle: null,
+  budget: null,
+  companyName: null,
+  eventTypes: null,
+  boatTypes: null,
+  capacity: null,
+  licenses: null,
+  experience: '5 anos',
+  isAdmin: false,
+  isProfileComplete: true,
+  createdAt: 2025-07-31T13:17:18.074Z,
+  updatedAt: 2025-07-31T13:17:45.936Z
+}
+Criando registro de guia para usuário: 56a2d1ec-49bd-49a3-8145-af8078b3ca74
+Erro ao criar perfil: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+1:17:46 PM [express] POST /api/profile 500 in 1462ms :: {"message":"Falha ao criar perfil"}

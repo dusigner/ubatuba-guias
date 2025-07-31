@@ -395,31 +395,14 @@ export class DatabaseStorage implements IStorage {
       const [guide] = await db.select().from(guides).where(eq(guides.id, id));
       if (!guide) return undefined;
       
-      // Mapear para formato esperado
-      return {
-        id: guide.id,
-        userId: guide.userId,
-        name: guide.name || 'Nome não informado',
-        bio: guide.bio || guide.description || '',
-        description: guide.description || '',
-        specialties: guide.specialties || [],
-        experience: guide.experience || '',
-        languages: guide.languages || [],
-        experienceYears: guide.experienceYears || 0,
-        toursCompleted: guide.toursCompleted || 0,
-        rating: parseFloat(guide.rating) || 0,
-        imageUrl: guide.imageUrl,
-        location: guide.location,
-        certifications: guide.certifications || [],
-        whatsapp: guide.whatsapp,
-        instagram: guide.instagram,
-        createdAt: guide.createdAt,
-      };
+      // Retornar dados simples do guia
+      return guide;
     } catch (error) {
-      console.error('Erro ao buscar guia por ID:', error);
+      console.error('Erro ao buscar guia:', error);
       return undefined;
     }
   }
+
 
   async getGuideById(id: string): Promise<Guide | undefined> {
     const [guide] = await db.select().from(guides).where(eq(guides.id, id));
@@ -436,8 +419,7 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
       
-    // Retornar guia com dados do usuário
-    return this.getGuide(newGuide.id);
+    return newGuide;
   }
 
   async createGuideFromProfile(userId: string, guideData: any): Promise<any> {
@@ -485,8 +467,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(guides.id, id))
       .returning();
       
-    // Retornar guia com dados do usuário
-    return this.getGuide(updatedGuide.id);
+    return updatedGuide;
   }
 
   async getTrailById(id: string): Promise<Trail | undefined> {

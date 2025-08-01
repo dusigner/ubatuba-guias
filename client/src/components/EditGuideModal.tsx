@@ -34,9 +34,9 @@ interface EditGuideModalProps {
 
 const editGuideSchema = z.object({
   bio: z.string().min(10, "Bio deve ter pelo menos 10 caracteres"),
-  experience: z.string().min(1, "Experiência é obrigatória"),
-  specialties: z.string().min(1, "Especialidades são obrigatórias"),
-  languages: z.string().min(1, "Idiomas são obrigatórios"),
+  experience: z.string().optional(), // Tornar opcional para permitir string vazia
+  specialties: z.string().optional(), // Tornar opcional 
+  languages: z.string().optional(), // Tornar opcional
   hourlyRate: z.string().optional(),
   whatsapp: z.string().optional(),
   instagram: z.string().optional(),
@@ -326,6 +326,19 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
                 type="submit" 
                 disabled={mutation.isPending}
                 className="flex-1 bg-ocean hover:bg-ocean/90"
+                onClick={(e) => {
+                  console.log("=== BOTÃO SALVAR CLICADO ===");
+                  console.log("Form valid:", form.formState.isValid);
+                  console.log("Form errors:", form.formState.errors);
+                  console.log("Form values:", form.getValues());
+                  console.log("Mutation pending:", mutation.isPending);
+                  
+                  // Força validação
+                  form.trigger().then((isValid) => {
+                    console.log("Form válido após trigger:", isValid);
+                    console.log("Erros após trigger:", form.formState.errors);
+                  });
+                }}
               >
                 {mutation.isPending ? "Salvando..." : "Salvar Alterações"}
               </Button>

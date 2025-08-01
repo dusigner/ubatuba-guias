@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Ship, Clock, Users, DollarSign, Star, Camera, MessageCircle, Heart, TrendingUp } from "lucide-react";
+import { Ship, Clock, Users, DollarSign, Star, Camera, MessageCircle, Heart, TrendingUp, Fish, Waves, Sunset, Binoculars, Mountain, Anchor } from "lucide-react";
 import { formatPhone, formatPrice } from "@/lib/masks";
 
 const boatTourSchema = z.object({
@@ -35,6 +35,10 @@ const boatTourSchema = z.object({
   imageUrl: z.string().url("URL da imagem deve ser válida").optional().or(z.literal("")),
   isPopular: z.boolean().default(false),
   isRomantic: z.boolean().default(false),
+  isFishing: z.boolean().default(false),
+  isWhaleWatching: z.boolean().default(false),
+  isSunset: z.boolean().default(false),
+  isAdventure: z.boolean().default(false),
 });
 
 type BoatTourFormData = z.infer<typeof boatTourSchema>;
@@ -64,6 +68,10 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
       imageUrl: tour?.imageUrl || "",
       isPopular: tour?.isPopular || false,
       isRomantic: tour?.isRomantic || false,
+      isFishing: tour?.isFishing || false,
+      isWhaleWatching: tour?.isWhaleWatching || false,
+      isSunset: tour?.isSunset || false,
+      isAdventure: tour?.isAdventure || false,
     },
   });
 
@@ -335,7 +343,7 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                 <p className="text-sm text-muted-foreground">Marque as características especiais do seu passeio</p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="isPopular"
@@ -398,6 +406,146 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                                 Passeio Romântico
                               </FormLabel>
                               <p className="text-xs text-muted-foreground">Ideal para casais e momentos especiais</p>
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isFishing"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className={`
+                          flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                          ${field.value 
+                            ? 'border-blue-400 bg-blue-50 shadow-sm dark:bg-blue-900/10' 
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                          }
+                        `}
+                        onClick={() => field.onChange(!field.value)}
+                        >
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Fish className={`h-5 w-5 ${field.value ? 'text-blue-500' : 'text-muted-foreground'}`} />
+                            <div>
+                              <FormLabel className={`font-medium cursor-pointer ${field.value ? 'text-blue-600 dark:text-blue-400' : 'text-foreground'}`}>
+                                Passeio de Pesca
+                              </FormLabel>
+                              <p className="text-xs text-muted-foreground">Pescaria esportiva e recreativa</p>
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isWhaleWatching"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className={`
+                          flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                          ${field.value 
+                            ? 'border-teal-400 bg-teal-50 shadow-sm dark:bg-teal-900/10' 
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                          }
+                        `}
+                        onClick={() => field.onChange(!field.value)}
+                        >
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Binoculars className={`h-5 w-5 ${field.value ? 'text-teal-500' : 'text-muted-foreground'}`} />
+                            <div>
+                              <FormLabel className={`font-medium cursor-pointer ${field.value ? 'text-teal-600 dark:text-teal-400' : 'text-foreground'}`}>
+                                Avistamento de Baleias
+                              </FormLabel>
+                              <p className="text-xs text-muted-foreground">Observação da vida marinha</p>
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isSunset"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className={`
+                          flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                          ${field.value 
+                            ? 'border-orange-400 bg-orange-50 shadow-sm dark:bg-orange-900/10' 
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                          }
+                        `}
+                        onClick={() => field.onChange(!field.value)}
+                        >
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Sunset className={`h-5 w-5 ${field.value ? 'text-orange-500' : 'text-muted-foreground'}`} />
+                            <div>
+                              <FormLabel className={`font-medium cursor-pointer ${field.value ? 'text-orange-600 dark:text-orange-400' : 'text-foreground'}`}>
+                                Passeio ao Pôr do Sol
+                              </FormLabel>
+                              <p className="text-xs text-muted-foreground">Vista espetacular do entardecer</p>
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isAdventure"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className={`
+                          flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                          ${field.value 
+                            ? 'border-green-400 bg-green-50 shadow-sm dark:bg-green-900/10' 
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                          }
+                        `}
+                        onClick={() => field.onChange(!field.value)}
+                        >
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Mountain className={`h-5 w-5 ${field.value ? 'text-green-500' : 'text-muted-foreground'}`} />
+                            <div>
+                              <FormLabel className={`font-medium cursor-pointer ${field.value ? 'text-green-600 dark:text-green-400' : 'text-foreground'}`}>
+                                Passeio Aventura
+                              </FormLabel>
+                              <p className="text-xs text-muted-foreground">Atividades radicais e exploração</p>
                             </div>
                           </div>
                         </div>

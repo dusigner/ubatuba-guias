@@ -101,6 +101,10 @@ export const boatTours = pgTable("boat_tours", {
   whatsappNumber: varchar("whatsapp_number"),
   isPopular: boolean("is_popular").default(false),
   isRomantic: boolean("is_romantic").default(false),
+  isFishing: boolean("is_fishing").default(false),
+  isWhaleWatching: boolean("is_whale_watching").default(false),
+  isSunset: boolean("is_sunset").default(false),
+  isAdventure: boolean("is_adventure").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -122,6 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ),
             location: profileData.location || updatedUser.location,
             whatsapp: updatedUser.phone,
+            instagram: profileData.instagram || "", // Corrigido: adicionar Instagram
             imageUrl: updatedUser.profileImageUrl,
             rating: 0,
             toursCompleted: 0,

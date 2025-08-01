@@ -32,24 +32,12 @@ export default function GuideProfile() {
   const [groupSize, setGroupSize] = useState("");
   const guideId = params.id;
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Não autorizado",
-        description: "Você precisa estar logado. Redirecionando...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
+  // Perfis de guias são públicos - não precisa estar logado para ver
 
   const { data: guide, isLoading: guideLoading, error } = useQuery<any>({
     queryKey: ["/api/guides", guideId],
     retry: false,
-    enabled: isAuthenticated && !!guideId,
+    enabled: !!guideId, // Não precisa estar autenticado para ver perfis de guias
   });
 
   if (error && isUnauthorizedError(error as Error)) {
@@ -64,7 +52,7 @@ export default function GuideProfile() {
     return null;
   }
 
-  if (isLoading || guideLoading || !isAuthenticated) {
+  if (guideLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>
@@ -303,19 +291,22 @@ Via UbatubaIA - ${window.location.href}`;
                     <Share2 className="h-4 w-4" />
                     Compartilhar
                   </Button>
-                  <Button 
-                    onClick={() => toggleFavorite('guide', guideId!)}
-                    disabled={isToggling}
-                    variant="outline"
-                    className={`flex items-center gap-2 ${
-                      isFavorite('guide', guideId!) 
-                        ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
-                        : ''
-                    }`}
-                  >
-                    <Heart className={`h-4 w-4 ${isFavorite('guide', guideId!) ? 'fill-current text-red-500' : ''}`} />
-                    {isFavorite('guide', guideId!) ? 'Favoritado' : 'Favoritar'}
-                  </Button>
+                  {/* Botão de favoritar só aparece se estiver logado */}
+                  {isAuthenticated && (
+                    <Button 
+                      onClick={() => toggleFavorite('guide', guideId!)}
+                      disabled={isToggling}
+                      variant="outline"
+                      className={`flex items-center gap-2 ${
+                        isFavorite('guide', guideId!) 
+                          ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+                          : ''
+                      }`}
+                    >
+                      <Heart className={`h-4 w-4 ${isFavorite('guide', guideId!) ? 'fill-current text-red-500' : ''}`} />
+                      {isFavorite('guide', guideId!) ? 'Favoritado' : 'Favoritar'}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

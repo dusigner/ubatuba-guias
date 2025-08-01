@@ -102,6 +102,12 @@ export default function BoatTourProfile() {
 
   // Verificar se o usuário pode editar este passeio (apenas o criador ou admin)
   const canEdit = user && tour && (tour.operatorId === user.id || user.isAdmin);
+  
+  console.log("=== EDIT PERMISSIONS DEBUG ===");
+  console.log("User:", user?.id);
+  console.log("Tour operatorId:", tour?.operatorId);
+  console.log("User isAdmin:", user?.isAdmin);
+  console.log("Can edit:", canEdit);
 
   if (error && isUnauthorizedError(error as Error)) {
     toast({

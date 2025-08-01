@@ -104,30 +104,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Verificar se já existe um guia para este usuário
         const existingGuide = await storage.getGuideByUserId(user.id);
 
+        const guideData = {
+          name: `${updatedUser.firstName} ${updatedUser.lastName}`,
+          description: profileData.bio || "",
+          bio: profileData.bio || "",
+          specialties: profileData.specialties
+            ? profileData.specialties.split(",").map((s: string) => s.trim())
+            : [],
+          experience: profileData.experience || "",
+          languages: profileData.languages
+            ? profileData.languages.split(",").map((l: string) => l.trim())
+            : ["Português"],
+          experienceYears: parseInt(
+            profileData.experience?.match(/\d+/)?.[0] || "0",
+          ),
+          location: profileData.location || updatedUser.location,
+          whatsapp: updatedUser.phone,
+          instagram: profileData.instagram || "", // Sincronizar Instagram
+          imageUrl: updatedUser.profileImageUrl,
+        };
+
         if (!existingGuide) {
           // Criar novo registro de guia
+          console.log("Criando novo guia com Instagram:", profileData.instagram);
           await storage.createGuideFromProfile(user.id, {
-            name: `${updatedUser.firstName} ${updatedUser.lastName}`,
-            description: profileData.bio || "",
-            bio: profileData.bio || "",
-            specialties: profileData.specialties
-              ? profileData.specialties.split(",").map((s: string) => s.trim())
-              : [],
-            experience: profileData.experience || "",
-            languages: profileData.languages
-              ? profileData.languages.split(",").map((l: string) => l.trim())
-              : ["Português"],
-            experienceYears: parseInt(
-              profileData.experience?.match(/\d+/)?.[0] || "0",
-            ),
-            location: profileData.location || updatedUser.location,
-            whatsapp: updatedUser.phone,
-            instagram: profileData.instagram || "", // Corrigido: adicionar Instagram
-            imageUrl: updatedUser.profileImageUrl,
+            ...guideData,
             rating: 0,
             toursCompleted: 0,
             certifications: [],
           });
+        } else {
+          // Atualizar guia existente para sincronizar dados
+          console.log("Atualizando guia existente com Instagram:", profileData.instagram);
+          await storage.updateGuide(existingGuide.id, guideData);
         }
       }
 

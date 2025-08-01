@@ -335,7 +335,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBoatTour(tour: InsertBoatTour): Promise<BoatTour> {
-    const [newTour] = await db.insert(boatTours).values(tour).returning();
+    const slug = tour.name?.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    
+    const tourWithSlug = { ...tour, slug };
+    const [newTour] = await db.insert(boatTours).values(tourWithSlug).returning();
     return newTour;
   }
 

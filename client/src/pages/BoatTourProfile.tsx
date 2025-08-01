@@ -459,7 +459,7 @@ export default function BoatTourProfile() {
                 <div className="space-y-2">
                   <Button 
                     onClick={handleBooking}
-                    className="w-full bg-gradient-to-r from-ocean to-tropical text-white"
+                    className="w-full btn-gradient-ocean-sunset"
                     size="lg"
                   >
                     <Phone className="h-4 w-4 mr-2" />

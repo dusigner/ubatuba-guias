@@ -281,12 +281,22 @@ export default function CreateProfile() {
     return null;
   }
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     console.log("=== FORM SUBMISSION START ===");
     console.log("Submitting profile data:", data);
     console.log("Profile type:", profileType);
+    
+    // Validate again before submission
+    const isValid = await form.trigger();
+    console.log("Final validation check:", isValid);
     console.log("Form errors:", form.formState.errors);
-    console.log("Form is valid:", form.formState.isValid);
+    
+    if (!isValid) {
+      console.log("Form validation failed, stopping submission");
+      return;
+    }
+    
+    console.log("Form is valid, proceeding with mutation");
     console.log("Form data:", form.getValues());
     console.log("Mutation pending:", createProfileMutation.isPending);
     console.log("=== CALLING MUTATION ===");
@@ -819,14 +829,23 @@ export default function CreateProfile() {
                       type="submit"
                       disabled={createProfileMutation.isPending}
                       className={`flex-1 bg-gradient-to-r ${config.color} text-white hover:opacity-90`}
-                      onClick={(e) => {
+                      onClick={async (e) => {
+                        console.log("=== BUTTON CLICK DEBUG ===");
                         console.log("Button clicked, form valid:", form.formState.isValid);
                         console.log("Button disabled:", createProfileMutation.isPending);
                         console.log("Form errors:", form.formState.errors);
-                        if (!form.formState.isValid) {
+                        console.log("Form values:", form.getValues());
+                        
+                        // Force validation
+                        const isValid = await form.trigger();
+                        console.log("After trigger validation:", isValid);
+                        console.log("Form errors after trigger:", form.formState.errors);
+                        
+                        if (!isValid) {
                           console.log("Form invalid, preventing submission");
                           e.preventDefault();
-                          form.trigger(); // Trigger validation
+                        } else {
+                          console.log("Form valid, allowing submission");
                         }
                       }}
                     >

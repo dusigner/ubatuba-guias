@@ -21,8 +21,30 @@ googleProvider.addScope('email');
 googleProvider.addScope('profile');
 
 // Auth functions
-export const signInWithGoogle = () => {
-  return signInWithPopup(auth, googleProvider);
+export const signInWithGoogle = async () => {
+  try {
+    console.log("Tentando login Google via popup...");
+    const result = await signInWithPopup(auth, googleProvider);
+    console.log("Login Google realizado com sucesso:", result.user.email);
+    return result;
+  } catch (error: any) {
+    console.error("Erro no login Google:", error);
+    if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+      console.log("Popup bloqueado ou cancelado, redirecionando para login...");
+      
+      // Mostrar mensagem para o usuário antes do redirecionamento
+      const userConfirmed = window.confirm(
+        "O popup foi bloqueado pelo seu navegador. Clique em OK para ser redirecionado para fazer login com Google."
+      );
+      
+      if (userConfirmed) {
+        await signInWithRedirect(auth, googleProvider);
+      }
+      return null;
+    } else {
+      throw error;
+    }
+  }
 };
 
 export const signInWithGoogleRedirect = () => {

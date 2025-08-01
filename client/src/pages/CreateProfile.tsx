@@ -288,6 +288,9 @@ export default function CreateProfile() {
   const onSubmit = (data: any) => {
     console.log("Submitting profile data:", data);
     console.log("Profile type:", profileType);
+    console.log("Form errors:", form.formState.errors);
+    console.log("Form is valid:", form.formState.isValid);
+    console.log("Form data:", form.getValues());
     createProfileMutation.mutate(data);
   };
 

@@ -335,14 +335,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBoatTour(tour: InsertBoatTour): Promise<BoatTour> {
-    const slug = tour.name?.toLowerCase()
+    let baseSlug = tour.name?.toLowerCase()
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
       .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
       .replace(/\s+/g, '-') // Replace spaces with hyphens
       .replace(/-+/g, '-') // Replace multiple hyphens with single
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     
-    const tourWithSlug = { ...tour, slug };
+    // Check if slug already exists and make it unique
+    let uniqueSlug = baseSlug;
+    let counter = 1;
+    
+    while (true) {
+      const [existingTour] = await db.select().from(boatTours).where(eq(boatTours.slug, uniqueSlug));
+      if (!existingTour) {
+        break;
+      }
+      uniqueSlug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    
+    const tourWithSlug = { ...tour, slug: uniqueSlug };
     const [newTour] = await db.insert(boatTours).values(tourWithSlug).returning();
     return newTour;
   }

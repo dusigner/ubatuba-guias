@@ -23,6 +23,27 @@ export default function Home() {
     enabled: !!user,
   });
 
+  // Queries para buscar dados reais da plataforma
+  const { data: beaches = [] } = useQuery<any[]>({
+    queryKey: ["/api/beaches"],
+    enabled: !!user,
+  });
+
+  const { data: trails = [] } = useQuery<any[]>({
+    queryKey: ["/api/trails"],
+    enabled: !!user,
+  });
+
+  const { data: boatTours = [] } = useQuery<any[]>({
+    queryKey: ["/api/boat-tours"],
+    enabled: !!user,
+  });
+
+  const { data: guides = [] } = useQuery<any[]>({
+    queryKey: ["/api/guides"],
+    enabled: !!user,
+  });
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -57,34 +78,42 @@ export default function Home() {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-6">
-            <Card>
-              <CardContent className="p-6 text-center">
-                <MapPin className="h-8 w-8 text-ocean mx-auto mb-2" />
-                <div className="text-2xl font-bold text-foreground">32</div>
-                <div className="text-sm text-muted-foreground">Praias Catalogadas</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <TrendingUp className="h-8 w-8 text-tropical mx-auto mb-2" />
-                <div className="text-2xl font-bold text-foreground">18</div>
-                <div className="text-sm text-muted-foreground">Trilhas Disponíveis</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Clock className="h-8 w-8 text-sunset mx-auto mb-2" />
-                <div className="text-2xl font-bold text-foreground">25</div>
-                <div className="text-sm text-muted-foreground">Passeios de Lancha</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Star className="h-8 w-8 text-ocean mx-auto mb-2" />
-                <div className="text-2xl font-bold text-foreground">47</div>
-                <div className="text-sm text-muted-foreground">Guias Certificados</div>
-              </CardContent>
-            </Card>
+            <Link href="/beaches">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="p-6 text-center">
+                  <MapPin className="h-8 w-8 text-ocean mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="text-2xl font-bold text-foreground">{beaches.length}</div>
+                  <div className="text-sm text-muted-foreground">Praias Catalogadas</div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/trails">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="p-6 text-center">
+                  <TrendingUp className="h-8 w-8 text-tropical mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="text-2xl font-bold text-foreground">{trails.length}</div>
+                  <div className="text-sm text-muted-foreground">Trilhas Disponíveis</div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/boat-tours">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="p-6 text-center">
+                  <Clock className="h-8 w-8 text-sunset mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="text-2xl font-bold text-foreground">{boatTours.length}</div>
+                  <div className="text-sm text-muted-foreground">Passeios de Lancha</div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/guides">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="p-6 text-center">
+                  <Star className="h-8 w-8 text-ocean mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="text-2xl font-bold text-foreground">{guides.length}</div>
+                  <div className="text-sm text-muted-foreground">Guias Certificados</div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>

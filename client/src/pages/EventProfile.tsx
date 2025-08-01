@@ -39,7 +39,7 @@ export default function EventProfile() {
   const { createBooking, isCreating } = useBookings(user?.id);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const eventId = params.id;
+  const eventId = params.identifier;
 
   // Delete event mutation
   const deleteEventMutation = useMutation({

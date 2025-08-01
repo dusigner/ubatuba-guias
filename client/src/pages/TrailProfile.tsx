@@ -21,7 +21,7 @@ export default function TrailProfile() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
-  const trailId = params.id;
+  const trailId = params.identifier;
 
   // Remover verificação obrigatória de autenticação para visualização de trilhas
   // A autenticação só é necessária para ações como favoritar, etc.

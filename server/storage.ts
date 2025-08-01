@@ -28,7 +28,7 @@ import {
   type InsertBooking,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, sql, or } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -45,6 +45,8 @@ export interface IStorage {
   // Trails
   getTrails(): Promise<Trail[]>;
   getTrail(id: string): Promise<Trail | undefined>;
+  getTrailById(id: string): Promise<Trail | undefined>;
+  getTrailByIdOrSlug(identifier: string): Promise<Trail | undefined>;
   createTrail(trail: InsertTrail): Promise<Trail>;
   updateTrail(id: string, trail: Partial<InsertTrail>): Promise<Trail>;
   deleteTrail(id: string): Promise<void>;
@@ -52,6 +54,8 @@ export interface IStorage {
   // Beaches  
   getBeaches(): Promise<Beach[]>;
   getBeach(id: string): Promise<Beach | undefined>;
+  getBeachById(id: string): Promise<Beach | undefined>;
+  getBeachByIdOrSlug(identifier: string): Promise<Beach | undefined>;
   createBeach(beach: InsertBeach): Promise<Beach>;
   updateBeach(id: string, beach: Partial<InsertBeach>): Promise<Beach>;
   deleteBeach(id: string): Promise<void>;
@@ -59,6 +63,8 @@ export interface IStorage {
   // Boat Tours
   getBoatTours(): Promise<BoatTour[]>;
   getBoatTour(id: string): Promise<BoatTour | undefined>;
+  getBoatTourById(id: string): Promise<BoatTour | undefined>;
+  getBoatTourByIdOrSlug(identifier: string): Promise<BoatTour | undefined>;
   createBoatTour(tour: InsertBoatTour): Promise<BoatTour>;
   updateBoatTour(id: string, tour: Partial<InsertBoatTour>): Promise<BoatTour>;
   deleteBoatTour(id: string): Promise<void>;
@@ -66,6 +72,7 @@ export interface IStorage {
   // Events
   getEvents(): Promise<Event[]>;
   getEventById(id: string): Promise<Event | undefined>;
+  getEventByIdOrSlug(identifier: string): Promise<Event | undefined>;
   createEvent(event: InsertEvent): Promise<Event>;
   updateEvent(id: string, event: Partial<InsertEvent>): Promise<Event>;
   deleteEvent(id: string): Promise<void>;
@@ -73,6 +80,7 @@ export interface IStorage {
   // Guides
   getGuides(): Promise<any[]>;
   getGuide(id: string): Promise<any | undefined>;
+  getGuideByIdOrSlug(identifier: string): Promise<any | undefined>;
   getGuideByUserId(userId: string): Promise<any | undefined>;
   createGuide(userId: string, guideData: any): Promise<any>;
   updateGuide(id: string, guideData: any): Promise<any>;
@@ -236,6 +244,18 @@ export class DatabaseStorage implements IStorage {
     return trail;
   }
 
+  async getTrailById(id: string): Promise<Trail | undefined> {
+    const [trail] = await db.select().from(trails).where(eq(trails.id, id));
+    return trail;
+  }
+
+  async getTrailByIdOrSlug(identifier: string): Promise<Trail | undefined> {
+    const [trail] = await db.select().from(trails).where(
+      or(eq(trails.id, identifier), eq(trails.slug, identifier))
+    );
+    return trail;
+  }
+
   async createTrail(trail: InsertTrail): Promise<Trail> {
     const [newTrail] = await db.insert(trails).values(trail).returning();
     return newTrail;
@@ -260,6 +280,18 @@ export class DatabaseStorage implements IStorage {
 
   async getBeach(id: string): Promise<Beach | undefined> {
     const [beach] = await db.select().from(beaches).where(eq(beaches.id, id));
+    return beach;
+  }
+
+  async getBeachById(id: string): Promise<Beach | undefined> {
+    const [beach] = await db.select().from(beaches).where(eq(beaches.id, id));
+    return beach;
+  }
+
+  async getBeachByIdOrSlug(identifier: string): Promise<Beach | undefined> {
+    const [beach] = await db.select().from(beaches).where(
+      or(eq(beaches.id, identifier), eq(beaches.slug, identifier))
+    );
     return beach;
   }
 
@@ -290,6 +322,18 @@ export class DatabaseStorage implements IStorage {
     return tour;
   }
 
+  async getBoatTourById(id: string): Promise<BoatTour | undefined> {
+    const [tour] = await db.select().from(boatTours).where(eq(boatTours.id, id));
+    return tour;
+  }
+
+  async getBoatTourByIdOrSlug(identifier: string): Promise<BoatTour | undefined> {
+    const [tour] = await db.select().from(boatTours).where(
+      or(eq(boatTours.id, identifier), eq(boatTours.slug, identifier))
+    );
+    return tour;
+  }
+
   async createBoatTour(tour: InsertBoatTour): Promise<BoatTour> {
     const [newTour] = await db.insert(boatTours).values(tour).returning();
     return newTour;
@@ -314,6 +358,13 @@ export class DatabaseStorage implements IStorage {
 
   async getEventById(id: string): Promise<Event | undefined> {
     const [event] = await db.select().from(events).where(eq(events.id, id));
+    return event;
+  }
+
+  async getEventByIdOrSlug(identifier: string): Promise<Event | undefined> {
+    const [event] = await db.select().from(events).where(
+      or(eq(events.id, identifier), eq(events.slug, identifier))
+    );
     return event;
   }
 
@@ -399,6 +450,65 @@ export class DatabaseStorage implements IStorage {
       return guide;
     } catch (error) {
       console.error('Erro ao buscar guia:', error);
+      return undefined;
+    }
+  }
+
+  async getGuideByIdOrSlug(identifier: string): Promise<any | undefined> {
+    try {
+      // Buscar guia por ID ou slug usando SQL direto
+      const result = await db.execute(sql`
+        SELECT 
+          id,
+          user_id,
+          name,
+          slug,
+          description,
+          specialties,
+          languages,
+          experience_years,
+          tours_completed,
+          rating,
+          image_url,
+          location,
+          certifications,
+          whatsapp,
+          instagram,
+          created_at,
+          bio,
+          experience
+        FROM guides 
+        WHERE id = ${identifier} OR slug = ${identifier}
+      `);
+      
+      if (result.rows.length === 0) {
+        return undefined;
+      }
+      
+      const guide = result.rows[0] as any;
+      
+      return {
+        id: guide.id,
+        userId: guide.user_id,
+        name: guide.name,
+        slug: guide.slug,
+        description: guide.description,
+        specialties: guide.specialties,
+        languages: guide.languages,
+        experienceYears: guide.experience_years || 0,
+        toursCompleted: guide.tours_completed || 0,
+        rating: parseFloat(guide.rating || "0"),
+        imageUrl: guide.image_url,
+        location: guide.location,
+        certifications: guide.certifications || [],
+        whatsapp: guide.whatsapp,
+        instagram: guide.instagram,
+        createdAt: guide.created_at,
+        bio: guide.bio,
+        experience: guide.experience,
+      };
+    } catch (error) {
+      console.error('Erro ao buscar guia por ID ou slug:', error);
       return undefined;
     }
   }

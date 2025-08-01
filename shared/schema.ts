@@ -57,6 +57,7 @@ export const users = pgTable("users", {
 export const trails = pgTable("trails", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
+  slug: varchar("slug").unique(),
   description: text("description").notNull(),
   difficulty: varchar("difficulty").notNull(), // easy, moderate, difficult
   distance: decimal("distance", { precision: 5, scale: 2 }).notNull(), // in km
@@ -72,6 +73,7 @@ export const trails = pgTable("trails", {
 export const beaches = pgTable("beaches", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
+  slug: varchar("slug").unique(),
   description: text("description").notNull(),
   features: text("features").array(), // parking, restaurants, lifeguard, etc.
   activities: text("activities").array(), // surf, diving, scenic, etc.
@@ -88,6 +90,7 @@ export const beaches = pgTable("beaches", {
 export const boatTours = pgTable("boat_tours", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
+  slug: varchar("slug").unique(),
   description: text("description").notNull(),
   duration: integer("duration").notNull(), // in hours
   maxPeople: integer("max_people").notNull(),
@@ -113,6 +116,7 @@ export const boatTours = pgTable("boat_tours", {
 export const events = pgTable("events", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: varchar("title").notNull(),
+  slug: varchar("slug").unique(),
   description: text("description").notNull(),
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
@@ -133,6 +137,7 @@ export const guides = pgTable("guides", {
   id: varchar("id").primaryKey(),
   userId: varchar("user_id"),
   name: varchar("name"),
+  slug: varchar("slug").unique(),
   description: text("description"),
   specialties: text("specialties").array(),
   languages: text("languages").array(),

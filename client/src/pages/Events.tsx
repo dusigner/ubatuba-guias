@@ -329,7 +329,7 @@ export default function Events() {
               {filteredAndSortedEvents.map((event: any) => {
                 const CategoryIcon = getCategoryIcon(event.category);
                 return (
-                  <Card key={event.id} className="bg-gradient-to-br from-background to-muted/30 border border-border hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/events/${event.id}`)}>
+                  <Card key={event.id} className="bg-gradient-to-br from-background to-muted/30 border border-border hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/events/${event.slug || event.id}`)}>
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="bg-sunset/10 p-3 rounded-xl">

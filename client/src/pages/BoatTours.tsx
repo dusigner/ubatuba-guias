@@ -97,7 +97,7 @@ export default function BoatTours() {
           ) : boatTours && boatTours.length > 0 ? (
             <div className="grid lg:grid-cols-3 gap-8">
               {boatTours.map((tour: any) => (
-                <Card key={tour.id} className="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setLocation(`/boat-tours/${tour.id}`)}>
+                <Card key={tour.id} className="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setLocation(`/boat-tours/${tour.slug || tour.id}`)}>
                   <div className="relative">
                     <img 
                       src={tour.imageUrl || (tour.isPopular 

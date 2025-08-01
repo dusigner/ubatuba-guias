@@ -30,7 +30,7 @@ export default function GuideProfile() {
   const [quoteMessage, setQuoteMessage] = useState("");
   const [selectedDates, setSelectedDates] = useState("");
   const [groupSize, setGroupSize] = useState("");
-  const guideId = params.id;
+  const guideId = params.identifier;
 
   // Perfis de guias são públicos - não precisa estar logado para ver
 

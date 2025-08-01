@@ -116,7 +116,7 @@ export default function Beaches() {
           ) : beaches && beaches.length > 0 ? (
             <div className="grid lg:grid-cols-2 gap-12">
               {beaches.map((beach: any) => (
-                <Card key={beach.id} className="overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer" onClick={() => setLocation(`/beaches/${beach.id}`)}>
+                <Card key={beach.id} className="overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer" onClick={() => setLocation(`/beaches/${beach.slug || beach.id}`)}>
                   <div className="relative">
                     <img 
                       src={beach.imageUrl || (beach.isTopRated 

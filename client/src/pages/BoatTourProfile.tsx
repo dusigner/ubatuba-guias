@@ -28,7 +28,7 @@ export default function BoatTourProfile() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const { createBooking, isCreating } = useBookings(user?.id);
-  const tourId = params.id;
+  const tourId = params.identifier;
   const queryClient = useQueryClient();
   
   // Estados para edição

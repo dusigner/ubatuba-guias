@@ -22,7 +22,7 @@ export default function BeachProfile() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
-  const beachId = params.id;
+  const beachId = params.identifier;
 
   // Remover verificação obrigatória de autenticação para visualização de praias
   // A autenticação só é necessária para ações como favoritar, etc.

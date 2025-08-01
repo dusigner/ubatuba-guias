@@ -277,11 +277,11 @@ function Router() {
               <Route path="/boat-tours" component={BoatTours} />
               <Route path="/events" component={Events} />
               <Route path="/guides" component={Guides} />
-              <Route path="/guides/:id" component={GuideProfile} />
-              <Route path="/trails/:id" component={TrailProfile} />
-              <Route path="/beaches/:id" component={BeachProfile} />
-              <Route path="/boat-tours/:id" component={BoatTourProfile} />
-              <Route path="/events/:id" component={EventProfile} />
+              <Route path="/guides/:identifier" component={GuideProfile} />
+              <Route path="/trails/:identifier" component={TrailProfile} />
+              <Route path="/beaches/:identifier" component={BeachProfile} />
+              <Route path="/boat-tours/:identifier" component={BoatTourProfile} />
+              <Route path="/events/:identifier" component={EventProfile} />
               <Route path="/profile" component={Profile} />
               <Route path="/register" component={RegisterNew} />
               <Route path="/settings" component={Settings} />

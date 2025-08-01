@@ -168,7 +168,7 @@ export default function Guides() {
                 <Card 
                   key={guide.id} 
                   className="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                  onClick={() => setLocation(`/guides/${guide.id}`)}
+                  onClick={() => setLocation(`/guides/${guide.slug || guide.id}`)}
                 >
                   <div className="relative">
                     <img 
@@ -251,7 +251,7 @@ export default function Guides() {
                           className="bg-ocean text-white hover:bg-ocean/90"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setLocation(`/guides/${guide.id}`);
+                            setLocation(`/guides/${guide.slug || guide.id}`);
                           }}
                         >
                           Ver Perfil

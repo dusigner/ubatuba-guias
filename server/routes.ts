@@ -283,9 +283,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/trails/:id", async (req, res) => {
+  app.get("/api/trails/:identifier", async (req, res) => {
     try {
-      const trail = await storage.getTrailById(req.params.id);
+      const trail = await storage.getTrailByIdOrSlug(req.params.identifier);
       if (!trail) {
         return res.status(404).json({ message: "Trilha não encontrada" });
       }
@@ -318,9 +318,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/beaches/:id", async (req, res) => {
+  app.get("/api/beaches/:identifier", async (req, res) => {
     try {
-      const beach = await storage.getBeachById(req.params.id);
+      const beach = await storage.getBeachByIdOrSlug(req.params.identifier);
       if (!beach) {
         return res.status(404).json({ message: "Praia não encontrada" });
       }
@@ -353,9 +353,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/boat-tours/:id", async (req, res) => {
+  app.get("/api/boat-tours/:identifier", async (req, res) => {
     try {
-      const tour = await storage.getBoatTourById(req.params.id);
+      const tour = await storage.getBoatTourByIdOrSlug(req.params.identifier);
       if (!tour) {
         return res.status(404).json({ message: "Passeio não encontrado" });
       }
@@ -388,9 +388,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/events/:id", async (req, res) => {
+  app.get("/api/events/:identifier", async (req, res) => {
     try {
-      const event = await storage.getEventById(req.params.id);
+      const event = await storage.getEventByIdOrSlug(req.params.identifier);
       if (!event) {
         return res.status(404).json({ message: "Evento não encontrado" });
       }
@@ -521,10 +521,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/guides/:id", async (req, res) => {
+  app.get("/api/guides/:identifier", async (req, res) => {
     try {
-      const { id } = req.params;
-      const guide = await storage.getGuide(id);
+      const guide = await storage.getGuideByIdOrSlug(req.params.identifier);
       if (!guide) {
         return res.status(404).json({ message: "Guia não encontrado" });
       }

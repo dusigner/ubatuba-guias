@@ -24,25 +24,22 @@ export default function BeachProfile() {
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const beachId = params.id;
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Não autorizado",
-        description: "Você precisa estar logado. Redirecionando...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
+  // Remover verificação obrigatória de autenticação para visualização de praias
+  // A autenticação só é necessária para ações como favoritar, etc.
 
   const { data: beach, isLoading: beachLoading, error } = useQuery<any>({
     queryKey: ["/api/beaches", beachId],
     retry: false,
-    enabled: isAuthenticated && !!beachId,
+    enabled: !!beachId, // Remover condição de autenticação pois a rota é pública
   });
+
+  // Log detalhado para debug
+  console.log("=== BEACH PROFILE DEBUG ===");
+  console.log("BeachId:", beachId);
+  console.log("Is authenticated:", isAuthenticated);
+  console.log("Beach loading:", beachLoading);
+  console.log("Beach data:", beach);
+  console.log("Beach error:", error);
 
   if (error && isUnauthorizedError(error as Error)) {
     toast({
@@ -56,7 +53,7 @@ export default function BeachProfile() {
     return null;
   }
 
-  if (isLoading || beachLoading || !isAuthenticated) {
+  if (beachLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>

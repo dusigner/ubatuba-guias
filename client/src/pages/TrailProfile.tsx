@@ -23,25 +23,22 @@ export default function TrailProfile() {
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const trailId = params.id;
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Não autorizado",
-        description: "Você precisa estar logado. Redirecionando...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
+  // Remover verificação obrigatória de autenticação para visualização de trilhas
+  // A autenticação só é necessária para ações como favoritar, etc.
 
   const { data: trail, isLoading: trailLoading, error } = useQuery<any>({
     queryKey: ["/api/trails", trailId],
     retry: false,
-    enabled: isAuthenticated && !!trailId,
+    enabled: !!trailId, // Remover condição de autenticação pois a rota é pública
   });
+
+  // Log detalhado para debug
+  console.log("=== TRAIL PROFILE DEBUG ===");
+  console.log("TrailId:", trailId);
+  console.log("Is authenticated:", isAuthenticated);
+  console.log("Trail loading:", trailLoading);
+  console.log("Trail data:", trail);
+  console.log("Trail error:", error);
 
   if (error && isUnauthorizedError(error as Error)) {
     toast({
@@ -55,7 +52,7 @@ export default function TrailProfile() {
     return null;
   }
 
-  if (isLoading || trailLoading || !isAuthenticated) {
+  if (trailLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>

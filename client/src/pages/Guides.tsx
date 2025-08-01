@@ -15,44 +15,29 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 
 export default function Guides() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { user, loading } = useAuth();
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [editingGuide, setEditingGuide] = useState<UserType | null>(null);
   const [, setLocation] = useLocation();
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Não autorizado",
-        description: "Você precisa estar logado. Redirecionando...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
+  // Note: Authentication is handled by App.tsx routing
 
   const { data: guides = [], isLoading: guidesLoading, error } = useQuery<any[]>({
     queryKey: ["/api/guides"],
     retry: false,
-    enabled: isAuthenticated,
+    enabled: !!user,
   });
 
   if (error && isUnauthorizedError(error as Error)) {
     toast({
-      title: "Não autorizado",
-      description: "Você foi desconectado. Fazendo login novamente...",
+      title: "Erro de autorização",
+      description: "Houve um problema com sua sessão. Tente recarregar a página.",
       variant: "destructive",
     });
-    setTimeout(() => {
-      setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
-    }, 500);
     return null;
   }
 
-  if (isLoading || !isAuthenticated) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>

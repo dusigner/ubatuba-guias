@@ -290,11 +290,14 @@ export default function CreateProfile() {
   }
 
   const onSubmit = (data: any) => {
+    console.log("=== FORM SUBMISSION START ===");
     console.log("Submitting profile data:", data);
     console.log("Profile type:", profileType);
     console.log("Form errors:", form.formState.errors);
     console.log("Form is valid:", form.formState.isValid);
     console.log("Form data:", form.getValues());
+    console.log("Mutation pending:", createProfileMutation.isPending);
+    console.log("=== CALLING MUTATION ===");
     createProfileMutation.mutate(data);
   };
 
@@ -903,6 +906,16 @@ export default function CreateProfile() {
                       type="submit"
                       disabled={createProfileMutation.isPending}
                       className={`flex-1 bg-gradient-to-r ${config.color} text-white hover:opacity-90`}
+                      onClick={(e) => {
+                        console.log("Button clicked, form valid:", form.formState.isValid);
+                        console.log("Button disabled:", createProfileMutation.isPending);
+                        console.log("Form errors:", form.formState.errors);
+                        if (!form.formState.isValid) {
+                          console.log("Form invalid, preventing submission");
+                          e.preventDefault();
+                          form.trigger(); // Trigger validation
+                        }
+                      }}
                     >
                       {createProfileMutation.isPending ? (
                         "Criando perfil..."

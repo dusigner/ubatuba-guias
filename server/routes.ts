@@ -76,16 +76,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Profile completion route
   app.post("/api/profile", authMiddleware, async (req: any, res) => {
     try {
+      console.log("=== PROFILE CREATION REQUEST ===");
       console.log("Firebase Auth - Criando perfil");
       const userId = req.session.userId;
       const profileData = req.body;
 
-      console.log(
-        "Criando perfil para usuário:",
-        userId,
-        "com dados:",
-        profileData,
-      );
+      console.log("User ID:", userId);
+      console.log("Profile Data received:", JSON.stringify(profileData, null, 2));
 
       // Get user from database
       let user = await storage.getUser(userId);

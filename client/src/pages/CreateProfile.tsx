@@ -160,12 +160,6 @@ export default function CreateProfile() {
     : getProfileConfig("tourist");
 
   const getDefaultValues = (type: ProfileType) => {
-    const baseDefaults = {
-      phone: "",
-      bio: "",
-      location: "",
-    };
-
     switch (type) {
       case "tourist":
         return {
@@ -176,7 +170,9 @@ export default function CreateProfile() {
         };
       case "guide":
         return {
-          ...baseDefaults,
+          phone: user?.phone || "",
+          bio: "",
+          location: user?.location || "",
           specialties: "",
           experience: "",
           languages: "Português",
@@ -188,14 +184,18 @@ export default function CreateProfile() {
         };
       case "event_producer":
         return {
-          ...baseDefaults,
+          phone: user?.phone || "",
+          bio: "",
+          location: user?.location || "",
           companyName: "",
           eventTypes: "",
           experience: "",
         };
       case "boat_tour_operator":
         return {
-          ...baseDefaults,
+          phone: user?.phone || "",
+          bio: "",
+          location: user?.location || "",
           companyName: "",
           boatTypes: "",
           capacity: "",
@@ -203,11 +203,15 @@ export default function CreateProfile() {
           licenses: "",
         };
       default:
-        return baseDefaults;
+        return {
+          phone: "",
+          bio: "",
+          location: "",
+        };
     }
   };
 
-  const form = useForm({
+  const form = useForm<any>({
     resolver: zodResolver(config.schema),
     defaultValues: getDefaultValues(profileType || "tourist"),
   });

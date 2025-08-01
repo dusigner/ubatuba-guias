@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Edit, Save, X, Camera } from "lucide-react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -24,8 +25,9 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function Profile() {
-  const { user, isLoading } = useAuth();
+  const { user, loading } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -433,7 +435,11 @@ export default function Profile() {
                     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .slice(0, 3)
                     .map((itinerary: any) => (
-                    <div key={itinerary.id} className="flex justify-between items-center p-2 bg-muted rounded">
+                    <div 
+                      key={itinerary.id} 
+                      className="flex justify-between items-center p-2 bg-muted rounded cursor-pointer hover:bg-muted/80 transition-colors"
+                      onClick={() => setLocation(`/itinerary/${itinerary.id}`)}
+                    >
                       <span className="text-sm font-medium">{itinerary.title || "Roteiro para Ubatuba"}</span>
                       <span className="text-xs text-muted-foreground">
                         {new Date(itinerary.createdAt).toLocaleDateString('pt-BR')}

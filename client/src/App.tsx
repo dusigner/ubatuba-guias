@@ -58,6 +58,7 @@ import ParaEmpresas from "@/pages/ParaEmpresas";
 import LoginInstructions from "@/pages/LoginInstructions";
 import NotFound from "@/pages/not-found";
 import FirebaseLogin from "@/pages/FirebaseLogin";
+import ItineraryView from "@/pages/ItineraryView";
 import { DevDebugPanel } from "@/components/DevDebugPanel";
 
 function Navigation() {
@@ -287,6 +288,7 @@ function Router() {
               <Route path="/settings" component={Settings} />
               <Route path="/profile-selection" component={ProfileSelection} />
               <Route path="/create-profile/:type" component={CreateProfile} />
+              <Route path="/itinerary/:id" component={ItineraryView} />
               <Route path="/admin" component={Admin} />
             </>
           )}

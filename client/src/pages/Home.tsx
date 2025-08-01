@@ -8,11 +8,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, MapPin, Clock, Star, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export default function Home() {
   const { toast } = useToast();
   const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
 
   // Note: Authentication should be handled by App.tsx routing
   // No need to trigger login here as unauthenticated users won't reach this page
@@ -125,7 +126,11 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-foreground mb-8">Seus Roteiros Recentes</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentItineraries.slice(0, 3).map((itinerary: any) => (
-                <Card key={itinerary.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <Card 
+                  key={itinerary.id} 
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => setLocation(`/itinerary/${itinerary.id}`)}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <h3 className="text-lg font-bold text-foreground">{itinerary.title}</h3>

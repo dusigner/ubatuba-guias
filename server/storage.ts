@@ -87,6 +87,7 @@ export interface IStorage {
   
   // Itineraries
   getUserItineraries(userId: string): Promise<Itinerary[]>;
+  getItineraryById(id: string): Promise<Itinerary | undefined>;
   createItinerary(itinerary: InsertItinerary): Promise<Itinerary>;
 
   // Favorites
@@ -630,6 +631,11 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(itineraries)
       .where(eq(itineraries.userId, userId))
       .orderBy(desc(itineraries.createdAt));
+  }
+
+  async getItineraryById(id: string): Promise<Itinerary | undefined> {
+    const [itinerary] = await db.select().from(itineraries).where(eq(itineraries.id, id));
+    return itinerary;
   }
 
   async createItinerary(itinerary: InsertItinerary): Promise<Itinerary> {

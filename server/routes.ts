@@ -968,6 +968,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get specific itinerary by ID
+  app.get("/api/itineraries/:id", authMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { id } = req.params;
+      const itinerary = await storage.getItineraryById(id);
+      
+      if (!itinerary) {
+        return res.status(404).json({ message: "Roteiro não encontrado" });
+      }
+
+      // Verificar se o roteiro pertence ao usuário atual
+      if (itinerary.userId !== userId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+
+      res.json(itinerary);
+    } catch (error) {
+      console.error("Erro ao buscar roteiro:", error);
+      res.status(500).json({ message: "Falha ao buscar roteiro" });
+    }
+  });
+
   // Favorites routes
   app.get("/api/favorites", authMiddleware, async (req: any, res) => {
     try {

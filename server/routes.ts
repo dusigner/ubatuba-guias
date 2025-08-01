@@ -849,7 +849,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Remove this duplicate route - using Firebase Auth route instead
 
   // Analyze user preferences from text
-  app.post("/api/itineraries/analyze", authMiddleware, async (req, res) => {
+  app.post("/api/itineraries/analyze", requireAuth, async (req: any, res) => {
     try {
       const { userInput } = req.body;
 
@@ -870,11 +870,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Itinerary generation route
   app.post(
     "/api/itineraries/generate",
-    authMiddleware,
+    requireAuth,
     async (req: any, res) => {
       try {
         const { preferences } = req.body;
-        const userClaims = req.user?.claims;
 
         if (!preferences) {
           return res
@@ -882,13 +881,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .json({ message: "Preferências são obrigatórias" });
         }
 
-        // Verificar se temos claims válidos
-        if (!userClaims || !userClaims.email) {
-          return res.status(401).json({ message: "Usuário não autenticado" });
-        }
-
-        // Buscar usuário pelo email para ter o ID correto do banco
-        const user = await storage.getUserByEmail(userClaims.email);
+        // Buscar usuário pela sessão
+        const user = await storage.getUserById(req.session.userId);
         if (!user) {
           return res.status(404).json({ message: "Usuário não encontrado" });
         }

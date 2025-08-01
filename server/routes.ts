@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateItinerary, analyzeUserPreferences } from "./gemini";
+import { getWeatherForecast } from "./weather";
 import {
   insertEventSchema,
   insertGuideSchema,
@@ -864,6 +865,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erro ao analisar preferências:", error);
       res.status(500).json({ message: "Falha ao analisar preferências" });
+    }
+  });
+
+  // Weather forecast route
+  app.get("/api/weather", async (req, res) => {
+    try {
+      const { date } = req.query;
+      const weather = await getWeatherForecast(date as string);
+      
+      if (!weather) {
+        return res.status(503).json({ 
+          message: "Serviço de clima temporariamente indisponível" 
+        });
+      }
+
+      res.json(weather);
+    } catch (error) {
+      console.error("Erro ao buscar clima:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
     }
   });
 

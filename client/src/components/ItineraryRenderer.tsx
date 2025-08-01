@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, Clock, DollarSign, Users, Star, Calendar, Phone, Instagram, ExternalLink, MessageCircle, Cloud, Sun, CloudRain } from "lucide-react";
 import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
 
 interface ItineraryRendererProps {
   content: string;
@@ -31,26 +32,95 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
     }).filter(Boolean);
   };
 
-  // Renderizar seção do clima
-  const renderWeatherCard = (date: string) => {
+  // Renderizar seção do clima com dados reais
+  const WeatherCard = ({ date }: { date: string }) => {
+    const [weather, setWeather] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchWeather = async () => {
+        try {
+          const response = await fetch(`/api/weather${date ? `?date=${date}` : ''}`);
+          if (response.ok) {
+            const data = await response.json();
+            setWeather(data);
+          }
+        } catch (error) {
+          console.error('Erro ao buscar clima:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchWeather();
+    }, [date]);
+
+    if (loading) {
+      return (
+        <Card className="bg-gradient-to-r from-sky-100 to-blue-100 dark:from-sky-900 dark:to-blue-900 border-none mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Sun className="h-5 w-5 text-orange-500 animate-pulse" />
+              <span className="font-medium">Carregando previsão...</span>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (!weather) {
+      return (
+        <Card className="bg-gradient-to-r from-sky-100 to-blue-100 dark:from-sky-900 dark:to-blue-900 border-none mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Cloud className="h-5 w-5 text-gray-500" />
+              <span className="font-medium">Previsão indisponível</span>
+            </div>
+            <div className="mt-2 text-sm text-muted-foreground">
+              Consulte a previsão antes do passeio
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    const getWeatherEmoji = (icon: string) => {
+      const iconMap: { [key: string]: string } = {
+        '01d': '☀️', '01n': '🌙', '02d': '⛅', '02n': '☁️',
+        '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️',
+        '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️',
+        '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️',
+        '50d': '🌫️', '50n': '🌫️'
+      };
+      return iconMap[icon] || '🌤️';
+    };
+
     return (
       <Card className="bg-gradient-to-r from-sky-100 to-blue-100 dark:from-sky-900 dark:to-blue-900 border-none mb-4">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sun className="h-5 w-5 text-orange-500" />
-              <span className="font-medium">Previsão do Tempo</span>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{getWeatherEmoji(weather.icon)}</span>
+              <div>
+                <div className="font-medium">
+                  {weather.temperature}°C - {weather.description}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Umidade: {weather.humidity}% • Vento: {weather.windSpeed} km/h
+                </div>
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground text-right">
               {date ? new Date(date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Hoje'}
             </div>
-          </div>
-          <div className="mt-2 text-sm text-muted-foreground">
-            🌤️ Consulte a previsão atual antes do passeio para aproveitar melhor o clima
           </div>
         </CardContent>
       </Card>
     );
+  };
+
+  const renderWeatherCard = (date: string) => {
+    return <WeatherCard date={date} />;
   };
 
   const renderDaySection = (section: string, index: number) => {

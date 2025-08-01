@@ -61,25 +61,22 @@ export default function EventProfile() {
     },
   });
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Não autorizado",
-        description: "Você precisa estar logado. Redirecionando...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
+  // Remover verificação obrigatória de autenticação para visualização de eventos
+  // A autenticação só é necessária para ações como favoritar, criar booking, etc.
 
   const { data: event, isLoading: eventLoading, error } = useQuery<any>({
     queryKey: ["/api/events", eventId],
     retry: false,
-    enabled: isAuthenticated && !!eventId,
+    enabled: !!eventId, // Remover condição de autenticação pois a rota é pública
   });
+
+  // Log detalhado para debug
+  console.log("=== EVENT PROFILE DEBUG ===");
+  console.log("EventId:", eventId);
+  console.log("Is authenticated:", isAuthenticated);
+  console.log("Event loading:", eventLoading);
+  console.log("Event data:", event);
+  console.log("Event error:", error);
 
   if (error && isUnauthorizedError(error as Error)) {
     toast({
@@ -93,7 +90,7 @@ export default function EventProfile() {
     return null;
   }
 
-  if (isLoading || eventLoading || !isAuthenticated) {
+  if (eventLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>

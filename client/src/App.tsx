@@ -58,6 +58,7 @@ import ParaEmpresas from "@/pages/ParaEmpresas";
 import LoginInstructions from "@/pages/LoginInstructions";
 import NotFound from "@/pages/not-found";
 import FirebaseLogin from "@/pages/FirebaseLogin";
+import { DevDebugPanel } from "@/components/DevDebugPanel";
 
 function Navigation() {
   const { user, signOut } = useAuth();
@@ -303,6 +304,9 @@ function Router() {
           <Route component={NotFound} />
         </Switch>
       </main>
+      
+      {/* Debug panel apenas em desenvolvimento */}
+      {isAuthenticated && <DevDebugPanel />}
     </div>
   );
 }

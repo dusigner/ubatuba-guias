@@ -140,6 +140,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Reset profile (only in development)
+  app.post("/api/profile/reset", authMiddleware, async (req: any, res) => {
+    try {
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json({ message: 'Not allowed in production' });
+      }
+
+      const userId = req.session.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const resetData = {
+        userType: null,
+        isProfileComplete: false,
+        bio: null,
+        location: null,
+        interests: null,
+        travelStyle: null,
+        budget: null,
+        companyName: null,
+        eventTypes: null,
+        boatTypes: null,
+        capacity: null,
+        licenses: null,
+        experience: null,
+      };
+      
+      const updatedUser = await storage.updateUserProfile(userId, resetData);
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Erro ao resetar perfil:', error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+  });
+
   // Profile completion route (legacy)
   app.post("/api/profile/complete", authMiddleware, async (req: any, res) => {
     try {

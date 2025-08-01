@@ -63,7 +63,7 @@ export default function BoatTours() {
             {canCreateTour && (
               <Button 
                 onClick={() => setShowTourModal(true)}
-                className="bg-gradient-to-r from-ocean to-sunset text-white hover:opacity-90 mt-6 lg:mt-0"
+                className="btn-gradient-ocean-sunset mt-6 lg:mt-0"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Cadastrar Passeio

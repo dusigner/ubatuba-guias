@@ -65,7 +65,7 @@ const guideProfileSchema = z.object({
   firstName: z.string().min(1, "Nome é obrigatório"),
   lastName: z.string().min(1, "Sobrenome é obrigatório"),
   phone: z.string().min(1, "Telefone/WhatsApp é obrigatório"),
-  bio: z.string().min(50, "Biografia deve ter pelo menos 50 caracteres"),
+  bio: z.string().optional(), // Tornar opcional para facilitar criação de perfil
   languages: z.string().min(1, "Idiomas são obrigatórios"),
   location: z.string().min(1, "Localização é obrigatória"),
   instagram: z.string().optional(),
@@ -73,7 +73,7 @@ const guideProfileSchema = z.object({
 
 const eventProducerProfileSchema = z.object({
   phone: z.string().min(1, "Telefone é obrigatório"),
-  bio: z.string().min(50, "Biografia deve ter pelo menos 50 caracteres"),
+  bio: z.string().optional(), // Tornar opcional para permitir criar perfil sem biografia extensa
   companyName: z.string().min(1, "Nome da empresa é obrigatório"),
   eventTypes: z.string().min(1, "Tipos de eventos são obrigatórios"),
   experience: z.string().min(1, "Experiência é obrigatória"),
@@ -82,7 +82,7 @@ const eventProducerProfileSchema = z.object({
 
 const boatTourOperatorProfileSchema = z.object({
   phone: z.string().min(1, "Telefone é obrigatório"),
-  bio: z.string().min(50, "Biografia deve ter pelo menos 50 caracteres"),
+  bio: z.string().optional(), // Tornar opcional para facilitar criação de perfil
   companyName: z.string().min(1, "Nome da empresa é obrigatório"),
   boatTypes: z.string().min(1, "Tipos de embarcação são obrigatórios"),
   capacity: z.string().min(1, "Capacidade é obrigatória"),

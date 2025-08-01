@@ -77,6 +77,8 @@ ${guides.map(guide =>
 - Para passeios de barco, use formato: "Passeio de barco: [Nome do Passeio] - [duração] - [preço]"
 - Seja mais conciso no texto, evite parágrafos muito longos
 - Use emojis para tornar mais visual: 🌅 manhã, ☀️ tarde, 🌙 noite, 🥾 trilha, 🏖️ praia, ⛵ barco, 🎭 evento
+- Inclua datas específicas quando disponível para que o sistema possa mostrar previsão do tempo real
+- Estruture o roteiro para ser visualmente atraente e fácil de ler
 - Inclua dicas práticas baseadas nos dados reais
 - Conecte as atividades de forma lógica e geográfica
 

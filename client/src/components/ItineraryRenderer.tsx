@@ -72,12 +72,17 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
       return (
         <Card className="bg-gradient-to-r from-sky-100 to-blue-100 dark:from-sky-900 dark:to-blue-900 border-none mb-4">
           <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Cloud className="h-5 w-5 text-gray-500" />
-              <span className="font-medium">Previsão indisponível</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Cloud className="h-5 w-5 text-gray-500" />
+                <span className="font-medium">Clima de Ubatuba</span>
+              </div>
+              <div className="text-sm text-muted-foreground text-right">
+                {date ? new Date(date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Hoje'}
+              </div>
             </div>
             <div className="mt-2 text-sm text-muted-foreground">
-              Consulte a previsão antes do passeio
+              🌤️ Consulte a previsão atual antes do passeio • Ubatuba tem clima tropical com temperatura média de 23°C
             </div>
           </CardContent>
         </Card>

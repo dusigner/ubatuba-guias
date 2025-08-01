@@ -78,7 +78,11 @@ export async function getWeatherForecast(date?: string): Promise<WeatherData | n
     );
 
     if (!response.ok) {
-      console.error('❌ Erro na API do OpenWeather:', response.status);
+      if (response.status === 401) {
+        console.error('❌ Chave da API OpenWeather inválida ou inativa. Aguarde alguns minutos para ativação.');
+      } else {
+        console.error('❌ Erro na API do OpenWeather:', response.status);
+      }
       return null;
     }
 

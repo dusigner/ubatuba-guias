@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Ship, Clock, Users, DollarSign, Star, Camera, MessageCircle } from "lucide-react";
+import { Ship, Clock, Users, DollarSign, Star, Camera, MessageCircle, Heart, TrendingUp } from "lucide-react";
 import { formatPhone, formatPrice } from "@/lib/masks";
 
 const boatTourSchema = z.object({
@@ -328,46 +328,84 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
               )}
             />
 
-            {/* Checkboxes */}
+            {/* Checkboxes - Destaques do Passeio */}
             <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="isPopular"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="flex items-center gap-2">
-                        <Star className="h-4 w-4" />
-                        Passeio Popular
-                      </FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-1">
+                <FormLabel className="text-base font-medium">Destaque do Passeio</FormLabel>
+                <p className="text-sm text-muted-foreground">Marque as características especiais do seu passeio</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="isPopular"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className={`
+                          flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                          ${field.value 
+                            ? 'border-sunset bg-sunset/5 shadow-sm' 
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                          }
+                        `}
+                        onClick={() => field.onChange(!field.value)}
+                        >
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-sunset data-[state=checked]:border-sunset"
+                          />
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className={`h-5 w-5 ${field.value ? 'text-sunset' : 'text-muted-foreground'}`} />
+                            <div>
+                              <FormLabel className={`font-medium cursor-pointer ${field.value ? 'text-sunset' : 'text-foreground'}`}>
+                                Passeio Popular
+                              </FormLabel>
+                              <p className="text-xs text-muted-foreground">Muito procurado pelos turistas</p>
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="isRomantic"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Passeio Romântico</FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="isRomantic"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className={`
+                          flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                          ${field.value 
+                            ? 'border-pink-400 bg-pink-50 shadow-sm dark:bg-pink-900/10' 
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                          }
+                        `}
+                        onClick={() => field.onChange(!field.value)}
+                        >
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Heart className={`h-5 w-5 ${field.value ? 'text-pink-500' : 'text-muted-foreground'}`} />
+                            <div>
+                              <FormLabel className={`font-medium cursor-pointer ${field.value ? 'text-pink-600 dark:text-pink-400' : 'text-foreground'}`}>
+                                Passeio Romântico
+                              </FormLabel>
+                              <p className="text-xs text-muted-foreground">Ideal para casais e momentos especiais</p>
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             {/* Botões */}

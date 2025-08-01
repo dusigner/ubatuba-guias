@@ -508,7 +508,7 @@ export default function EventProfile() {
                   {!isEventPast && (
                     <Button 
                       onClick={handleTicket}
-                      className="w-full bg-gradient-to-r from-tropical to-ocean text-white"
+                      className="w-full btn-gradient-ocean-tropical"
                       size="lg"
                     >
                       <Ticket className="h-4 w-4 mr-2" />

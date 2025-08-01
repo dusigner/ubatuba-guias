@@ -929,12 +929,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user itineraries
   app.get("/api/itineraries", authMiddleware, async (req: any, res) => {
     try {
-      const userClaims = req.user?.claims;
-      if (!userClaims?.email) {
-        return res.status(401).json({ message: "Unauthorized - no user claims" });
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const user = await storage.getUserByEmail(userClaims.email);
+      const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
@@ -948,9 +948,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Favorites routes
-  app.get("/api/favorites", authMiddleware, async (req, res) => {
+  app.get("/api/favorites", authMiddleware, async (req: any, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const favorites = await storage.getUserFavorites(userId);
       res.json(favorites);
     } catch (error) {
@@ -959,9 +962,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/favorites", authMiddleware, async (req, res) => {
+  app.post("/api/favorites", authMiddleware, async (req: any, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const favoriteData = { ...req.body, userId };
       const newFavorite = await storage.addFavorite(favoriteData);
       res.status(201).json(newFavorite);
@@ -974,9 +980,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     "/api/favorites/:itemType/:itemId",
     authMiddleware,
-    async (req, res) => {
+    async (req: any, res) => {
       try {
-        const userId = (req.user as any)?.claims?.sub;
+        const userId = req.session.userId;
+        if (!userId) {
+          return res.status(401).json({ message: "Unauthorized" });
+        }
         const { itemType, itemId } = req.params;
         await storage.removeFavorite(userId, itemType, itemId);
         res.status(204).send();
@@ -990,9 +999,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     "/api/favorites/:itemType/:itemId",
     authMiddleware,
-    async (req, res) => {
+    async (req: any, res) => {
       try {
-        const userId = (req.user as any)?.claims?.sub;
+        const userId = req.session.userId;
+        if (!userId) {
+          return res.status(401).json({ message: "Unauthorized" });
+        }
         const { itemType, itemId } = req.params;
         const isFavorited = await storage.isFavorite(userId, itemType, itemId);
         res.json({ isFavorited });
@@ -1004,9 +1016,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   // Bookings routes
-  app.get("/api/bookings", authMiddleware, async (req, res) => {
+  app.get("/api/bookings", authMiddleware, async (req: any, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const bookings = await storage.getUserBookings(userId);
       res.json(bookings);
     } catch (error) {
@@ -1015,9 +1030,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/bookings", authMiddleware, async (req, res) => {
+  app.post("/api/bookings", authMiddleware, async (req: any, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const bookingData = { ...req.body, userId };
       const newBooking = await storage.createBooking(bookingData);
       res.status(201).json(newBooking);

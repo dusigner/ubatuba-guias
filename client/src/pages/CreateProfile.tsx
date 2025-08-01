@@ -229,8 +229,6 @@ export default function CreateProfile() {
       setTimeout(() => {
         console.log("Redirecionando para home após perfil completo");
         setLocation("/");
-        // Force reload to ensure App.tsx picks up the updated user state
-        window.location.reload();
       }, 500);
     },
     onError: (error) => {

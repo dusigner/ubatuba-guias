@@ -12,31 +12,18 @@ import { Link } from "wouter";
 
 export default function Home() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { user, loading } = useAuth();
 
-  // Redirect to home if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Não autorizado",
-        description: "Você precisa estar logado. Redirecionando...",
-        variant: "destructive",
-      });
-      setTimeout(async () => {
-        const { signInWithGoogle } = await import('@/lib/firebase');
-        signInWithGoogle();
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
+  // Note: Authentication should be handled by App.tsx routing
+  // No need to trigger login here as unauthenticated users won't reach this page
 
   const { data: recentItineraries = [], isLoading: itinerariesLoading } = useQuery<any[]>({
     queryKey: ["/api/itineraries"],
     retry: false,
-    enabled: isAuthenticated,
+    enabled: !!user,
   });
 
-  if (isLoading || !isAuthenticated) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>

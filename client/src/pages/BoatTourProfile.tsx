@@ -76,25 +76,22 @@ export default function BoatTourProfile() {
     },
   });
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Não autorizado",
-        description: "Você precisa estar logado. Redirecionando...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
+  // Remover verificação obrigatória de autenticação para visualização de passeios
+  // A autenticação só é necessária para ações como favoritar, criar booking, etc.
 
   const { data: tour, isLoading: tourLoading, error } = useQuery<any>({
     queryKey: ["/api/boat-tours", tourId],
     retry: false,
-    enabled: isAuthenticated && !!tourId,
+    enabled: !!tourId, // Remover condição de autenticação pois a rota é pública
   });
+
+  // Log detalhado para debug
+  console.log("=== BOAT TOUR PROFILE DEBUG ===");
+  console.log("TourId:", tourId);
+  console.log("Is authenticated:", isAuthenticated);
+  console.log("Tour loading:", tourLoading);
+  console.log("Tour data:", tour);
+  console.log("Tour error:", error);
 
   // Inicializar WhatsApp quando o tour carregar
   useEffect(() => {
@@ -118,7 +115,7 @@ export default function BoatTourProfile() {
     return null;
   }
 
-  if (isLoading || tourLoading || !isAuthenticated) {
+  if (tourLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-ocean"></div>

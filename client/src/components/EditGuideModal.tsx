@@ -83,12 +83,16 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
 
   const mutation = useMutation({
     mutationFn: async (data: EditGuideFormData) => {
+      console.log("=== MUTATION FUNCTION CALLED ===");
       const formData = {
         ...data,
         specialties: selectedSpecialties.join(', '),
         languages: selectedLanguages.join(', '),
         hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
       };
+      
+      console.log("Final form data to send:", formData);
+      console.log("API endpoint:", `/api/guides/${guide.id}`);
       
       return await apiRequest(`/api/guides/${guide.id}`, 'PUT', formData);
     },
@@ -124,6 +128,13 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
   });
 
   const onSubmit = (data: EditGuideFormData) => {
+    console.log("=== EDIT GUIDE MODAL SUBMIT ===");
+    console.log("Form data:", data);
+    console.log("Selected specialties:", selectedSpecialties);
+    console.log("Selected languages:", selectedLanguages);
+    console.log("Guide ID:", guide.id);
+    console.log("Mutation pending:", mutation.isPending);
+    
     mutation.mutate(data);
   };
 

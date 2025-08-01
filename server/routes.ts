@@ -575,8 +575,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Editar perfil de guia (apenas o próprio usuário pode editar)
   app.put("/api/guides/:id", authMiddleware, async (req: any, res) => {
     try {
+      console.log("=== PUT /api/guides/:id CHAMADO ===");
+      console.log("Guide ID:", req.params.id);
+      console.log("Request body:", JSON.stringify(req.body, null, 2));
+      
       const userId = req.session.userId;
       const guideId = req.params.id;
+      
+      console.log("User ID from session:", userId);
 
       // Buscar o usuário do banco de dados pelo ID
       const currentUser = await storage.getUser(userId);
@@ -590,9 +596,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Guia não encontrado" });
       }
 
+      console.log("Guide userId:", guide.userId);
+      console.log("Current user ID:", currentUser.id);
+      
       // Verificar se o usuário está editando seu próprio perfil
       if (guide.userId !== currentUser.id) {
         if (!currentUser?.isAdmin) {
+          console.log("ERRO: Usuário tentando editar perfil de outro guia");
           return res
             .status(403)
             .json({ message: "Você só pode editar seu próprio perfil" });
@@ -614,9 +624,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validar dados com schema
       const validatedData = insertGuideSchema.partial().parse(processedData);
 
+      console.log("Dados validados para atualização:", validatedData);
+      
       // Atualizar dados do guia
       const updatedGuide = await storage.updateGuide(guideId, validatedData);
-
+      
+      console.log("Guia atualizado com sucesso:", updatedGuide);
       res.json(updatedGuide);
     } catch (error) {
       console.error("Error updating guide profile:", error);

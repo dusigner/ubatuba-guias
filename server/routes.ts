@@ -882,6 +882,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .json({ message: "Preferências são obrigatórias" });
         }
 
+        // Verificar se temos claims válidos
+        if (!userClaims || !userClaims.email) {
+          return res.status(401).json({ message: "Usuário não autenticado" });
+        }
+
         // Buscar usuário pelo email para ter o ID correto do banco
         const user = await storage.getUserByEmail(userClaims.email);
         if (!user) {

@@ -2,10 +2,19 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { populateSampleData } from "./sampleData";
+import { setupSecurity } from "./security";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Trust proxy (necessário para rate limiting funcionar corretamente no Replit)
+app.set('trust proxy', 1);
+
+// Configurar segurança ANTES de outros middlewares
+setupSecurity(app);
+
+// Middleware de parsing com limites de segurança
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();

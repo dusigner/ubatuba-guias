@@ -12,6 +12,15 @@ import {
   insertBoatTourSchema,
 } from "@shared/schema";
 import { z } from "zod";
+import { 
+  validateZodSchema, 
+  detectMaliciousInput,
+  handleValidationErrors,
+  validateUserId,
+  validatePagination,
+  validateSearchQuery
+} from "./validation";
+import { heavyOperationsLimiter } from "./security";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Configurando autenticação: Firebase");
@@ -39,7 +48,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Se o usuário não existe no banco (primeiro login via Replit), criar
       if (!user && req.user.claims) {
         user = await storage.upsertUser({
-          id: replitUserId, // Use Replit ID as database ID
           email: req.user.claims.email,
           firstName: req.user.claims.first_name,
           lastName: req.user.claims.last_name,
@@ -431,10 +439,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user is event producer and owns this event
-      if (
-        user.userType !== "eventProducer" &&
-        user.userType !== "event_producer"
-      ) {
+      if (user.userType !== "event_producer") {
         return res
           .status(403)
           .json({
@@ -481,10 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user is event producer and owns this event
-      if (
-        user.userType !== "eventProducer" &&
-        user.userType !== "event_producer"
-      ) {
+      if (user.userType !== "event_producer") {
         return res
           .status(403)
           .json({
@@ -614,11 +616,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Converter strings para arrays se necessário
       if (processedData.specialties && typeof processedData.specialties === 'string') {
-        processedData.specialties = processedData.specialties.split(',').map(s => s.trim());
+        processedData.specialties = processedData.specialties.split(',').map((s: string) => s.trim());
       }
       
       if (processedData.languages && typeof processedData.languages === 'string') {
-        processedData.languages = processedData.languages.split(',').map(l => l.trim());
+        processedData.languages = processedData.languages.split(',').map((l: string) => l.trim());
       }
 
       // Validar dados com schema
@@ -891,6 +893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     "/api/itineraries/generate",
     requireAuth,
+    detectMaliciousInput,
     async (req: any, res) => {
       try {
         const { preferences } = req.body;

@@ -623,7 +623,10 @@ export default function Landing() {
 
           <div className="text-center">
             <Button
-              onClick={() => (window.location.href = "/firebase-login")}
+              onClick={async () => {
+                const { signInWithGoogle } = await import('@/lib/firebase');
+                signInWithGoogle();
+              }}
               className="bg-ocean text-white hover:bg-ocean/90"
             >
               Ver Todos os Passeios
@@ -737,7 +740,10 @@ export default function Landing() {
 
           <div className="text-center">
             <Button
-              onClick={() => (window.location.href = "/firebase-login")}
+              onClick={async () => {
+                const { signInWithGoogle } = await import('@/lib/firebase');
+                signInWithGoogle();
+              }}
               className="bg-tropical text-white hover:bg-tropical/90"
             >
               Ver Todos os Eventos

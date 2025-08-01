@@ -168,7 +168,10 @@ export default function Register() {
               Você precisa estar logado para completar seu cadastro.
             </p>
             <Button 
-              onClick={() => window.location.href = '/firebase-login'}
+              onClick={async () => {
+                const { signInWithGoogle } = await import('@/lib/firebase');
+                signInWithGoogle();
+              }}
               className="bg-ocean text-white hover:bg-ocean/90"
             >
               Fazer Login

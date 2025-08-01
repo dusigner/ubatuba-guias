@@ -61,8 +61,9 @@ export default function AIItinerary({ children }: AIItineraryProps) {
           description: "Você foi desconectado. Fazendo login novamente...",
           variant: "destructive",
         });
-        setTimeout(() => {
-          (window as any).location.href = "/firebase-login";
+        setTimeout(async () => {
+          const { signInWithGoogle } = await import('@/lib/firebase');
+          signInWithGoogle();
         }, 500);
         return;
       }

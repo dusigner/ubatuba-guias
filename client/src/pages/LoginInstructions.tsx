@@ -29,8 +29,9 @@ export default function LoginInstructions() {
     }
   }, [countdown, autoRedirect]);
 
-  const handleLogin = () => {
-    window.location.href = "/firebase-login";
+  const handleLogin = async () => {
+    const { signInWithGoogle } = await import('@/lib/firebase');
+    await signInWithGoogle();
   };
 
   const handleAutoRedirect = () => {

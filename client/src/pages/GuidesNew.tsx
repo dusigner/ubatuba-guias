@@ -42,7 +42,7 @@ export default function GuidesNew() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/firebase-login";
+        setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
       }, 1000);
     }
   }, [isAuthenticated, isLoading, toast]);

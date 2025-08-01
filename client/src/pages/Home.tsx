@@ -22,8 +22,9 @@ export default function Home() {
         description: "Você precisa estar logado. Redirecionando...",
         variant: "destructive",
       });
-      setTimeout(() => {
-        window.location.href = "/firebase-login";
+      setTimeout(async () => {
+        const { signInWithGoogle } = await import('@/lib/firebase');
+        signInWithGoogle();
       }, 500);
       return;
     }

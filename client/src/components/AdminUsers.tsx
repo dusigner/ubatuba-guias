@@ -73,8 +73,9 @@ export default function AdminUsers() {
           description: "Você foi desconectado. Fazendo login novamente...",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/firebase-login";
+        setTimeout(async () => {
+          const { signInWithGoogle } = await import('@/lib/firebase');
+          signInWithGoogle();
         }, 500);
         return;
       }

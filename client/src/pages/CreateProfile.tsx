@@ -233,9 +233,12 @@ export default function CreateProfile() {
       // Force refresh user data then redirect
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       
-      // Wait a bit for queries to update then redirect
+      // Wait a bit for queries to update then redirect to home
       setTimeout(() => {
+        console.log("Redirecionando para home após perfil completo");
         setLocation("/");
+        // Force reload to ensure App.tsx picks up the updated user state
+        window.location.reload();
       }, 500);
     },
     onError: (error) => {
@@ -246,7 +249,7 @@ export default function CreateProfile() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/firebase-login";
+          setLocation("/");
         }, 500);
         return;
       }

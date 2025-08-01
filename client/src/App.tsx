@@ -222,7 +222,7 @@ function Router() {
           {!firebaseUser ? (
             <>
               <Route path="/" component={Landing} />
-              <Route path="/firebase-login" component={FirebaseLogin} />
+
               <Route path="/register" component={RegisterNew} />
               {/* Páginas do Footer - Disponíveis para usuários não autenticados */}
               <Route path="/como-funciona" component={ComoFunciona} />

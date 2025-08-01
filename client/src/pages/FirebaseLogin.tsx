@@ -1,15 +1,43 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { signInWithGoogle } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
-import { MapPin, Waves, Mountain, Users } from "lucide-react";
+import { useLocation } from "wouter";
+import { Chrome } from "lucide-react";
 
 export default function FirebaseLogin() {
   const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      setLocation("/");
+    }
+  }, [user, setLocation]);
+
+  // Auto-trigger login on page load and redirect
+  useEffect(() => {
+    const autoLogin = async () => {
+      try {
+        await signInWithGoogle();
+        setLocation("/");
+      } catch (error) {
+        console.error('Auto-login failed:', error);
+      }
+    };
+
+    if (!user && !loading) {
+      const timer = setTimeout(autoLogin, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [user, loading, setLocation]);
 
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
+      setLocation("/");
     } catch (error) {
       console.error('Erro no login:', error);
     }

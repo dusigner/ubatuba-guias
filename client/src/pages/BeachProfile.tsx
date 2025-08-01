@@ -32,7 +32,7 @@ export default function BeachProfile() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/firebase-login";
+        setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
       }, 500);
       return;
     }
@@ -51,7 +51,7 @@ export default function BeachProfile() {
       variant: "destructive",
     });
     setTimeout(() => {
-      window.location.href = "/firebase-login";
+      setTimeout(async () => { const { signInWithGoogle } = await import('@/lib/firebase'); signInWithGoogle(); }, 500);
     }, 500);
     return null;
   }

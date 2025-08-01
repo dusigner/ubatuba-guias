@@ -58,12 +58,10 @@ const touristProfileSchema = z.object({
 const guideProfileSchema = z.object({
   firstName: z.string().min(1, "Nome é obrigatório"),
   lastName: z.string().min(1, "Sobrenome é obrigatório"),
-  phone: z.string().min(1, "Telefone é obrigatório"),
+  phone: z.string().min(1, "Telefone/WhatsApp é obrigatório"),
   bio: z.string().min(50, "Biografia deve ter pelo menos 50 caracteres"),
-  specialties: z.string().min(1, "Especialidades são obrigatórias"),
   languages: z.string().min(1, "Idiomas são obrigatórios"),
   location: z.string().min(1, "Localização é obrigatória"),
-  whatsapp: z.string().optional(),
   instagram: z.string().optional(),
 });
 
@@ -173,9 +171,7 @@ export default function CreateProfile() {
           phone: user?.phone || "",
           bio: "",
           location: user?.location || "",
-          specialties: "",
           languages: "Português",
-          whatsapp: "",
           instagram: "",
         };
       case "event_producer":
@@ -517,7 +513,7 @@ export default function CreateProfile() {
                         <p className="text-sm text-muted-foreground">{user?.email}</p>
                       </div>
 
-                      {/* Nome editável */}
+                      {/* Nome e Sobrenome */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
@@ -560,6 +556,7 @@ export default function CreateProfile() {
                         />
                       </div>
 
+                      {/* Telefone/WhatsApp */}
                       <FormField
                         control={form.control}
                         name="phone"
@@ -567,7 +564,7 @@ export default function CreateProfile() {
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
                               <Phone className="h-4 w-4" />
-                              Telefone
+                              Telefone/WhatsApp
                             </FormLabel>
                             <FormControl>
                               <Input 
@@ -584,6 +581,7 @@ export default function CreateProfile() {
                         )}
                       />
 
+                      {/* Biografia */}
                       <FormField
                         control={form.control}
                         name="bio"
@@ -605,26 +603,7 @@ export default function CreateProfile() {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="specialties"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <Star className="h-4 w-4" />
-                              Especialidades
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Ex: Trilhas, História Local, Ecoturismo..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
+                      {/* Idiomas e Localização */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
@@ -664,52 +643,23 @@ export default function CreateProfile() {
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="whatsapp"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                <Phone className="h-4 w-4" />
-                                WhatsApp (opcional)
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="(12) 99999-9999"
-                                  {...field}
-                                  onChange={(e) => {
-                                    const formatted = formatPhone(
-                                      e.target.value,
-                                    );
-                                    field.onChange(formatted);
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="instagram"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                <User className="h-4 w-4" />
-                                Instagram (opcional)
-                              </FormLabel>
-                              <FormControl>
-                                <Input placeholder="@seuinstagram" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-
+                      {/* Instagram opcional */}
+                      <FormField
+                        control={form.control}
+                        name="instagram"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <User className="h-4 w-4" />
+                              Instagram (opcional)
+                            </FormLabel>
+                            <FormControl>
+                              <Input placeholder="@seuinstagram" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </>
                   )}
 

@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Ship, Clock, Users, DollarSign, Star, Camera, MessageCircle, Heart, TrendingUp, Fish, Waves, Sunset, Binoculars, Mountain, Anchor } from "lucide-react";
+import { Ship, Clock, Users, DollarSign, Star, Camera, MessageCircle, Heart, TrendingUp, Fish, Waves, Sunset, Binoculars, Mountain, Anchor, MapPin } from "lucide-react";
 import { formatPhone, formatPrice } from "@/lib/masks";
 
 const boatTourSchema = z.object({
@@ -30,6 +30,7 @@ const boatTourSchema = z.object({
   maxPeople: z.string().min(1, "Capacidade máxima é obrigatória"),
   price: z.string().min(1, "Preço é obrigatório"),
   companyName: z.string().min(1, "Nome da empresa é obrigatório"),
+  departureLocation: z.string().min(1, "Local de embarque é obrigatório"),
   includes: z.string().min(1, "Incluso no passeio é obrigatório"),
   whatsappNumber: z.string().optional(),
   imageUrl: z.string().url("URL da imagem deve ser válida").optional().or(z.literal("")),
@@ -63,6 +64,7 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
       maxPeople: tour?.maxPeople?.toString() || "",
       price: tour?.price || "",
       companyName: tour?.companyName || "",
+      departureLocation: tour?.departureLocation || "",
       includes: tour?.includes?.join(", ") || "",
       whatsappNumber: tour?.whatsappNumber || "",
       imageUrl: tour?.imageUrl || "",
@@ -271,6 +273,27 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                 )}
               />
             </div>
+
+            {/* Local de Embarque */}
+            <FormField
+              control={form.control}
+              name="departureLocation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Local de Embarque
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Ex: Marina de Ubatuba, Píer do Saco da Ribeira"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* O que está incluído */}
             <FormField

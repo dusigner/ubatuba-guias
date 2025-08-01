@@ -255,19 +255,25 @@ export default function BoatTourProfile() {
             <div className="absolute inset-0 bg-black/30 rounded-lg flex items-end">
               <div className="p-6 text-white">
                 <h1 className="text-4xl font-bold mb-2">{tour.name}</h1>
-                <div className="flex items-center gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div className="flex items-center gap-1 text-white/90">
                     <Clock className="h-4 w-4" />
                     <span>{tour.duration}h de duração</span>
                   </div>
                   <div className="flex items-center gap-1 text-white/90">
                     <Users className="h-4 w-4" />
-                    <span>Até {tour.maxCapacity} pessoas</span>
+                    <span>Até {tour.maxPeople} pessoas</span>
                   </div>
                   <div className="flex items-center gap-1 text-white/90">
                     <DollarSign className="h-4 w-4" />
                     <span className="text-xl font-bold text-green-300">{formatPrice(tour.price)}</span>
                   </div>
+                  {tour.departureLocation && (
+                    <div className="flex items-center gap-1 text-white/90">
+                      <MapPin className="h-4 w-4" />
+                      <span>{tour.departureLocation}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (

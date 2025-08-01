@@ -7,7 +7,7 @@ import BoatTourModal from "@/components/BoatTourModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Ship, Clock, Users, Star, Check, CalendarPlus, Heart, Flame, Plus } from "lucide-react";
+import { Ship, Clock, Users, Star, Check, CalendarPlus, Heart, Flame, Plus, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
@@ -137,11 +137,19 @@ export default function BoatTours() {
                       {tour.description}
                     </p>
                     
-                    <div className="flex items-center text-sm text-muted-foreground mb-4">
-                      <Clock className="h-4 w-4 mr-2" />
-                      <span>{tour.duration} horas</span>
-                      <Users className="h-4 w-4 ml-4 mr-2" />
-                      <span>Até {tour.maxPeople} pessoas</span>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4 mr-2" />
+                        <span>{tour.duration} horas</span>
+                        <Users className="h-4 w-4 ml-4 mr-2" />
+                        <span>Até {tour.maxPeople} pessoas</span>
+                      </div>
+                      {tour.departureLocation && (
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          <span>{tour.departureLocation}</span>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex items-center justify-between mb-4">

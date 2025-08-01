@@ -882,7 +882,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Buscar usuário pela sessão
-        const user = await storage.getUserById(req.session.userId);
+        const user = await storage.getUser(req.session.userId);
         if (!user) {
           return res.status(404).json({ message: "Usuário não encontrado" });
         }

@@ -24,10 +24,10 @@
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
 
-  /* Ubatuba Theme Colors */
-  --ocean: hsl(188, 85%, 37%);
-  --tropical: hsl(158, 84%, 37%);
-  --sunset: hsl(24, 95%, 53%);
+  /* Ubatuba Theme Colors - Versões mais escuras para melhor contraste no tema claro */
+  --ocean: hsl(188, 85%, 30%);
+  --tropical: hsl(158, 84%, 30%);
+  --sunset: hsl(24, 95%, 45%);
   --sand: hsl(60, 29%, 96%);
 }
 
@@ -53,10 +53,10 @@
   --ring: hsl(240, 4.9%, 83.9%);
   --radius: 0.5rem;
 
-  /* Dark mode theme colors */
-  --ocean: hsl(188, 85%, 47%);
-  --tropical: hsl(158, 84%, 47%);
-  --sunset: hsl(24, 95%, 63%);
+  /* Dark mode theme colors - Versões mais claras para o tema escuro */
+  --ocean: hsl(188, 85%, 50%);
+  --tropical: hsl(158, 84%, 50%);
+  --sunset: hsl(24, 95%, 65%);
   --sand: hsl(240, 5%, 11%);
 }
 
@@ -122,6 +122,46 @@
 
   .hover\:bg-ocean\/90:hover {
     background-color: hsl(from var(--ocean) h s l / 0.9);
+  }
+
+  /* Gradientes com melhor contraste */
+  .bg-gradient-ocean-tropical {
+    background: linear-gradient(135deg, var(--ocean), var(--tropical));
+  }
+
+  .bg-gradient-sunset-ocean {
+    background: linear-gradient(135deg, var(--sunset), var(--ocean));
+  }
+
+  .hover\:opacity-90:hover {
+    opacity: 0.9;
+  }
+
+  .hover\:opacity-80:hover {
+    opacity: 0.8;
+  }
+
+  /* Melhorias para botões com gradiente - garantir texto sempre visível */
+  .btn-gradient {
+    background: linear-gradient(135deg, var(--ocean), var(--tropical));
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-gradient:hover {
+    opacity: 0.9;
+    color: white !important;
+  }
+
+  .btn-gradient-sunset {
+    background: linear-gradient(135deg, var(--sunset), var(--ocean));
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-gradient-sunset:hover {
+    opacity: 0.9;
+    color: white !important;
   }
   
   .hover\:bg-tropical\/90:hover {

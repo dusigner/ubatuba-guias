@@ -70,9 +70,13 @@ ${guides.map(guide =>
 - OBRIGATÓRIO: Use SOMENTE os dados reais fornecidos acima nas suas sugestões
 - Mencione os nomes EXATOS das trilhas, praias, passeios, eventos e guias cadastrados
 - Inclua informações específicas como preços, horários e características dos itens cadastrados
-- Crie um roteiro detalhado dia por dia
+- Crie um roteiro detalhado dia por dia com visual limpo e organizado
 - Inclua horários sugeridos para cada atividade
-- Sugira os guias locais apropriados para cada atividade
+- Sugira os guias locais apropriados para cada atividade com formato: "Guia sugerido: [Nome do Guia] - [especialidades]"
+- Para eventos, use formato: "Evento: [Nome do Evento] - [data] - [preço]"
+- Para passeios de barco, use formato: "Passeio de barco: [Nome do Passeio] - [duração] - [preço]"
+- Seja mais conciso no texto, evite parágrafos muito longos
+- Use emojis para tornar mais visual: 🌅 manhã, ☀️ tarde, 🌙 noite, 🥾 trilha, 🏖️ praia, ⛵ barco, 🎭 evento
 - Inclua dicas práticas baseadas nos dados reais
 - Conecte as atividades de forma lógica e geográfica
 

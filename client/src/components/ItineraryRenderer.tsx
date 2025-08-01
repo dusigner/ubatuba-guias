@@ -2,8 +2,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Clock, DollarSign, Users, Star, Calendar, Phone, Instagram } from "lucide-react";
+import { MapPin, Clock, DollarSign, Users, Star, Calendar, Phone, Instagram, ExternalLink, MessageCircle, Cloud, Sun, CloudRain } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface ItineraryRendererProps {
   content: string;
@@ -12,19 +14,43 @@ interface ItineraryRendererProps {
 }
 
 export default function ItineraryRenderer({ content, title, duration }: ItineraryRendererProps) {
+  const [, setLocation] = useLocation();
+
   // Função para processar e formatar o conteúdo do markdown
   const formatContent = (text: string) => {
     // Divide o conteúdo em seções
-    const sections = text.split(/(?=##\s+Dia\s+\d+|##\s+Contatos|##\s+Dicas)/g);
+    const sections = text.split(/(?=##\s+Dia\s+\d+|##\s+Contatos|##\s+Dicas|##\s+Sugestões)/g);
     
     return sections.map((section, index) => {
       if (section.trim().startsWith('## Dia')) {
         return renderDaySection(section, index);
-      } else if (section.includes('Contatos') || section.includes('Dicas')) {
+      } else if (section.includes('Contatos') || section.includes('Dicas') || section.includes('Sugestões')) {
         return renderInfoSection(section, index);
       }
       return null;
     }).filter(Boolean);
+  };
+
+  // Renderizar seção do clima
+  const renderWeatherCard = (date: string) => {
+    return (
+      <Card className="bg-gradient-to-r from-sky-100 to-blue-100 dark:from-sky-900 dark:to-blue-900 border-none mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sun className="h-5 w-5 text-orange-500" />
+              <span className="font-medium">Previsão do Tempo</span>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {date ? new Date(date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Hoje'}
+            </div>
+          </div>
+          <div className="mt-2 text-sm text-muted-foreground">
+            🌤️ Consulte a previsão atual antes do passeio para aproveitar melhor o clima
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
 
   const renderDaySection = (section: string, index: number) => {
@@ -54,25 +80,38 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
     }
 
     return (
-      <Card key={index} className="mb-6">
-        <CardHeader className="bg-primary/5">
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <Calendar className="h-6 w-6 text-primary" />
-            {dayTitle}
-          </CardTitle>
+      <Card key={index} className="mb-8 shadow-lg border-0 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800">
+        <CardHeader className="bg-gradient-to-r from-ocean/10 to-tropical/10 rounded-t-lg">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-3 text-2xl">
+              <Calendar className="h-7 w-7 text-ocean" />
+              {dayTitle}
+            </CardTitle>
+            <Badge variant="secondary" className="bg-ocean/10 text-ocean">
+              Dia {index + 1}
+            </Badge>
+          </div>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-6">
+        <CardContent className="p-8">
+          {/* Card do clima */}
+          {renderWeatherCard('')}
+          
+          <div className="space-y-8">
             {periods.map((period, pIndex) => (
-              <div key={pIndex} className="border-l-4 border-primary/20 pl-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <h4 className="font-semibold text-lg text-primary">{period.period}</h4>
-                </div>
-                <div className="space-y-2">
-                  {period.content.map((item, iIndex) => {
-                    return renderContentItem(item, iIndex);
-                  })}
+              <div key={pIndex} className="relative">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-ocean to-tropical rounded-full"></div>
+                <div className="pl-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-gradient-to-r from-ocean to-tropical p-2 rounded-full">
+                      <Clock className="h-4 w-4 text-white" />
+                    </div>
+                    <h4 className="font-bold text-xl text-ocean">{period.period}</h4>
+                  </div>
+                  <div className="space-y-4 ml-2">
+                    {period.content.map((item, iIndex) => {
+                      return renderContentItem(item, iIndex);
+                    })}
+                  </div>
                 </div>
               </div>
             ))}
@@ -111,16 +150,54 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
           <span className="font-medium">{cleanItem.replace(/Custo.*?:/g, '').trim()}</span>
         </div>
       );
-    } else if (cleanItem.includes('Guia sugerido:')) {
+    } else if (cleanItem.includes('Guia sugerido:') || cleanItem.includes('Guia:')) {
+      const guideInfo = cleanItem.replace(/Guia sugerido:|Guia:/g, '').trim();
+      const guideName = guideInfo.split(' - ')[0] || guideInfo.split(' (')[0] || guideInfo;
+      
       return (
-        <div key={index} className="bg-amber-50 dark:bg-amber-900/20 p-2 rounded-lg">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-amber-600" />
-            <span className="text-amber-800 dark:text-amber-200 text-sm">
-              {cleanItem.replace('Guia sugerido:', '').trim()}
-            </span>
-          </div>
-        </div>
+        <Card key={index} className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="h-4 w-4 text-amber-600" />
+                  <span className="font-semibold text-amber-800 dark:text-amber-200">
+                    Guia Recomendado
+                  </span>
+                </div>
+                <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
+                  {guideInfo}
+                </p>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="h-8 text-xs border-amber-300 text-amber-700 hover:bg-amber-100"
+                    onClick={() => {
+                      // Buscar guia por nome (simplificado)
+                      const guideSlug = guideName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                      setLocation(`/guides/${guideSlug}`);
+                    }}
+                  >
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    Ver Perfil
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="h-8 text-xs bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => {
+                      const message = encodeURIComponent(`Olá ${guideName}! Vi sua recomendação no roteiro do UbatubaIA e gostaria de conversar sobre seus serviços.`);
+                      window.open(`https://wa.me/5512999990006?text=${message}`, '_blank');
+                    }}
+                  >
+                    <MessageCircle className="h-3 w-3 mr-1" />
+                    WhatsApp
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       );
     } else if (cleanItem.includes('Dica:')) {
       return (
@@ -133,13 +210,67 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
           </div>
         </div>
       );
-    } else if (cleanItem.includes('Jantar:') || cleanItem.includes('Evento:')) {
+    } else if (cleanItem.includes('Evento:') || cleanItem.includes('🎭') || cleanItem.includes('🎪')) {
+      const eventInfo = cleanItem.replace(/Evento:|🎭|🎪/g, '').trim();
+      const eventName = eventInfo.split(' - ')[0] || eventInfo.split(' (')[0] || eventInfo;
+      
       return (
-        <div key={index} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-          <span className="text-purple-800 dark:text-purple-200 font-medium">
-            {cleanItem.replace(/(Jantar|Evento):/g, '').trim()}
-          </span>
-        </div>
+        <Card key={index} className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="h-4 w-4 text-purple-600" />
+                  <span className="font-semibold text-purple-800 dark:text-purple-200">
+                    Evento Disponível
+                  </span>
+                </div>
+                <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
+                  {eventInfo}
+                </p>
+                <Button 
+                  size="sm" 
+                  className="h-8 text-xs bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={() => setLocation('/events')}
+                >
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  Ver Eventos
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    } else if (cleanItem.includes('Passeio de barco:') || cleanItem.includes('⛵') || cleanItem.includes('🚤')) {
+      const tourInfo = cleanItem.replace(/Passeio de barco:|⛵|🚤/g, '').trim();
+      const tourName = tourInfo.split(' - ')[0] || tourInfo.split(' (')[0] || tourInfo;
+      
+      return (
+        <Card key={index} className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-4 w-4 text-blue-600" />
+                  <span className="font-semibold text-blue-800 dark:text-blue-200">
+                    Passeio de Barco
+                  </span>
+                </div>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                  {tourInfo}
+                </p>
+                <Button 
+                  size="sm" 
+                  className="h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => setLocation('/boat-tours')}
+                >
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  Ver Passeios
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       );
     } else if (cleanItem.trim()) {
       return (
@@ -228,20 +359,23 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       {/* Header do Roteiro */}
-      <div className="mb-6 text-center">
-        <h1 className="text-3xl font-bold text-primary mb-2">{title}</h1>
-        <div className="flex items-center justify-center gap-4">
-          <Badge variant="secondary" className="text-sm">
-            <Calendar className="h-4 w-4 mr-1" />
-            {duration} {duration === 1 ? 'dia' : 'dias'}
-          </Badge>
-          <Badge variant="outline" className="text-sm">
-            <MapPin className="h-4 w-4 mr-1" />
-            Ubatuba, SP
+      <div className="mb-12 text-center">
+        <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-ocean/10 to-tropical/10 rounded-full mb-4">
+          <Calendar className="h-8 w-8 text-ocean" />
+        </div>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-ocean to-tropical bg-clip-text text-transparent mb-4">
+          {title}
+        </h1>
+        <div className="flex items-center justify-center gap-3 text-muted-foreground text-lg">
+          <Badge variant="outline" className="border-ocean/20 text-ocean bg-ocean/5 px-4 py-1">
+            {duration} {duration === 1 ? 'dia' : 'dias'} em Ubatuba
           </Badge>
         </div>
+        <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+          Roteiro personalizado criado com IA, baseado em dados reais e atualizados de Ubatuba
+        </p>
       </div>
 
       <Separator className="mb-6" />

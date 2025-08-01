@@ -336,7 +336,7 @@ export default function BeachProfile() {
                   </Button>
                   <Button 
                     onClick={() => setLocation("/boat-tours")}
-                    className="w-full bg-gradient-to-r from-ocean to-tropical text-white"
+                    className="w-full btn-gradient-ocean-tropical"
                   >
                     <Camera className="h-4 w-4 mr-2" />
                     Ver Passeios de Barco

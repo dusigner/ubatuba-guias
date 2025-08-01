@@ -352,7 +352,7 @@ export default function TrailProfile() {
                   </Button>
                   <Button 
                     onClick={() => setLocation("/guides")}
-                    className="w-full bg-gradient-to-r from-tropical to-ocean text-white"
+                    className="w-full btn-gradient-ocean-tropical"
                   >
                     <Users className="h-4 w-4 mr-2" />
                     Contratar Guia

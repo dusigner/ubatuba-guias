@@ -65,7 +65,7 @@ export default function Home() {
               Pronto para descobrir novos destinos em Ubatuba? Nossa IA está preparada para criar o roteiro perfeito para você.
             </p>
             <AIItinerary>
-              <Button size="lg" className="bg-gradient-to-r from-orange-500 to-primary text-white hover:opacity-90 text-lg px-8 py-6">
+              <Button size="lg" className="btn-gradient-orange-primary text-lg px-8 py-6">
                 <Sparkles className="h-5 w-5 mr-2" />
                 Criar Novo Roteiro com IA
               </Button>

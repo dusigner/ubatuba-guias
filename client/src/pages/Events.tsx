@@ -364,7 +364,7 @@ export default function Events() {
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <div className="w-8 h-8 bg-gradient-to-r from-ocean to-tropical rounded-full flex items-center justify-center mr-2">
+                          <div className="w-8 h-8 btn-gradient-ocean-tropical rounded-full flex items-center justify-center mr-2">
                             <User className="h-4 w-4 text-white" />
                           </div>
                           <span className="text-sm text-muted-foreground">por {event.producerName}</span>

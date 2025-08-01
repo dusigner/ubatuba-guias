@@ -25,9 +25,9 @@
   --radius: 0.5rem;
 
   /* Ubatuba Theme Colors - Versões mais escuras para melhor contraste no tema claro */
-  --ocean: hsl(188, 85%, 30%);
-  --tropical: hsl(158, 84%, 30%);
-  --sunset: hsl(24, 95%, 45%);
+  --ocean: hsl(188, 85%, 25%);
+  --tropical: hsl(158, 84%, 25%);
+  --sunset: hsl(24, 95%, 40%);
   --sand: hsl(60, 29%, 96%);
 }
 
@@ -145,11 +145,37 @@
   .btn-gradient {
     background: linear-gradient(135deg, var(--ocean), var(--tropical));
     color: white !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    font-weight: 500;
   }
 
   .btn-gradient:hover {
     opacity: 0.9;
+    color: white !important;
+  }
+
+  /* Gradientes melhorados para botões */
+  .btn-gradient-ocean-tropical {
+    background: linear-gradient(135deg, hsl(188, 85%, 20%), hsl(158, 84%, 20%));
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    font-weight: 500;
+  }
+
+  .btn-gradient-ocean-tropical:hover {
+    background: linear-gradient(135deg, hsl(188, 85%, 15%), hsl(158, 84%, 15%));
+    color: white !important;
+  }
+
+  .btn-gradient-orange-primary {
+    background: linear-gradient(135deg, hsl(24, 95%, 50%), hsl(207, 90%, 40%));
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    font-weight: 500;
+  }
+
+  .btn-gradient-orange-primary:hover {
+    background: linear-gradient(135deg, hsl(24, 95%, 45%), hsl(207, 90%, 35%));
     color: white !important;
   }
 

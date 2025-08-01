@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { 
   Anchor, Star, MapPin, Clock, Users, ArrowLeft, Share2,
   Heart, Camera, DollarSign, Calendar, Phone, Mail,
-  Waves, Fish, Sun, Shield, Compass, LifeBuoy, Edit2, Trash2, MessageCircle, Save, X
+  Waves, Fish, Sun, Shield, Compass, LifeBuoy, Edit2, Trash2, MessageCircle, Save, X, Flame
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -296,6 +296,46 @@ export default function BoatTourProfile() {
                   <span className="text-white/90">
                     ({tour.reviewCount || 0} avaliações)
                   </span>
+                </div>
+                
+                {/* Badges dos destaques */}
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {tour.isPopular && (
+                    <Badge className="bg-sunset text-white border-0">
+                      <Flame className="h-4 w-4 mr-1" />
+                      Mais Popular
+                    </Badge>
+                  )}
+                  {tour.isRomantic && (
+                    <Badge className="bg-pink-500 text-white border-0">
+                      <Heart className="h-4 w-4 mr-1" />
+                      Romântico
+                    </Badge>
+                  )}
+                  {tour.isFishing && (
+                    <Badge className="bg-blue-600 text-white border-0">
+                      <Fish className="h-4 w-4 mr-1" />
+                      Pesca
+                    </Badge>
+                  )}
+                  {tour.isWhaleWatching && (
+                    <Badge className="bg-ocean text-white border-0">
+                      <Camera className="h-4 w-4 mr-1" />
+                      Observação de Baleias
+                    </Badge>
+                  )}
+                  {tour.isSunset && (
+                    <Badge className="bg-orange-500 text-white border-0">
+                      <Sun className="h-4 w-4 mr-1" />
+                      Pôr do Sol
+                    </Badge>
+                  )}
+                  {tour.isAdventure && (
+                    <Badge className="bg-green-600 text-white border-0">
+                      <Compass className="h-4 w-4 mr-1" />
+                      Aventura
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>

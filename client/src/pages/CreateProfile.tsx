@@ -699,6 +699,26 @@ export default function CreateProfile() {
                           )}
                         />
                       </div>
+
+                      <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <MapIcon className="h-4 w-4" />
+                              Localização
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Ex: Centro de Ubatuba, Praia Grande..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </>
                   )}
 

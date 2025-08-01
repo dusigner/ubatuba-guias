@@ -565,11 +565,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Editar perfil de guia (apenas o próprio usuário pode editar)
   app.put("/api/guides/:id", authMiddleware, async (req: any, res) => {
     try {
-      const replitUserId = req.user.claims.sub;
+      const userId = req.session.userId;
       const guideId = req.params.id;
 
-      // Buscar o usuário do banco de dados pelo email
-      const currentUser = await storage.getUserByEmail(req.user.claims.email);
+      // Buscar o usuário do banco de dados pelo ID
+      const currentUser = await storage.getUser(userId);
       if (!currentUser) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }

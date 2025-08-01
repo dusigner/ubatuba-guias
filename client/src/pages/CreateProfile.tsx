@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -46,6 +47,11 @@ import {
   Users,
 } from "lucide-react";
 import { formatPhone, formatPrice } from "@/lib/masks";
+
+// Idiomas disponíveis (mesmo do EditGuideModal)
+const availableLanguages = [
+  'Português', 'Inglês', 'Espanhol', 'Francês', 'Italiano', 'Alemão'
+];
 
 // Schemas para validação
 const touristProfileSchema = z.object({
@@ -97,6 +103,9 @@ export default function CreateProfile() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Estado para idiomas selecionados (apenas para guias)
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['Português']);
 
   const profileType = params?.type as ProfileType;
 
@@ -171,7 +180,7 @@ export default function CreateProfile() {
           phone: user?.phone || "",
           bio: "",
           location: user?.location || "",
-          languages: "Português",
+          languages: selectedLanguages.join(', '),
           instagram: "",
         };
       case "event_producer":
@@ -208,6 +217,19 @@ export default function CreateProfile() {
     defaultValues: getDefaultValues(profileType || "tourist"),
   });
 
+  // Função para toggle de idiomas (mesmo do EditGuideModal)
+  const toggleLanguage = (language: string) => {
+    setSelectedLanguages(prev => {
+      const newLanguages = prev.includes(language) 
+        ? prev.filter(l => l !== language)
+        : [...prev, language];
+      
+      // Atualiza o form também
+      form.setValue('languages', newLanguages.join(', '));
+      return newLanguages;
+    });
+  };
+
   const createProfileMutation = useMutation({
     mutationFn: async (data: any) => {
       console.log("Enviando requisição para criar perfil:", {
@@ -217,6 +239,7 @@ export default function CreateProfile() {
       });
       return apiRequest("/api/profile", "POST", {
         ...data,
+        languages: profileType === "guide" ? selectedLanguages.join(', ') : data.languages,
         userType: profileType || "tourist",
         isProfileComplete: true,
       });
@@ -565,45 +588,43 @@ export default function CreateProfile() {
                         )}
                       />
 
-                      {/* Idiomas e Localização */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="languages"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Idiomas</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Ex: Português, Inglês, Espanhol..."
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="location"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                <MapIcon className="h-4 w-4" />
-                                Localização
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Ex: Centro de Ubatuba, Praia Grande..."
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                      {/* Idiomas */}
+                      <div>
+                        <FormLabel>Idiomas</FormLabel>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {availableLanguages.map((language) => (
+                            <Badge
+                              key={language}
+                              variant={selectedLanguages.includes(language) ? "default" : "secondary"}
+                              className="cursor-pointer"
+                              onClick={() => toggleLanguage(language)}
+                            >
+                              {language}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
+
+                      {/* Localização */}
+                      <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <MapIcon className="h-4 w-4" />
+                              Localização
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Ex: Centro de Ubatuba, Praia Grande..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
                       {/* Instagram opcional */}
                       <FormField

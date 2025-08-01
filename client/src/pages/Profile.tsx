@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { User, Edit, Save, X, Camera } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 const profileSchema = z.object({
@@ -30,6 +30,38 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+
+  // Queries para buscar dados reais do usuário
+  const { data: userItineraries = [] } = useQuery({
+    queryKey: ["/api/itineraries"],
+    enabled: !!user,
+  });
+
+  const { data: userFavorites = [] } = useQuery({
+    queryKey: ["/api/favorites"],
+    enabled: !!user,
+  });
+
+  const { data: userBookings = [] } = useQuery({
+    queryKey: ["/api/bookings"],
+    enabled: !!user,
+  });
+
+  // Buscar dados específicos do tipo de usuário
+  const { data: userBoatTours = [] } = useQuery({
+    queryKey: ["/api/boat-tours"],
+    enabled: !!user && user.userType === "boat_tour_operator",
+  });
+
+  const { data: userEvents = [] } = useQuery({
+    queryKey: ["/api/events"],
+    enabled: !!user && user.userType === "event_producer",
+  });
+
+  const { data: userGuides = [] } = useQuery({
+    queryKey: ["/api/guides"],
+    enabled: !!user && user.userType === "guide",
+  });
 
   const {
     register,
@@ -296,23 +328,121 @@ export default function Profile() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {/* Roteiros criados pelo usuário */}
               <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-primary">12</div>
+                <div className="text-2xl font-bold text-primary">{userItineraries.length}</div>
                 <div className="text-sm text-muted-foreground">Roteiros Criados</div>
               </div>
+              
+              {/* Favoritos do usuário */}
               <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-primary">8</div>
-                <div className="text-sm text-muted-foreground">Lugares Visitados</div>
-              </div>
-              <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-primary">5</div>
-                <div className="text-sm text-muted-foreground">Avaliações</div>
-              </div>
-              <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-primary">3</div>
+                <div className="text-2xl font-bold text-primary">{userFavorites.length}</div>
                 <div className="text-sm text-muted-foreground">Favoritos</div>
               </div>
+              
+              {/* Reservas/Bookings do usuário */}
+              <div className="text-center space-y-2">
+                <div className="text-2xl font-bold text-primary">{userBookings.length}</div>
+                <div className="text-sm text-muted-foreground">Reservas</div>
+              </div>
+              
+              {/* Atividades específicas por tipo de usuário */}
+              <div className="text-center space-y-2">
+                {user?.userType === "boat_tour_operator" && (
+                  <>
+                    <div className="text-2xl font-bold text-primary">
+                      {userBoatTours.filter((tour: any) => tour.operatorId === user.id).length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Passeios Cadastrados</div>
+                  </>
+                )}
+                {user?.userType === "event_producer" && (
+                  <>
+                    <div className="text-2xl font-bold text-primary">
+                      {userEvents.filter((event: any) => event.producerId === user.id).length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Eventos Criados</div>
+                  </>
+                )}
+                {user?.userType === "guide" && (
+                  <>
+                    <div className="text-2xl font-bold text-primary">
+                      {userGuides.filter((guide: any) => guide.userId === user.id).length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Perfis de Guia</div>
+                  </>
+                )}
+                {user?.userType === "tourist" && (
+                  <>
+                    <div className="text-2xl font-bold text-primary">
+                      {new Date(user.createdAt).getFullYear() === new Date().getFullYear() ? "Novo" : "Veterano"}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Status</div>
+                  </>
+                )}
+              </div>
             </div>
+            
+            {/* Informações adicionais baseadas no tipo de usuário */}
+            {user?.userType === "boat_tour_operator" && userBoatTours.length > 0 && (
+              <div className="mt-6 pt-6 border-t">
+                <h4 className="font-semibold mb-3">Seus Passeios Mais Populares</h4>
+                <div className="space-y-2">
+                  {userBoatTours
+                    .filter((tour: any) => tour.operatorId === user.id)
+                    .sort((a: any, b: any) => parseFloat(b.rating || "0") - parseFloat(a.rating || "0"))
+                    .slice(0, 2)
+                    .map((tour: any) => (
+                    <div key={tour.id} className="flex justify-between items-center p-2 bg-muted rounded">
+                      <span className="text-sm font-medium">{tour.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">★ {tour.rating || "0.0"}</span>
+                        <span className="text-xs text-primary">R$ {tour.price}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {user?.userType === "event_producer" && userEvents.length > 0 && (
+              <div className="mt-6 pt-6 border-t">
+                <h4 className="font-semibold mb-3">Seus Próximos Eventos</h4>
+                <div className="space-y-2">
+                  {userEvents
+                    .filter((event: any) => event.producerId === user.id)
+                    .filter((event: any) => new Date(event.startDate) >= new Date())
+                    .slice(0, 2)
+                    .map((event: any) => (
+                    <div key={event.id} className="flex justify-between items-center p-2 bg-muted rounded">
+                      <span className="text-sm font-medium">{event.title}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(event.startDate).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {userItineraries.length > 0 && (
+              <div className="mt-6 pt-6 border-t">
+                <h4 className="font-semibold mb-3">Seus Últimos Roteiros</h4>
+                <div className="space-y-2">
+                  {userItineraries
+                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 3)
+                    .map((itinerary: any) => (
+                    <div key={itinerary.id} className="flex justify-between items-center p-2 bg-muted rounded">
+                      <span className="text-sm font-medium">{itinerary.title || "Roteiro para Ubatuba"}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(itinerary.createdAt).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

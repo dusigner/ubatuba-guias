@@ -380,7 +380,6 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                             : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
                           }
                         `}
-                        onClick={() => field.onChange(!field.value)}
                         >
                           <Checkbox
                             checked={field.value}
@@ -415,7 +414,6 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                             : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
                           }
                         `}
-                        onClick={() => field.onChange(!field.value)}
                         >
                           <Checkbox
                             checked={field.value}
@@ -450,7 +448,6 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                             : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
                           }
                         `}
-                        onClick={() => field.onChange(!field.value)}
                         >
                           <Checkbox
                             checked={field.value}
@@ -485,7 +482,6 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                             : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
                           }
                         `}
-                        onClick={() => field.onChange(!field.value)}
                         >
                           <Checkbox
                             checked={field.value}
@@ -520,7 +516,6 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                             : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
                           }
                         `}
-                        onClick={() => field.onChange(!field.value)}
                         >
                           <Checkbox
                             checked={field.value}
@@ -555,7 +550,6 @@ export default function BoatTourModal({ isOpen, onClose, tour }: BoatTourModalPr
                             : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
                           }
                         `}
-                        onClick={() => field.onChange(!field.value)}
                         >
                           <Checkbox
                             checked={field.value}

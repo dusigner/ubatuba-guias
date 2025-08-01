@@ -350,55 +350,7 @@ export default function CreateProfile() {
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="space-y-6"
                 >
-                  {/* Campos comuns para todos */}
-                  {profileType !== "tourist" && (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <Phone className="h-4 w-4" />
-                              Telefone/WhatsApp
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="(12) 99999-9999"
-                                {...field}
-                                onChange={(e) => {
-                                  const formatted = formatPhone(e.target.value);
-                                  field.onChange(formatted);
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
 
-                      <FormField
-                        control={form.control}
-                        name="bio"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              Biografia
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Conte um pouco sobre você e sua experiência..."
-                                rows={4}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
 
                   {/* Campos específicos por tipo */}
                   {profileType === "tourist" && (

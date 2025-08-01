@@ -49,7 +49,10 @@ import { formatPhone, formatPrice } from "@/lib/masks";
 
 // Schemas para validação
 const touristProfileSchema = z.object({
-  phone: z.string().optional(), // Telefone opcional para turistas
+  firstName: z.string().min(1, "Nome é obrigatório"),
+  lastName: z.string().min(1, "Sobrenome é obrigatório"),
+  phone: z.string().min(1, "Telefone é obrigatório"),
+  location: z.string().min(1, "Localização é obrigatória"),
 });
 
 const guideProfileSchema = z.object({
@@ -166,7 +169,10 @@ export default function CreateProfile() {
     switch (type) {
       case "tourist":
         return {
-          phone: "", // Apenas telefone para turistas
+          firstName: user?.firstName || "",
+          lastName: user?.lastName || "",
+          phone: user?.phone || "",
+          location: user?.location || "",
         };
       case "guide":
         return {
@@ -387,16 +393,56 @@ export default function CreateProfile() {
                   {/* Campos específicos por tipo */}
                   {profileType === "tourist" && (
                     <>
-                      {/* Mostrar dados do Google que já vêm preenchidos */}
+                      {/* Email não editável */}
                       <div className="bg-muted/30 p-4 rounded-lg border">
                         <h3 className="font-medium text-foreground mb-2 flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          Dados da conta Google
+                          <Mail className="h-4 w-4" />
+                          Email (não editável)
                         </h3>
-                        <div className="space-y-2 text-sm text-muted-foreground">
-                          <p><strong>Nome:</strong> {user?.firstName} {user?.lastName}</p>
-                          <p><strong>Email:</strong> {user?.email}</p>
-                        </div>
+                        <p className="text-sm text-muted-foreground">{user?.email}</p>
+                      </div>
+
+                      {/* Nome editável */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="firstName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                Nome
+                              </FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Seu nome" 
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="lastName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                Sobrenome
+                              </FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Seu sobrenome" 
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
 
                       <FormField
@@ -406,7 +452,7 @@ export default function CreateProfile() {
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
                               <Phone className="h-4 w-4" />
-                              Telefone (opcional)
+                              Telefone
                             </FormLabel>
                             <FormControl>
                               <Input 
@@ -423,87 +469,6 @@ export default function CreateProfile() {
                         )}
                       />
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="travelStyle"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Estilo de viagem</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione seu estilo" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="aventura">
-                                    Aventura
-                                  </SelectItem>
-                                  <SelectItem value="relaxante">
-                                    Relaxante
-                                  </SelectItem>
-                                  <SelectItem value="cultural">
-                                    Cultural
-                                  </SelectItem>
-                                  <SelectItem value="gastronomico">
-                                    Gastronômico
-                                  </SelectItem>
-                                  <SelectItem value="familiar">
-                                    Familiar
-                                  </SelectItem>
-                                  <SelectItem value="romantico">
-                                    Romântico
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="budget"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                <DollarSign className="h-4 w-4" />
-                                Orçamento por dia
-                              </FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione seu orçamento" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="economico">
-                                    Econômico (até R$ 100)
-                                  </SelectItem>
-                                  <SelectItem value="medio">
-                                    Médio (R$ 100-300)
-                                  </SelectItem>
-                                  <SelectItem value="premium">
-                                    Premium (R$ 300-500)
-                                  </SelectItem>
-                                  <SelectItem value="luxo">
-                                    Luxo (acima de R$ 500)
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
                       <FormField
                         control={form.control}
                         name="location"
@@ -515,7 +480,7 @@ export default function CreateProfile() {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="Ex: São Paulo, Rio de Janeiro..."
+                                placeholder="Ex: São Paulo, SP"
                                 {...field}
                               />
                             </FormControl>

@@ -56,15 +56,13 @@ const touristProfileSchema = z.object({
 });
 
 const guideProfileSchema = z.object({
+  firstName: z.string().min(1, "Nome é obrigatório"),
+  lastName: z.string().min(1, "Sobrenome é obrigatório"),
   phone: z.string().min(1, "Telefone é obrigatório"),
   bio: z.string().min(50, "Biografia deve ter pelo menos 50 caracteres"),
   specialties: z.string().min(1, "Especialidades são obrigatórias"),
-  experience: z.string().min(1, "Experiência é obrigatória"),
   languages: z.string().min(1, "Idiomas são obrigatórios"),
-  hourlyRate: z.string().min(1, "Valor do serviço é obrigatório"),
   location: z.string().min(1, "Localização é obrigatória"),
-  availability: z.string().min(1, "Disponibilidade é obrigatória"),
-  certifications: z.string().optional(),
   whatsapp: z.string().optional(),
   instagram: z.string().optional(),
 });
@@ -170,15 +168,13 @@ export default function CreateProfile() {
         };
       case "guide":
         return {
+          firstName: user?.firstName || "",
+          lastName: user?.lastName || "",
           phone: user?.phone || "",
           bio: "",
           location: user?.location || "",
           specialties: "",
-          experience: "",
           languages: "Português",
-          hourlyRate: "",
-          availability: "",
-          certifications: "",
           whatsapp: "",
           instagram: "",
         };
@@ -512,6 +508,103 @@ export default function CreateProfile() {
                   {/* Guia */}
                   {profileType === "guide" && (
                     <>
+                      {/* Email não editável */}
+                      <div className="bg-muted/30 p-4 rounded-lg border">
+                        <h3 className="font-medium text-foreground mb-2 flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          Email (não editável)
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{user?.email}</p>
+                      </div>
+
+                      {/* Nome editável */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="firstName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                Nome
+                              </FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Seu nome" 
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="lastName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                Sobrenome
+                              </FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Seu sobrenome" 
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <Phone className="h-4 w-4" />
+                              Telefone
+                            </FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="(12) 99999-9999" 
+                                {...field}
+                                onChange={(e) => {
+                                  const formatted = formatPhone(e.target.value);
+                                  field.onChange(formatted);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="bio"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <User className="h-4 w-4" />
+                              Biografia
+                            </FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Conte um pouco sobre você e sua experiência..."
+                                rows={4}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
                       <FormField
                         control={form.control}
                         name="specialties"
@@ -524,27 +617,6 @@ export default function CreateProfile() {
                             <FormControl>
                               <Input
                                 placeholder="Ex: Trilhas, História Local, Ecoturismo..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="experience"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
-                              Experiência
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Descreva sua experiência como guia turístico..."
-                                rows={3}
                                 {...field}
                               />
                             </FormControl>
@@ -573,87 +645,24 @@ export default function CreateProfile() {
 
                         <FormField
                           control={form.control}
-                          name="availability"
+                          name="location"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
-                                Disponibilidade
+                                <MapIcon className="h-4 w-4" />
+                                Localização
                               </FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione sua disponibilidade" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="todos_os_dias">
-                                    Todos os dias
-                                  </SelectItem>
-                                  <SelectItem value="fins_de_semana">
-                                    Fins de semana
-                                  </SelectItem>
-                                  <SelectItem value="dias_uteis">
-                                    Dias úteis
-                                  </SelectItem>
-                                  <SelectItem value="por_agendamento">
-                                    Por agendamento
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <FormControl>
+                                <Input
+                                  placeholder="Ex: Centro de Ubatuba, Praia Grande..."
+                                  {...field}
+                                />
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-
-                      <FormField
-                        control={form.control}
-                        name="hourlyRate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <DollarSign className="h-4 w-4" />
-                              Valor do serviço
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Ex: R$ 150,00 por passeio"
-                                {...field}
-                                onChange={(e) => {
-                                  const formatted = `R$ ${formatPrice(e.target.value)}`;
-                                  field.onChange(formatted);
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="certifications"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4" />
-                              Certificações (opcional)
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Descreva suas certificações, cursos ou qualificações relevantes..."
-                                rows={2}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
@@ -700,25 +709,7 @@ export default function CreateProfile() {
                         />
                       </div>
 
-                      <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <MapIcon className="h-4 w-4" />
-                              Localização
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Ex: Centro de Ubatuba, Praia Grande..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
                     </>
                   )}
 

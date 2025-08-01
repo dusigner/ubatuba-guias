@@ -10,19 +10,26 @@ const MemStore = MemoryStore(session);
 
 export function setupFirebaseAuth(app: Express) {
   // Configure session middleware with memory storage
-  app.use(session({
+  const sessionConfig = {
     store: new MemStore({
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
-    secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+    secret: process.env.SESSION_SECRET || 'fallback-secret-key-for-replit',
     resave: false,
     saveUninitialized: false,
+    name: 'sessionId', // Custom session name
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Desabilitar para todos os ambientes por enquanto
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000 * 7, // 7 days
+      sameSite: 'lax' as const, // Importante para funcionar em domínios Replit
     },
-  }));
+  };
+
+  console.log('Configurando sessões para ambiente:', process.env.NODE_ENV);
+  console.log('Domain:', process.env.REPLIT_DOMAINS);
+  
+  app.use(session(sessionConfig));
 
   console.log('✅ Firebase Auth e Sessions configurados com MemoryStore');
 }
@@ -86,7 +93,19 @@ export async function handleFirebaseLogin(req: Request, res: Response) {
     req.session.user = user;
 
     console.log('✅ Firebase login realizado:', user.email);
-    res.json(user);
+    console.log('Session ID após login:', req.sessionID);
+    console.log('Session User ID após login:', req.session.userId);
+    
+    // Force session save and only respond after save is complete
+    req.session.save((err) => {
+      if (err) {
+        console.error('❌ Erro ao salvar session:', err);
+        res.status(500).json({ error: 'Erro ao salvar sessão' });
+      } else {
+        console.log('✅ Session salva com sucesso');
+        res.json(user);
+      }
+    });
   } catch (error) {
     console.error('❌ Erro no login Firebase:', error);
     res.status(500).json({ error: 'Erro no login' });
@@ -94,9 +113,17 @@ export async function handleFirebaseLogin(req: Request, res: Response) {
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  console.log('=== RequireAuth Debug ===');
+  console.log('Session ID:', req.sessionID);
+  console.log('Session User ID:', req.session.userId);
+  console.log('Session exists:', !!req.session);
+  console.log('Cookies:', req.headers.cookie);
+  
   if (!req.session.userId) {
+    console.log('❌ Unauthorized - No session userId');
     return res.status(401).json({ message: 'Unauthorized' });
   }
+  console.log('✅ Auth passed');
   next();
 }
 

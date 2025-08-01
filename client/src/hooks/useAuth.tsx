@@ -88,7 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
         },
         credentials: 'include',
         body: JSON.stringify({

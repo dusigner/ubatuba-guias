@@ -23,6 +23,7 @@ export default function Events() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("todos");
   const [priceFilter, setPriceFilter] = useState("todos");
+  const [ownerFilter, setOwnerFilter] = useState("todos"); // Novo filtro para produtores
   const [sortBy, setSortBy] = useState("data");
   const [sortOrder, setSortOrder] = useState("asc");
 
@@ -104,6 +105,17 @@ export default function Events() {
         const price = getEventPrice(event);
         if (priceFilter === "gratuito" && price > 0) return false;
         if (priceFilter === "pago" && price === 0) return false;
+      }
+
+      // Owner filter - específico para produtores de eventos
+      if (ownerFilter !== "todos") {
+        const userFullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
+        if (ownerFilter === "meus" && event.producerName !== userFullName && event.producerName !== user?.email) {
+          return false;
+        }
+        if (ownerFilter === "outros" && (event.producerName === userFullName || event.producerName === user?.email)) {
+          return false;
+        }
       }
 
       return true;
@@ -210,6 +222,20 @@ export default function Events() {
                   <SelectItem value="pago">Pago</SelectItem>
                 </SelectContent>
               </Select>
+
+              {/* Owner Filter - apenas para produtores de eventos */}
+              {canCreateEvent && (
+                <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+                  <SelectTrigger className="w-full lg:w-40">
+                    <SelectValue placeholder="Organizador" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="meus">Meus eventos</SelectItem>
+                    <SelectItem value="outros">Outros eventos</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             
             <div className="flex items-center gap-2">
@@ -257,6 +283,11 @@ export default function Events() {
               {priceFilter !== "todos" && (
                 <Badge variant="secondary" className="cursor-pointer" onClick={() => setPriceFilter("todos")}>
                   {priceFilter} ✕
+                </Badge>
+              )}
+              {ownerFilter !== "todos" && (
+                <Badge variant="secondary" className="cursor-pointer" onClick={() => setOwnerFilter("todos")}>
+                  {ownerFilter === "meus" ? "Meus eventos" : "Outros eventos"} ✕
                 </Badge>
               )}
             </div>
@@ -362,6 +393,7 @@ export default function Events() {
                     setSearchTerm("");
                     setCategoryFilter("todos");
                     setPriceFilter("todos");
+                    setOwnerFilter("todos");
                   }}
                   variant="outline"
                 >

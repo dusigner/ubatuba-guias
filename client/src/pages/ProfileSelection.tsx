@@ -159,7 +159,7 @@ export default function ProfileSelection() {
                     </ul>
 
                     <Button 
-                      className="w-full bg-gradient-to-r from-ocean to-sunset hover:from-ocean/90 hover:to-sunset/90 text-white group"
+                      className="w-full btn-gradient-orange-primary group"
                       onClick={() => handleSelectProfile(profile.id)}
                     >
                       Escolher este perfil

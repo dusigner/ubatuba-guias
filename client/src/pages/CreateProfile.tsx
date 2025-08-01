@@ -49,12 +49,7 @@ import { formatPhone, formatPrice } from "@/lib/masks";
 
 // Schemas para validação
 const touristProfileSchema = z.object({
-  phone: z.string().min(1, "Telefone é obrigatório"),
-  bio: z.string().min(20, "Biografia deve ter pelo menos 20 caracteres"),
-  interests: z.string().min(1, "Interesses são obrigatórios"),
-  travelStyle: z.string().min(1, "Estilo de viagem é obrigatório"),
-  budget: z.string().min(1, "Orçamento é obrigatório"),
-  location: z.string().min(1, "Localização é obrigatória"),
+  phone: z.string().optional(), // Telefone opcional para turistas
 });
 
 const guideProfileSchema = z.object({
@@ -171,10 +166,7 @@ export default function CreateProfile() {
     switch (type) {
       case "tourist":
         return {
-          ...baseDefaults,
-          interests: "",
-          travelStyle: "",
-          budget: "",
+          phone: "", // Apenas telefone para turistas
         };
       case "guide":
         return {
@@ -397,6 +389,18 @@ export default function CreateProfile() {
                   {/* Campos específicos por tipo */}
                   {profileType === "tourist" && (
                     <>
+                      {/* Mostrar dados do Google que já vêm preenchidos */}
+                      <div className="bg-muted/30 p-4 rounded-lg border">
+                        <h3 className="font-medium text-foreground mb-2 flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          Dados da conta Google
+                        </h3>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          <p><strong>Nome:</strong> {user?.firstName} {user?.lastName}</p>
+                          <p><strong>Email:</strong> {user?.email}</p>
+                        </div>
+                      </div>
+
                       <FormField
                         control={form.control}
                         name="phone"
@@ -407,47 +411,13 @@ export default function CreateProfile() {
                               Telefone (opcional)
                             </FormLabel>
                             <FormControl>
-                              <Input placeholder="(12) 99999-9999" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="bio"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              Sobre você
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Conte um pouco sobre você e seus interesses de viagem..."
-                                rows={3}
+                              <Input 
+                                placeholder="(12) 99999-9999" 
                                 {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="interests"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              <Compass className="h-4 w-4" />
-                              Interesses
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Ex: Praias, Trilhas, História, Gastronomia..."
-                                {...field}
+                                onChange={(e) => {
+                                  const formatted = formatPhone(e.target.value);
+                                  field.onChange(formatted);
+                                }}
                               />
                             </FormControl>
                             <FormMessage />

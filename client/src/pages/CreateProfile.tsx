@@ -214,6 +214,11 @@ export default function CreateProfile() {
 
   const createProfileMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("Enviando requisição para criar perfil:", {
+        ...data,
+        userType: profileType || "tourist",
+        isProfileComplete: true,
+      });
       return apiRequest("/api/profile", "POST", {
         ...data,
         userType: profileType || "tourist",
@@ -238,6 +243,7 @@ export default function CreateProfile() {
       }, 500);
     },
     onError: (error) => {
+      console.error("Erro ao criar perfil:", error);
       if (isUnauthorizedError(error as Error)) {
         toast({
           title: "Não autorizado",
@@ -280,6 +286,8 @@ export default function CreateProfile() {
   }
 
   const onSubmit = (data: any) => {
+    console.log("Submitting profile data:", data);
+    console.log("Profile type:", profileType);
     createProfileMutation.mutate(data);
   };
 

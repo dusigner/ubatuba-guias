@@ -18,16 +18,30 @@ export default function FirebaseLoginButton({
     try {
       console.log('Iniciando login Google via popup...');
       const result = await signInWithGoogle();
-      console.log('Login Google realizado com sucesso:', result.user.email);
+      
+      if (result) {
+        console.log('Login Google realizado com sucesso:', result.user.email);
+      }
       
       // O AuthProvider vai capturar automaticamente via onAuthStateChanged
       // Não precisamos fazer nada aqui, apenas aguardar
     } catch (error: any) {
       console.error('Erro durante login Google:', error);
-      // Verificar se o erro é por causa do domínio não autorizado
-      if (error.code === 'auth/unauthorized-domain') {
-        alert('Domínio não autorizado no Firebase. Verifique as configurações do projeto.');
+      
+      // Mostrar mensagem de erro mais amigável para o usuário
+      let errorMessage = 'Erro ao fazer login. Tente novamente.';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = 'Domínio não autorizado no Firebase. Entre em contato com o suporte.';
+      } else if (error.code === 'auth/internal-error') {
+        errorMessage = 'Erro interno do Firebase. Tente novamente em alguns minutos.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
       }
+      
+      alert(errorMessage);
     }
   };
 

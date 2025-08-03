@@ -3,10 +3,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -80,32 +80,32 @@ export default function Profile() {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: ProfileFormData & { profileImageUrl?: string }) =>
-      apiRequest("/api/auth/user", "PUT", data),
+    mutationFn: async (data: ProfileFormData) => {
+      return await apiRequest(`/api/auth/profile`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Perfil atualizado",
-        description: "Suas informações foram salvas com sucesso.",
+        description: "Suas informações foram atualizadas com sucesso.",
       });
       setIsEditing(false);
-      setProfileImage(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o perfil.",
+        title: "Erro ao atualizar perfil",
+        description: error.message || "Ocorreu um erro inesperado.",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = async (data: ProfileFormData) => {
-    const updateData = {
-      ...data,
-      ...(profileImage && { profileImageUrl: profileImage }),
-    };
-    updateProfileMutation.mutate(updateData);
+  const onSubmit = (data: ProfileFormData) => {
+    updateProfileMutation.mutate(data);
   };
 
   const handleCancel = () => {
@@ -139,7 +139,7 @@ export default function Profile() {
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
@@ -161,6 +161,7 @@ export default function Profile() {
       tourist: "Turista",
       guide: "Guia Local",
       event_producer: "Produtor de Eventos",
+      boat_tour_operator: "Operador de Barco",
       admin: "Administrador",
     };
     return types[type as keyof typeof types] || type;
@@ -171,6 +172,7 @@ export default function Profile() {
       tourist: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
       guide: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
       event_producer: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+      boat_tour_operator: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
       admin: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
     };
     return colors[type as keyof typeof colors] || "bg-gray-100 text-gray-800";
@@ -183,274 +185,256 @@ export default function Profile() {
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Meu Perfil</h1>
           <p className="text-muted-foreground">
-            Gerencie suas informações pessoais
+            Gerencie suas informações pessoais e preferências
           </p>
         </div>
 
-        {/* Avatar e Info Principal */}
+        {/* Profile Card */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <div className="relative">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={profileImage || user?.profileImageUrl} />
-                  <AvatarFallback className="text-lg">
-                    {user?.firstName?.[0]}{user?.lastName?.[0]}
-                  </AvatarFallback>
-                </Avatar>
+          <CardHeader className="text-center">
+            <div className="relative inline-block">
+              <Avatar className="w-24 h-24 mx-auto">
+                <AvatarImage 
+                  src={profileImage || user?.profileImageUrl || ""} 
+                  alt="Profile" 
+                />
+                <AvatarFallback>
+                  <User className="w-8 h-8" />
+                </AvatarFallback>
+              </Avatar>
+              {isEditing && (
                 <Button
-                  size="icon"
+                  size="sm"
                   variant="outline"
-                  className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
+                  className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={!isEditing}
                 >
                   <Camera className="h-4 w-4" />
                 </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </div>
-              
-              <div className="text-center sm:text-left space-y-2">
-                <h2 className="text-2xl font-semibold">
-                  {user?.firstName} {user?.lastName}
-                </h2>
-                <p className="text-muted-foreground">{user?.email}</p>
-                <Badge className={getUserTypeColor(user?.userType || "tourist")}>
-                  {getUserTypeLabel(user?.userType || "tourist")}
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </div>
+            <div className="space-y-2">
+              <CardTitle className="text-xl">
+                {user?.firstName} {user?.lastName}
+              </CardTitle>
+              <div className="flex items-center justify-center gap-2">
+                <Badge className={getUserTypeColor(user?.userType || "")}>
+                  {getUserTypeLabel(user?.userType || "")}
                 </Badge>
+                {user?.isAdmin && (
+                  <Badge variant="destructive">Administrador</Badge>
+                )}
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Formulário de Edição */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Informações Pessoais</CardTitle>
-              <CardDescription>
-                Atualize seus dados pessoais
-              </CardDescription>
-            </div>
-            {!isEditing ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing(true)}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Editar
-              </Button>
-            ) : (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCancel}
-                  disabled={updateProfileMutation.isPending}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancelar
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleSubmit(onSubmit)}
-                  disabled={updateProfileMutation.isPending}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {updateProfileMutation.isPending ? "Salvando..." : "Salvar"}
-                </Button>
-              </div>
-            )}
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Nome</Label>
-                {isEditing ? (
+
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">Nome</Label>
                   <Input
                     id="firstName"
                     {...register("firstName")}
-                    error={errors.firstName?.message}
+                    disabled={!isEditing}
+                    className={errors.firstName ? "border-red-500" : ""}
                   />
-                ) : (
-                  <div className="px-3 py-2 bg-muted rounded-md">
-                    {user?.firstName}
-                  </div>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Sobrenome</Label>
-                {isEditing ? (
+                  {errors.firstName && (
+                    <p className="text-sm text-red-500">{errors.firstName.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Sobrenome</Label>
                   <Input
                     id="lastName"
                     {...register("lastName")}
-                    error={errors.lastName?.message}
+                    disabled={!isEditing}
+                    className={errors.lastName ? "border-red-500" : ""}
                   />
-                ) : (
-                  <div className="px-3 py-2 bg-muted rounded-md">
-                    {user?.lastName}
-                  </div>
-                )}
+                  {errors.lastName && (
+                    <p className="text-sm text-red-500">{errors.lastName.message}</p>
+                  )}
+                </div>
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              {isEditing ? (
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   {...register("email")}
-                  error={errors.email?.message}
+                  disabled={!isEditing}
+                  className={errors.email ? "border-red-500" : ""}
                 />
-              ) : (
-                <div className="px-3 py-2 bg-muted rounded-md">
-                  {user?.email}
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                {!isEditing ? (
+                  <Button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    variant="outline"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Editar Perfil
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancel}
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {isSubmitting ? "Salvando..." : "Salvar"}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Activity Summary */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Resumo de Atividades</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-primary">
+                  {Array.isArray(userItineraries) ? userItineraries.length : 0}
                 </div>
-              )}
+                <div className="text-sm text-muted-foreground">Roteiros</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">
+                  {Array.isArray(userFavorites) ? userFavorites.length : 0}
+                </div>
+                <div className="text-sm text-muted-foreground">Favoritos</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">
+                  {Array.isArray(userBookings) ? userBookings.length : 0}
+                </div>
+                <div className="text-sm text-muted-foreground">Reservas</div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Estatísticas do Usuário */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Atividade</CardTitle>
-            <CardDescription>
-              Seu histórico na plataforma
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {/* Roteiros criados pelo usuário */}
-              <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-primary">{userItineraries.length}</div>
-                <div className="text-sm text-muted-foreground">Roteiros Criados</div>
-              </div>
-              
-              {/* Favoritos do usuário */}
-              <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-primary">{userFavorites.length}</div>
-                <div className="text-sm text-muted-foreground">Favoritos</div>
-              </div>
-              
-              {/* Reservas/Bookings do usuário */}
-              <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-primary">{userBookings.length}</div>
-                <div className="text-sm text-muted-foreground">Reservas</div>
-              </div>
-              
-              {/* Atividades específicas por tipo de usuário */}
-              <div className="text-center space-y-2">
-                {user?.userType === "boat_tour_operator" && (
-                  <>
-                    <div className="text-2xl font-bold text-primary">
-                      {userBoatTours.filter((tour: any) => tour.operatorId === user.id).length}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Passeios Cadastrados</div>
-                  </>
-                )}
-                {user?.userType === "event_producer" && (
-                  <>
-                    <div className="text-2xl font-bold text-primary">
-                      {userEvents.filter((event: any) => event.producerId === user.id).length}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Eventos Criados</div>
-                  </>
-                )}
-                {user?.userType === "guide" && (
-                  <>
-                    <div className="text-2xl font-bold text-primary">
-                      {userGuides.filter((guide: any) => guide.userId === user.id).length}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Perfis de Guia</div>
-                  </>
-                )}
-                {user?.userType === "tourist" && (
-                  <>
-                    <div className="text-2xl font-bold text-primary">
-                      {new Date(user.createdAt).getFullYear() === new Date().getFullYear() ? "Novo" : "Veterano"}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Status</div>
-                  </>
-                )}
-              </div>
-            </div>
-            
-            {/* Informações adicionais baseadas no tipo de usuário */}
-            {user?.userType === "boat_tour_operator" && userBoatTours.length > 0 && (
-              <div className="mt-6 pt-6 border-t">
-                <h4 className="font-semibold mb-3">Seus Passeios Mais Populares</h4>
-                <div className="space-y-2">
-                  {userBoatTours
-                    .filter((tour: any) => tour.operatorId === user.id)
-                    .sort((a: any, b: any) => parseFloat(b.rating || "0") - parseFloat(a.rating || "0"))
-                    .slice(0, 2)
-                    .map((tour: any) => (
-                    <div key={tour.id} className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm font-medium">{tour.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">★ {tour.rating || "0.0"}</span>
-                        <span className="text-xs text-primary">R$ {tour.price}</span>
-                      </div>
-                    </div>
-                  ))}
+        {/* User Type Specific Information */}
+        {user?.userType === "boat_tour_operator" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Meus Passeios de Barco</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 text-center mb-4">
+                <div>
+                  <div className="text-2xl font-bold text-primary">
+                    {Array.isArray(userBoatTours) ? userBoatTours.length : 0}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Tours Ativos</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-primary">
+                    {user?.createdAt ? Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)) : 0}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Dias no Sistema</div>
                 </div>
               </div>
-            )}
-            
-            {user?.userType === "event_producer" && userEvents.length > 0 && (
-              <div className="mt-6 pt-6 border-t">
-                <h4 className="font-semibold mb-3">Seus Próximos Eventos</h4>
-                <div className="space-y-2">
-                  {userEvents
-                    .filter((event: any) => event.producerId === user.id)
-                    .filter((event: any) => new Date(event.startDate) >= new Date())
-                    .slice(0, 2)
-                    .map((event: any) => (
-                    <div key={event.id} className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm font-medium">{event.title}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(event.startDate).toLocaleDateString('pt-BR')}
-                      </span>
-                    </div>
-                  ))}
+              <Button
+                onClick={() => setLocation("/boat-tours")}
+                className="w-full"
+                variant="outline"
+              >
+                Gerenciar Passeios
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {user?.userType === "event_producer" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Meus Eventos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 text-center mb-4">
+                <div>
+                  <div className="text-2xl font-bold text-primary">
+                    {Array.isArray(userEvents) ? userEvents.length : 0}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Eventos</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-primary">
+                    {user?.createdAt ? Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)) : 0}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Dias no Sistema</div>
                 </div>
               </div>
-            )}
-            
-            {userItineraries.length > 0 && (
-              <div className="mt-6 pt-6 border-t">
-                <h4 className="font-semibold mb-3">Seus Últimos Roteiros</h4>
-                <div className="space-y-2">
-                  {userItineraries
-                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                    .slice(0, 3)
-                    .map((itinerary: any) => (
-                    <div 
-                      key={itinerary.id} 
-                      className="flex justify-between items-center p-2 bg-muted rounded cursor-pointer hover:bg-muted/80 transition-colors"
-                      onClick={() => setLocation(`/itinerary/${itinerary.id}`)}
-                    >
-                      <span className="text-sm font-medium">{itinerary.title || "Roteiro para Ubatuba"}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(itinerary.createdAt).toLocaleDateString('pt-BR')}
-                      </span>
-                    </div>
-                  ))}
+              <Button
+                onClick={() => setLocation("/events")}
+                className="w-full"
+                variant="outline"
+              >
+                Gerenciar Eventos
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {user?.userType === "tourist" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Meus Roteiros</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 text-center mb-4">
+                <div>
+                  <div className="text-2xl font-bold text-primary">
+                    {Array.isArray(userItineraries) ? userItineraries.length : 0}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Roteiros Criados</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-primary">
+                    {user?.createdAt ? Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)) : 0}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Dias no Sistema</div>
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <Button
+                onClick={() => setLocation("/ai-itinerary")}
+                className="w-full"
+                variant="outline"
+              >
+                Criar Novo Roteiro
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

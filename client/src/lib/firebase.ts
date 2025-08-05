@@ -2,12 +2,12 @@ import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, User } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  apiKey: "AIzaSyB6Wpp82iVXdeRb53uC2v5XSXxy0BzpM7c",
   authDomain: "ubatuba-guias.firebaseapp.com",
   projectId: "ubatuba-guias",
   storageBucket: "ubatuba-guias.firebasestorage.app",
   messagingSenderId: "1063851833654",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  appId: "1:1063851833654:web:67654b1cabf339d2271b97",
   measurementId: "G-6MHBRY7G3K"
 };
 
@@ -42,12 +42,12 @@ export const signInWithGoogle = async () => {
     console.log("Tentando login Google via popup...");
     
     // Verificar se Firebase está configurado corretamente
-    if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_APP_ID) {
+    if (!firebaseConfig.apiKey || !firebaseConfig.appId) {
       console.error('Configuração Firebase:', {
-        apiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
-        appId: !!import.meta.env.VITE_FIREBASE_APP_ID
+        apiKey: !!firebaseConfig.apiKey,
+        appId: !!firebaseConfig.appId
       });
-      throw new Error('Firebase não está configurado corretamente. Verifique as variáveis de ambiente.');
+      throw new Error('Firebase não está configurado corretamente. Verifique as credenciais.');
     }
     
     // Verificar se o auth está inicializado

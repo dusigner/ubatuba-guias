@@ -44,12 +44,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Handle redirect result on page load (for redirect flow only)
     handleRedirectResult()
-      .then((result) => {
+      .then(async (result) => {
         console.log('Resultado do redirect:', result);
         if (result?.user) {
           console.log('Usuário retornou do redirect:', result.user.email);
-          // User just signed in via redirect, sync with backend
-          syncUserWithBackend(result.user);
+          // User just signed in via redirect, sync with backend immediately
+          try {
+            await syncUserWithBackend(result.user);
+            // Force refetch of user data
+            setTimeout(() => {
+              refetchUser();
+            }, 500);
+          } catch (error) {
+            console.error('Erro ao sincronizar usuário após redirect:', error);
+          }
         }
       })
       .catch((error) => {

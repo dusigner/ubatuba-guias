@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Edit, Trash2, Plus, Mountain, Image, Upload } from "lucide-react";
 import { AdvancedEditor } from './AdvancedEditor';
-import 'react-quill/dist/quill.snow.css';
+
 import type { Trail, InsertTrail } from "@shared/schema";
 
 export default function AdminTrails() {

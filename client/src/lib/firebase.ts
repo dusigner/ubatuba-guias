@@ -68,11 +68,9 @@ export const signInWithGoogle = async () => {
       isSignedIn: !!auth.currentUser
     });
     
-    // Try redirect instead of popup to avoid auth/internal-error
-    console.log('Tentando método de redirect...');
-    await signInWithRedirect(auth, googleProvider);
-    // signInWithRedirect doesn't return immediately, it redirects the page
-    return null;
+    const result = await signInWithPopup(auth, googleProvider);
+    console.log("Login Google realizado com sucesso:", result.user.email);
+    return result;
   } catch (error: any) {
     console.error("Erro no login Google:", error);
     

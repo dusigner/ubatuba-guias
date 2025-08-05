@@ -19,9 +19,9 @@ export default function FirebaseLoginButton({
       console.log('Iniciando login Google via popup...');
       const result = await signInWithGoogle();
       
-      // signInWithGoogle now uses redirect, so result will be null
-      // The actual handling will be done in the AuthProvider via getRedirectResult
-      console.log('Redirecionamento iniciado, aguardando retorno...');
+      if (result?.user) {
+        console.log('Login Google realizado com sucesso:', result.user.email);
+      }
       
       // O AuthProvider vai capturar automaticamente via onAuthStateChanged
       // Não precisamos fazer nada aqui, apenas aguardar

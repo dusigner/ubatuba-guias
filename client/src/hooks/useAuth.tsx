@@ -42,26 +42,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log('AuthProvider inicializando...');
     
-    // Handle redirect result on page load (for redirect flow only)
+    // Handle redirect result on page load (only check, don't rely on it for popup flow)
     handleRedirectResult()
       .then(async (result) => {
         console.log('Resultado do redirect:', result);
         if (result?.user) {
           console.log('Usuário retornou do redirect:', result.user.email);
-          // User just signed in via redirect, sync with backend immediately
-          try {
-            await syncUserWithBackend(result.user);
-            // Force refetch of user data
-            setTimeout(() => {
-              refetchUser();
-            }, 500);
-          } catch (error) {
-            console.error('Erro ao sincronizar usuário após redirect:', error);
-          }
+          await syncUserWithBackend(result.user);
+          refetchUser();
         }
       })
       .catch((error) => {
-        console.error('Erro no handleRedirectResult:', error);
+        console.log('Nenhum redirect result disponível (normal para popup flow)');
       });
 
     // Listen for auth state changes

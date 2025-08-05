@@ -31,18 +31,16 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
 
   const handleInput = () => {
     if (editorRef.current) {
-      // Usar debounce para evitar chamadas excessivas
-      clearTimeout(window.editorTimeout);
-      window.editorTimeout = setTimeout(() => {
-        onChange(editorRef.current.innerHTML);
-      }, 300);
+      onChange(editorRef.current.innerHTML);
     }
   };
 
   const executeCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-    editorRef.current?.focus();
-    // Não chamar handleInput aqui para evitar auto-save
+    if (editorRef.current) {
+      editorRef.current.focus();
+      document.execCommand(command, false, value);
+      handleInput();
+    }
   };
 
   const isCommandActive = (command: string): boolean => {
@@ -107,42 +105,21 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
 
   const insertImage = () => {
     const srcUrl = imageUrl || previewUrl;
-    if (srcUrl) {
+    if (srcUrl && editorRef.current) {
       console.log('Inserindo imagem:', srcUrl);
       
-      // Criar elemento de imagem diretamente
-      const img = document.createElement('img');
-      img.src = srcUrl;
-      img.alt = 'Imagem inserida';
-      img.style.maxWidth = '100%';
-      img.style.height = 'auto';
-      img.style.borderRadius = '8px';
-      img.style.margin = '10px 0';
-      img.style.display = 'block';
+      editorRef.current.focus();
       
-      const p = document.createElement('p');
-      p.appendChild(img);
-      
-      if (editorRef.current) {
-        editorRef.current.focus();
-        
-        const selection = window.getSelection();
-        if (selection && selection.rangeCount > 0) {
-          const range = selection.getRangeAt(0);
-          range.deleteContents();
-          range.insertNode(p);
-          range.setStartAfter(p);
-          range.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        } else {
-          editorRef.current.appendChild(p);
-        }
-        
-        // Triggerar evento de input
-        const inputEvent = new Event('input', { bubbles: true });
-        editorRef.current.dispatchEvent(inputEvent);
+      // Usar execCommand para inserir imagem
+      if (document.queryCommandSupported('insertImage')) {
+        document.execCommand('insertImage', false, srcUrl);
+      } else {
+        // Fallback: inserir via HTML
+        const imgHtml = `<p><img src="${srcUrl}" alt="Imagem inserida" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; display: block;" /></p>`;
+        document.execCommand('insertHTML', false, imgHtml);
       }
+      
+      handleInput();
       
       setImageUrl('');
       setPreviewUrl('');
@@ -152,38 +129,32 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
   };
 
   const insertLink = () => {
-    if (linkUrl && linkText) {
+    if (linkUrl && linkText && editorRef.current) {
       console.log('Inserindo link:', linkText, linkUrl);
       
-      // Criar elemento de link diretamente
-      const a = document.createElement('a');
-      a.href = linkUrl;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.style.color = 'hsl(var(--primary))';
-      a.style.textDecoration = 'underline';
-      a.textContent = linkText;
+      editorRef.current.focus();
       
-      if (editorRef.current) {
-        editorRef.current.focus();
-        
+      // Usar createLink command
+      if (document.queryCommandSupported('createLink')) {
+        // Primeiro inserir o texto
+        document.execCommand('insertText', false, linkText);
+        // Selecionar o texto inserido
         const selection = window.getSelection();
         if (selection && selection.rangeCount > 0) {
           const range = selection.getRangeAt(0);
-          range.deleteContents();
-          range.insertNode(a);
-          range.setStartAfter(a);
-          range.collapse(true);
+          range.setStart(range.endContainer, range.endOffset - linkText.length);
           selection.removeAllRanges();
           selection.addRange(range);
-        } else {
-          editorRef.current.appendChild(a);
+          // Criar o link
+          document.execCommand('createLink', false, linkUrl);
         }
-        
-        // Triggerar evento de input
-        const inputEvent = new Event('input', { bubbles: true });
-        editorRef.current.dispatchEvent(inputEvent);
+      } else {
+        // Fallback: inserir via HTML
+        const linkHtml = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="color: hsl(var(--primary)); text-decoration: underline;">${linkText}</a>`;
+        document.execCommand('insertHTML', false, linkHtml);
       }
+      
+      handleInput();
       
       setLinkUrl('');
       setLinkText('');
@@ -192,16 +163,10 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
   };
 
   const formatBlock = (tag: string) => {
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const element = range.commonAncestorContainer.parentElement;
-      
-      if (element && editorRef.current?.contains(element)) {
-        // Wrap or replace the current block
-        document.execCommand('formatBlock', false, tag);
-        // Não chamar handleInput para evitar auto-save
-      }
+    if (editorRef.current) {
+      editorRef.current.focus();
+      document.execCommand('formatBlock', false, tag);
+      handleInput();
     }
   };
 
@@ -581,7 +546,6 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
           ref={editorRef}
           contentEditable
           onInput={handleInput}
-          onBlur={handleInput} // Salvar quando sair do foco
           className="min-h-[200px] p-4 prose prose-sm max-w-none dark:prose-invert focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-inset"
           style={{
             color: 'hsl(var(--foreground))',

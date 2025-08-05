@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Bold, Italic, Underline, List, ListOrdered, Link, Image, Type, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { Bold, Italic, Underline, List, ListOrdered, Link, Image, Type, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, Palette, Table, Quote, Code, Undo, Redo } from 'lucide-react';
 
 interface AdvancedEditorProps {
   value: string;
@@ -20,6 +20,7 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
   const [linkText, setLinkText] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,11 +38,40 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
   const executeCommand = (command: string, value?: string) => {
     document.execCommand(command, false, value);
     editorRef.current?.focus();
-    handleInput();
+    setTimeout(() => handleInput(), 100); // Pequeno delay para garantir que o DOM seja atualizado
   };
 
   const isCommandActive = (command: string): boolean => {
-    return document.queryCommandState(command);
+    try {
+      return document.queryCommandState(command);
+    } catch {
+      return false;
+    }
+  };
+
+  const insertHTML = (html: string) => {
+    if (editorRef.current) {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        const frag = document.createDocumentFragment();
+        let node;
+        while ((node = div.firstChild)) {
+          frag.appendChild(node);
+        }
+        range.insertNode(frag);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } else {
+        // Se não há seleção, adiciona no final
+        editorRef.current.innerHTML += html;
+      }
+      handleInput();
+    }
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,8 +88,8 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
 
   const insertImage = () => {
     if (imageUrl || previewUrl) {
-      const imgTag = `<img src="${imageUrl || previewUrl}" alt="Imagem inserida" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;" />`;
-      executeCommand('insertHTML', imgTag);
+      const imgTag = `<p><img src="${imageUrl || previewUrl}" alt="Imagem inserida" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; display: block;" /></p>`;
+      insertHTML(imgTag);
       setImageUrl('');
       setPreviewUrl('');
       setSelectedFile(null);
@@ -70,12 +100,76 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
   const insertLink = () => {
     if (linkUrl && linkText) {
       const linkTag = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="color: hsl(var(--primary)); text-decoration: underline;">${linkText}</a>`;
-      executeCommand('insertHTML', linkTag);
+      insertHTML(linkTag);
       setLinkUrl('');
       setLinkText('');
       setLinkDialogOpen(false);
     }
   };
+
+  const formatBlock = (tag: string) => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const element = range.commonAncestorContainer.parentElement;
+      
+      if (element && editorRef.current?.contains(element)) {
+        // Wrap or replace the current block
+        document.execCommand('formatBlock', false, tag);
+        handleInput();
+      }
+    }
+  };
+
+  const insertTable = () => {
+    const tableHTML = `
+      <table style="border-collapse: collapse; width: 100%; margin: 10px 0; border: 1px solid hsl(var(--border));">
+        <thead>
+          <tr style="background-color: hsl(var(--muted));">
+            <th style="border: 1px solid hsl(var(--border)); padding: 8px; text-align: left;">Cabeçalho 1</th>
+            <th style="border: 1px solid hsl(var(--border)); padding: 8px; text-align: left;">Cabeçalho 2</th>
+            <th style="border: 1px solid hsl(var(--border)); padding: 8px; text-align: left;">Cabeçalho 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border: 1px solid hsl(var(--border)); padding: 8px;">Célula 1</td>
+            <td style="border: 1px solid hsl(var(--border)); padding: 8px;">Célula 2</td>
+            <td style="border: 1px solid hsl(var(--border)); padding: 8px;">Célula 3</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid hsl(var(--border)); padding: 8px;">Célula 4</td>
+            <td style="border: 1px solid hsl(var(--border)); padding: 8px;">Célula 5</td>
+            <td style="border: 1px solid hsl(var(--border)); padding: 8px;">Célula 6</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+    insertHTML(tableHTML);
+  };
+
+  const insertQuote = () => {
+    const quoteHTML = `<blockquote style="border-left: 4px solid hsl(var(--primary)); padding-left: 16px; margin: 16px 0; font-style: italic; color: hsl(var(--muted-foreground));">Digite sua citação aqui...</blockquote>`;
+    insertHTML(quoteHTML);
+  };
+
+  const changeTextColor = (color: string) => {
+    executeCommand('foreColor', color);
+    setShowColorPicker(false);
+  };
+
+  const changeBackgroundColor = (color: string) => {
+    executeCommand('hiliteColor', color);
+    setShowColorPicker(false);
+  };
+
+  const colors = [
+    '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff',
+    '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff',
+    '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b266', '#66a3e0', '#c285ff',
+    '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2',
+    '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'
+  ];
 
   return (
     <div className="relative space-y-0">
@@ -83,9 +177,9 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
       <div className="flex flex-wrap gap-2 p-3 border border-border rounded-t-md bg-background">
         <div className="flex gap-1">
           <Button 
-            variant={isCommandActive('formatBlock') ? "default" : "outline"} 
+            variant="outline"
             size="sm"
-            onClick={() => executeCommand('formatBlock', 'h1')}
+            onClick={() => formatBlock('h1')}
             title="Título 1"
           >
             <Heading1 className="h-4 w-4" />
@@ -93,7 +187,7 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => executeCommand('formatBlock', 'h2')}
+            onClick={() => formatBlock('h2')}
             title="Título 2"
           >
             <Heading2 className="h-4 w-4" />
@@ -101,7 +195,7 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => executeCommand('formatBlock', 'h3')}
+            onClick={() => formatBlock('h3')}
             title="Título 3"
           >
             <Heading3 className="h-4 w-4" />
@@ -189,6 +283,97 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
         
         <div className="w-px h-6 bg-border" />
         
+        <div className="flex gap-1">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => executeCommand('undo')}
+            title="Desfazer"
+          >
+            <Undo className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => executeCommand('redo')}
+            title="Refazer"
+          >
+            <Redo className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="w-px h-6 bg-border" />
+        
+        <div className="flex gap-1">
+          <div className="relative">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowColorPicker(!showColorPicker)}
+              title="Cores"
+            >
+              <Palette className="h-4 w-4" />
+            </Button>
+            {showColorPicker && (
+              <div className="absolute top-10 left-0 bg-background border border-border rounded-md p-3 shadow-lg z-50 min-w-[200px]">
+                <div className="mb-2 text-sm font-medium">Cor do Texto</div>
+                <div className="grid grid-cols-7 gap-1 mb-3">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      className="w-6 h-6 rounded border border-border hover:scale-110 transition-transform"
+                      style={{ backgroundColor: color }}
+                      onClick={() => changeTextColor(color)}
+                      title={color}
+                    />
+                  ))}
+                </div>
+                <div className="mb-2 text-sm font-medium">Cor de Fundo</div>
+                <div className="grid grid-cols-7 gap-1">
+                  {colors.map((color) => (
+                    <button
+                      key={`bg-${color}`}
+                      className="w-6 h-6 rounded border border-border hover:scale-110 transition-transform"
+                      style={{ backgroundColor: color }}
+                      onClick={() => changeBackgroundColor(color)}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={insertTable}
+            title="Inserir tabela"
+          >
+            <Table className="h-4 w-4" />
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={insertQuote}
+            title="Citação"
+          >
+            <Quote className="h-4 w-4" />
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => executeCommand('formatBlock', 'pre')}
+            title="Código"
+          >
+            <Code className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="w-px h-6 bg-border" />
+        
         <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
@@ -247,10 +432,13 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
                 <Label htmlFor="image-url">URL da Imagem</Label>
                 <Input
                   id="image-url"
-                  placeholder="https://exemplo.com/imagem.jpg"
+                  placeholder="https://images.unsplash.com/photo-1234567890/exemplo.jpg"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Cole uma URL de imagem ou use o upload abaixo
+                </p>
               </div>
               
               <div className="text-center text-muted-foreground">ou</div>
@@ -263,16 +451,26 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
                   accept="image/*"
                   onChange={handleFileSelect}
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Formatos suportados: JPG, PNG, GIF (máx. 5MB)
+                </p>
               </div>
               
-              {previewUrl && (
+              {(previewUrl || imageUrl) && (
                 <div className="mt-4">
                   <Label>Preview:</Label>
-                  <img 
-                    src={previewUrl} 
-                    alt="Preview" 
-                    className="max-w-full h-32 object-cover rounded-md border"
-                  />
+                  <div className="mt-2 p-4 border border-border rounded-md bg-muted/20">
+                    <img 
+                      src={previewUrl || imageUrl} 
+                      alt="Preview" 
+                      className="max-w-full h-48 object-contain rounded-md mx-auto block"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling!.textContent = 'Erro ao carregar imagem. Verifique a URL.';
+                      }}
+                    />
+                    <div className="text-red-500 text-sm mt-2 hidden"></div>
+                  </div>
                 </div>
               )}
               
@@ -280,8 +478,12 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
                 <Button variant="outline" onClick={() => setImageDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={insertImage} disabled={!imageUrl && !previewUrl}>
-                  Inserir Imagem
+                <Button 
+                  onClick={insertImage} 
+                  disabled={!imageUrl && !previewUrl}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  Inserir Imagem no Editor
                 </Button>
               </div>
             </div>

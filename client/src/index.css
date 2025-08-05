@@ -330,3 +330,40 @@
 [contenteditable]:last-child {
   margin-bottom: 0;
 }
+
+[contenteditable] table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+  border: 1px solid hsl(var(--border));
+}
+
+[contenteditable] th,
+[contenteditable] td {
+  border: 1px solid hsl(var(--border));
+  padding: 8px;
+  text-align: left;
+}
+
+[contenteditable] th {
+  background-color: hsl(var(--muted));
+  font-weight: bold;
+}
+
+[contenteditable] blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+[contenteditable] pre {
+  background-color: hsl(var(--muted));
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  margin: 10px 0;
+}

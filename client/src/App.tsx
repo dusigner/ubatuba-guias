@@ -199,12 +199,11 @@ function Navigation() {
 }
 
 function Router() {
-  const { user, firebaseUser, loading } = useAuth();
+  const { user, firebaseUser, loading, isLoading } = useAuth();
   const isAuthenticated = !!user;
-  const isLoading = loading;
-
-  // Loading state
-  if (isLoading) {
+  
+  // Loading state - show loading while Firebase or user data is loading
+  if (loading || isLoading || (firebaseUser && !user)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -237,22 +236,6 @@ function Router() {
               <Route path="/para-empresas" component={ParaEmpresas} />
               <Route path="/login-instructions" component={LoginInstructions} />
               <Route component={Landing} />
-            </>
-          ) : firebaseUser && !user ? (
-            <>
-              <Route path="/" component={ProfileSelection} />
-              <Route path="/profile-selection" component={ProfileSelection} />
-              <Route path="/create-profile/:type" component={CreateProfile} />
-              {/* Páginas do Footer - Disponíveis durante seleção de perfil */}
-              <Route path="/como-funciona" component={ComoFunciona} />
-              <Route path="/nossa-historia" component={NossaHistoria} />
-              <Route path="/parcerias" component={Parcerias} />
-              <Route path="/contato" component={Contato} />
-              <Route path="/central-ajuda" component={CentralAjuda} />
-              <Route path="/termos-uso" component={TermosUso} />
-              <Route path="/privacidade" component={Privacidade} />
-              <Route path="/para-empresas" component={ParaEmpresas} />
-              <Route component={ProfileSelection} />
             </>
           ) : user && (!user.userType || !user.isProfileComplete) ? (
             <>

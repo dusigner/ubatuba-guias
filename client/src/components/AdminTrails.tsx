@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Edit, Trash2, Plus, Mountain, Image, Upload } from "lucide-react";
-import ReactQuill from 'react-quill';
+import { AdvancedEditor } from './AdvancedEditor';
 import 'react-quill/dist/quill.snow.css';
 import type { Trail, InsertTrail } from "@shared/schema";
 
@@ -185,22 +185,7 @@ export default function AdminTrails() {
     }
   };
 
-  // Configuração do editor de texto rico
-  const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'color': [] }, { 'background': [] }],
-      ['link'],
-      ['clean']
-    ],
-  };
 
-  const quillFormats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'color', 'background', 'link'
-  ];
 
   if (isLoading) {
     return <div className="flex justify-center p-8">Carregando trilhas...</div>;
@@ -257,15 +242,11 @@ export default function AdminTrails() {
               
               <div>
                 <Label htmlFor="description">Descrição Completa</Label>
-                <div className="mt-2">
-                  <ReactQuill
-                    theme="snow"
+                <div className="mt-2 mb-4">
+                  <AdvancedEditor
                     value={formData.description || ""}
                     onChange={(value) => setFormData({ ...formData, description: value })}
-                    modules={quillModules}
-                    formats={quillFormats}
-                    style={{ height: '200px', marginBottom: '50px' }}
-                    placeholder="Descreva a trilha, suas características, pontos de interesse, dificuldades e dicas..."
+                    placeholder="Descreva a trilha de forma detalhada... Use o editor para adicionar formatação, imagens e links!"
                   />
                 </div>
               </div>

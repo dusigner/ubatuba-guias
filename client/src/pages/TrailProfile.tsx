@@ -212,9 +212,10 @@ export default function TrailProfile() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {trail.description}
-                </p>
+                <div 
+                  className="text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: trail.description }}
+                />
               </CardContent>
             </Card>
 

@@ -131,9 +131,7 @@ export default function Trails() {
                       </span>
                     </div>
                     
-                    <p className="text-muted-foreground mb-4 line-clamp-3">
-                      {trail.description}
-                    </p>
+                    <div className="text-muted-foreground mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: trail.description }} />
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center text-sm text-muted-foreground">

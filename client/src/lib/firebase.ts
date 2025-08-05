@@ -3,9 +3,9 @@ import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, Google
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: "ubatuba-guias.firebaseapp.com",
-  projectId: "ubatuba-guias",
-  storageBucket: "ubatuba-guias.firebasestorage.app",
+  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`,
   messagingSenderId: "1063851833654",
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: "G-6MHBRY7G3K"
@@ -26,9 +26,18 @@ export const signInWithGoogle = async () => {
     console.log("Tentando login Google via popup...");
     
     // Verificar se Firebase está configurado corretamente
-    if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_PROJECT_ID) {
+    if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_PROJECT_ID || !import.meta.env.VITE_FIREBASE_APP_ID) {
+      console.error('Configuração Firebase:', {
+        apiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
+        projectId: !!import.meta.env.VITE_FIREBASE_PROJECT_ID,
+        appId: !!import.meta.env.VITE_FIREBASE_APP_ID
+      });
       throw new Error('Firebase não está configurado corretamente. Verifique as variáveis de ambiente.');
     }
+    
+    // Log da configuração (sem expor secrets)
+    console.log('Firebase configurado com projeto:', import.meta.env.VITE_FIREBASE_PROJECT_ID);
+    console.log('Domínio atual:', window.location.hostname);
     
     const result = await signInWithPopup(auth, googleProvider);
     console.log("Login Google realizado com sucesso:", result.user.email);

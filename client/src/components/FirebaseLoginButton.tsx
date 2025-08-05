@@ -34,12 +34,18 @@ export default function FirebaseLoginButton({
       if (error.message) {
         errorMessage = error.message;
       } else if (error.code === 'auth/unauthorized-domain') {
-        errorMessage = 'Domínio não autorizado no Firebase. Entre em contato com o suporte.';
+        errorMessage = 'Domínio não autorizado no Firebase. O administrador precisa adicionar este domínio no console Firebase.';
       } else if (error.code === 'auth/internal-error') {
-        errorMessage = 'Erro interno do Firebase. Tente novamente em alguns minutos.';
+        errorMessage = `Erro de configuração Firebase. O domínio atual (${window.location.hostname}) precisa ser autorizado no console Firebase.`;
       } else if (error.code === 'auth/network-request-failed') {
         errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
       }
+      
+      console.error('Detalhes do erro Firebase:', {
+        code: error.code,
+        message: error.message,
+        domain: window.location.hostname
+      });
       
       alert(errorMessage);
     }

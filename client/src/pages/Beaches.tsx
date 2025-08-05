@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -152,9 +153,9 @@ export default function Beaches() {
                   
                   <CardContent className="p-6">
                     <h3 className="text-2xl font-bold text-foreground mb-3">{beach.name}</h3>
-                    <p className="text-muted-foreground mb-4">
-                      {beach.description}
-                    </p>
+                    <div className="text-muted-foreground mb-4 line-clamp-3">
+                      <MarkdownRenderer content={beach.description} className="prose prose-sm max-w-none" />
+                    </div>
                     
                     <div className="grid grid-cols-3 gap-4 mb-4">
                       {beach.features?.slice(0, 3).map((feature: string, index: number) => (

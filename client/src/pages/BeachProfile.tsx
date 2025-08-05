@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useFavorites } from "@/hooks/useFavorites";
 import Navigation from "@/components/Navigation";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -191,9 +192,10 @@ export default function BeachProfile() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-700 leading-relaxed whitespace-pre-line">
-                  {beach.description}
-                </p>
+                <MarkdownRenderer
+                  content={beach.description}
+                  className="text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                />
               </CardContent>
             </Card>
 

@@ -2,14 +2,16 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import MarkdownEditor from "./MarkdownEditor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Edit, Trash2, Plus, MapPin } from "lucide-react";
+import { Edit, Trash2, Plus, MapPin, Waves, Upload } from "lucide-react";
 import type { Beach, InsertBeach } from "@shared/schema";
 
 export default function AdminBeaches() {
@@ -167,13 +169,16 @@ export default function AdminBeaches() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Descrição</label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  required
-                />
+                <Label htmlFor="description">Descrição Completa</Label>
+                <div className="mt-2 mb-4">
+                  <MarkdownEditor
+                    value={formData.description || ""}
+                    onChange={(value) => setFormData({ ...formData, description: value })}
+                    placeholder="Descreva a praia usando Markdown... 
+**Negrito**, *itálico*, `código`, [links](url), ![images](url), 
+## Títulos, - listas, > citações, etc."
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

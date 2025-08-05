@@ -524,6 +524,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get featured guides for landing page (MUST be before :identifier route)
+  app.get("/api/guides/featured", async (req, res) => {
+    try {
+      const featuredGuides = await storage.getFeaturedGuides();
+      res.json(featuredGuides);
+    } catch (error) {
+      console.error("Erro ao buscar guias em destaque:", error);
+      res.status(500).json({ message: "Falha ao buscar guias em destaque" });
+    }
+  });
+
   app.get("/api/guides/:identifier", async (req, res) => {
     try {
       const guide = await storage.getGuideByIdOrSlug(req.params.identifier);

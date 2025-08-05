@@ -149,6 +149,7 @@ export const guides = pgTable("guides", {
   certifications: text("certifications").array(),
   whatsapp: varchar("whatsapp"),
   instagram: varchar("instagram"),
+  featured: boolean("featured").default(false),
   createdAt: timestamp("created_at"),
   bio: text("bio"),
   experience: text("experience"),

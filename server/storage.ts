@@ -100,6 +100,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   adminUpdateUser(userId: string, userData: Partial<UpsertUser>): Promise<User>;
   deleteUser(userId: string): Promise<void>;
+  getFeaturedGuides(): Promise<any[]>;
 
   // Bookings
   getUserBookings(userId: string): Promise<Booking[]>;
@@ -737,6 +738,53 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Erro ao deletar usuário:', error);
       throw error;
+    }
+  }
+
+  // Get featured guides for landing page
+  async getFeaturedGuides(): Promise<any[]> {
+    try {
+      console.log('Buscando guias em destaque...');
+      
+      const result = await db.execute(sql`
+        SELECT id, user_id, name, description, specialties, languages, 
+               experience_years, tours_completed, rating, image_url, 
+               location, certifications, whatsapp, instagram, featured, 
+               created_at, bio, experience
+        FROM guides 
+        WHERE featured = true
+        ORDER BY rating DESC, tours_completed DESC
+        LIMIT 6
+      `);
+      
+      console.log('Guias em destaque encontrados:', result.rows.length);
+      
+      const formattedGuides = result.rows.map((guide: any) => ({
+        id: guide.id,
+        userId: guide.user_id,
+        name: guide.name || 'Nome não informado',
+        bio: guide.bio || guide.description || '',
+        description: guide.description || '',
+        specialties: Array.isArray(guide.specialties) ? guide.specialties : (guide.specialties ? [guide.specialties] : []),
+        experience: guide.experience || '',
+        languages: Array.isArray(guide.languages) ? guide.languages : (guide.languages ? [guide.languages] : ['Português']),
+        experienceYears: guide.experience_years || 0,
+        toursCompleted: guide.tours_completed || 0,
+        rating: parseFloat(guide.rating) || 0,
+        imageUrl: guide.image_url,
+        location: guide.location || 'Ubatuba, SP',
+        certifications: Array.isArray(guide.certifications) ? guide.certifications : (guide.certifications ? [guide.certifications] : []),
+        whatsapp: guide.whatsapp,
+        instagram: guide.instagram,
+        featured: guide.featured,
+        createdAt: guide.created_at,
+      }));
+      
+      return formattedGuides;
+      
+    } catch (error) {
+      console.error('Erro ao buscar guias em destaque:', error);
+      return [];
     }
   }
 }

@@ -8,20 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Edit, Trash2, Plus, Users } from "lucide-react";
-import type { Guide, InsertGuide } from "@shared/schema";
+import { Edit, Trash2, Plus, Users, Star } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdminGuides() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editingGuide, setEditingGuide] = useState<Guide | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<InsertGuide>>({
+  const [formData, setFormData] = useState<any>({
     name: "",
     description: "",
     specialties: [],
     languages: [],
-    experienceYears: "",
+    experienceYears: 0,
     toursCompleted: 0,
     rating: "0",
     imageUrl: "",
@@ -29,6 +29,7 @@ export default function AdminGuides() {
     certifications: [],
     whatsapp: "",
     instagram: "",
+    featured: false,
     userId: "local-test-user",
   });
 
@@ -80,7 +81,7 @@ export default function AdminGuides() {
       description: "",
       specialties: [],
       languages: [],
-      experienceYears: "",
+      experienceYears: 0,
       toursCompleted: 0,
       rating: "0",
       imageUrl: "",
@@ -88,11 +89,12 @@ export default function AdminGuides() {
       certifications: [],
       whatsapp: "",
       instagram: "",
+      featured: false,
       userId: "local-test-user",
     });
   };
 
-  const handleEdit = (guide: Guide) => {
+  const handleEdit = (guide: any) => {
     setEditingGuide(guide);
     setFormData({
       name: guide.name,
@@ -107,6 +109,7 @@ export default function AdminGuides() {
       certifications: guide.certifications || [],
       whatsapp: guide.whatsapp || "",
       instagram: guide.instagram || "",
+      featured: guide.featured || false,
       userId: guide.userId || "local-test-user",
     });
     setIsDialogOpen(true);
@@ -128,6 +131,7 @@ export default function AdminGuides() {
       certifications: formData.certifications!,
       whatsapp: formData.whatsapp,
       instagram: formData.instagram,
+      featured: formData.featured || false,
       userId: formData.userId!,
     };
 
@@ -286,6 +290,18 @@ export default function AdminGuides() {
                 />
               </div>
 
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="featured"
+                  checked={formData.featured || false}
+                  onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+                />
+                <label htmlFor="featured" className="text-sm font-medium cursor-pointer flex items-center">
+                  <Star className="h-4 w-4 mr-1 text-yellow-500" />
+                  Exibir na Landing Page (Guia em Destaque)
+                </label>
+              </div>
+
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
@@ -313,6 +329,12 @@ export default function AdminGuides() {
                     <Badge className="bg-blue-100 text-blue-800">
                       {guide.experienceYears} anos
                     </Badge>
+                    {guide.featured && (
+                      <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                        <Star className="h-3 w-3 mr-1" />
+                        Destaque
+                      </Badge>
+                    )}
                   </CardTitle>
                   <div className="text-sm text-gray-600 mt-1">
                     ⭐ {guide.rating} • {guide.toursCompleted} tours • {guide.location}

@@ -163,7 +163,7 @@ export default function AdminBeaches() {
               Nova Praia
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingBeach ? "Editar Praia" : "Nova Praia"}

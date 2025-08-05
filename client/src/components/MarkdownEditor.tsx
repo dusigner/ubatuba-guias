@@ -43,7 +43,7 @@ export default function MarkdownEditor({ value, onChange, placeholder = "Digite 
             color: 'hsl(var(--foreground))'
           }
         }}
-        height={350}
+        height={250}
         data-color-mode="light"
       />
     </div>

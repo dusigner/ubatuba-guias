@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Edit, Trash2, Plus, Mountain, Image, Upload } from "lucide-react";
-import { AdvancedEditor } from './AdvancedEditor';
+import MarkdownEditor from './MarkdownEditor';
 
 import type { Trail, InsertTrail } from "@shared/schema";
 
@@ -243,10 +243,12 @@ export default function AdminTrails() {
               <div>
                 <Label htmlFor="description">Descrição Completa</Label>
                 <div className="mt-2 mb-4">
-                  <AdvancedEditor
+                  <MarkdownEditor
                     value={formData.description || ""}
                     onChange={(value) => setFormData({ ...formData, description: value })}
-                    placeholder="Descreva a trilha de forma detalhada... Use o editor para adicionar formatação, imagens e links!"
+                    placeholder="Descreva a trilha de forma detalhada usando Markdown... 
+**Negrito**, *itálico*, `código`, [links](url), ![images](url), 
+## Títulos, - listas, > citações, etc."
                   />
                 </div>
               </div>

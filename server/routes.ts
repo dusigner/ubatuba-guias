@@ -801,7 +801,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin user management routes
   app.get("/api/admin/users", authMiddleware, async (req: any, res) => {
     try {
-      const currentUser = await storage.getUser(req.user.claims.sub);
+      const currentUser = await storage.getUser(req.session.userId);
       if (
         !currentUser ||
         (currentUser.userType !== "admin" && !currentUser.isAdmin)
@@ -824,7 +824,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/users/:id", authMiddleware, async (req: any, res) => {
     try {
-      const currentUser = await storage.getUser(req.user.claims.sub);
+      const currentUser = await storage.getUser(req.session.userId);
       if (
         !currentUser ||
         (currentUser.userType !== "admin" && !currentUser.isAdmin)

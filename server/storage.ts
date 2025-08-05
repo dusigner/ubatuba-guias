@@ -96,6 +96,11 @@ export interface IStorage {
   removeFavorite(userId: string, itemType: string, itemId: string): Promise<void>;
   isFavorite(userId: string, itemType: string, itemId: string): Promise<boolean>;
 
+  // Admin methods
+  getAllUsers(): Promise<User[]>;
+  adminUpdateUser(userId: string, userData: Partial<UpsertUser>): Promise<User>;
+  deleteUser(userId: string): Promise<void>;
+
   // Bookings
   getUserBookings(userId: string): Promise<Booking[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
@@ -697,6 +702,42 @@ export class DatabaseStorage implements IStorage {
       .where(eq(bookings.id, id))
       .returning();
     return updatedBooking;
+  }
+
+  // Admin methods for user management
+  async getAllUsers(): Promise<User[]> {
+    try {
+      const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
+      return allUsers;
+    } catch (error) {
+      console.error('Erro ao buscar todos os usuários:', error);
+      throw error;
+    }
+  }
+
+  async adminUpdateUser(userId: string, userData: Partial<UpsertUser>): Promise<User> {
+    try {
+      const [updatedUser] = await db.update(users)
+        .set({
+          ...userData,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId))
+        .returning();
+      return updatedUser;
+    } catch (error) {
+      console.error('Erro ao atualizar usuário:', error);
+      throw error;
+    }
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    try {
+      await db.delete(users).where(eq(users.id, userId));
+    } catch (error) {
+      console.error('Erro ao deletar usuário:', error);
+      throw error;
+    }
   }
 }
 

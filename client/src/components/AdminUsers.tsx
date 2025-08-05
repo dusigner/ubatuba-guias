@@ -49,6 +49,11 @@ export default function AdminUsers() {
     retry: false,
   });
 
+  const { data: guides = [] } = useQuery({
+    queryKey: ["/api/guides"],
+    retry: false,
+  });
+
   const updateUserMutation = useMutation({
     mutationFn: async ({ id, userData }: { id: string; userData: Partial<User> }) => {
       const response = await fetch(`/api/admin/users/${id}`, {
@@ -251,7 +256,7 @@ export default function AdminUsers() {
               <div>
                 <p className="text-sm text-muted-foreground">Guias Cadastrados</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {users.filter(u => u.userType === 'guide').length}
+                  {guides.length}
                 </p>
               </div>
             </div>

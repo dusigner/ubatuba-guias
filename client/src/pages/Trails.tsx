@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -131,7 +132,9 @@ export default function Trails() {
                       </span>
                     </div>
                     
-                    <div className="text-muted-foreground mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: trail.description }} />
+                    <div className="text-muted-foreground mb-4 line-clamp-3">
+                      <MarkdownRenderer content={trail.description} className="prose prose-sm max-w-none" />
+                    </div>
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center text-sm text-muted-foreground">

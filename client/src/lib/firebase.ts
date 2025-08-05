@@ -75,8 +75,10 @@ export const signInWithGoogle = async () => {
     console.error("Erro no login Google:", error);
     
     // Verificar tipos específicos de erro
-    if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
-      console.log("Popup bloqueado ou cancelado, tentando redirecionamento...");
+    if (error.code === 'auth/popup-blocked' || 
+        error.code === 'auth/cancelled-popup-request' || 
+        error.code === 'auth/popup-closed-by-user') {
+      console.log(`${error.code} - Tentando redirecionamento como fallback...`);
       try {
         await signInWithRedirect(auth, googleProvider);
         return null;

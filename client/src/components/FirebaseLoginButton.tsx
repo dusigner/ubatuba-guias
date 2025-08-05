@@ -28,12 +28,23 @@ export default function FirebaseLoginButton({
     } catch (error: any) {
       console.error('Erro durante login Google:', error);
       
-      // Mostrar mensagem de erro mais amigável para o usuário
+      // Não mostrar alerta para cancelamento de popup (comportamento normal)
+      if (error.code === 'auth/popup-closed-by-user' || 
+          error.code === 'auth/cancelled-popup-request') {
+        console.log('Login cancelado pelo usuário (popup fechado) - redirecionando...');
+        return; // Não mostrar erro para cancelamento
+      }
+      
+      // Mostrar mensagem de notificação para popup bloqueado
+      if (error.code === 'auth/popup-blocked') {
+        console.log('Popup bloqueado - usando redirecionamento...');
+        return; // Redirecionamento está sendo tratado
+      }
+      
+      // Mostrar mensagem de erro para problemas reais
       let errorMessage = 'Erro ao fazer login. Tente novamente.';
       
-      if (error.message) {
-        errorMessage = error.message;
-      } else if (error.code === 'auth/unauthorized-domain') {
+      if (error.code === 'auth/unauthorized-domain') {
         errorMessage = 'Domínio não autorizado no Firebase. O administrador precisa adicionar este domínio no console Firebase.';
       } else if (error.code === 'auth/internal-error') {
         errorMessage = `Erro de configuração Firebase. O domínio atual (${window.location.hostname}) precisa ser autorizado no console Firebase.`;
@@ -41,13 +52,6 @@ export default function FirebaseLoginButton({
         errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
       }
       
-      console.error('Detalhes do erro Firebase:', {
-        code: error.code,
-        message: error.message,
-        domain: window.location.hostname
-      });
-      
-      console.error('Firebase Error completo:', error);
       alert(errorMessage);
     }
   };

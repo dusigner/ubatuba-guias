@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +35,17 @@ export default function AdminBeaches() {
   const { data: beaches = [], isLoading } = useQuery({
     queryKey: ["/api/beaches"],
   });
+
+  // Garantir que o scroll seja restaurado quando o modal fechar
+  useEffect(() => {
+    if (!isDialogOpen) {
+      // Restaurar scroll quando o modal fechar
+      setTimeout(() => {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+      }, 100);
+    }
+  }, [isDialogOpen]);
 
   const updateMutation = useMutation({
     mutationFn: (data: { id: string; beach: Partial<InsertBeach> }) =>

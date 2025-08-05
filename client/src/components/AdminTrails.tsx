@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +36,17 @@ export default function AdminTrails() {
   const { data: trails = [], isLoading } = useQuery<Trail[]>({
     queryKey: ["/api/trails"],
   });
+
+  // Garantir que o scroll seja restaurado quando o modal fechar
+  useEffect(() => {
+    if (!isDialogOpen) {
+      // Restaurar scroll quando o modal fechar
+      setTimeout(() => {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+      }, 100);
+    }
+  }, [isDialogOpen]);
 
   const updateMutation = useMutation({
     mutationFn: (data: { id: string; trail: Partial<InsertTrail> }) =>

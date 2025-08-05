@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 
 interface MarkdownEditorProps {
@@ -9,6 +9,15 @@ interface MarkdownEditorProps {
 
 export default function MarkdownEditor({ value, onChange, placeholder = "Digite sua descrição em markdown..." }: MarkdownEditorProps) {
   const [mdValue, setMdValue] = useState(value);
+
+  // Garantir que o scroll do body seja restaurado
+  useEffect(() => {
+    return () => {
+      // Limpar qualquer overflow hidden quando o componente for desmontado
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
 
   const handleChange = (val: string | undefined) => {
     const newValue = val || '';

@@ -3,9 +3,9 @@ import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, Google
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`,
+  authDomain: "ubatuba-guias.firebaseapp.com",
+  projectId: "ubatuba-guias",
+  storageBucket: "ubatuba-guias.firebasestorage.app",
   messagingSenderId: "1063851833654",
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: "G-6MHBRY7G3K"
@@ -36,8 +36,9 @@ export const signInWithGoogle = async () => {
     }
     
     // Log da configuração (sem expor secrets)
-    console.log('Firebase configurado com projeto:', import.meta.env.VITE_FIREBASE_PROJECT_ID);
+    console.log('Firebase configurado com projeto: ubatuba-guias');
     console.log('Domínio atual:', window.location.hostname);
+    console.log('Auth Domain:', firebaseConfig.authDomain);
     
     const result = await signInWithPopup(auth, googleProvider);
     console.log("Login Google realizado com sucesso:", result.user.email);

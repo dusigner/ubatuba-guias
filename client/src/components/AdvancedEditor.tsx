@@ -31,14 +31,18 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
 
   const handleInput = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      // Usar debounce para evitar chamadas excessivas
+      clearTimeout(window.editorTimeout);
+      window.editorTimeout = setTimeout(() => {
+        onChange(editorRef.current.innerHTML);
+      }, 300);
     }
   };
 
   const executeCommand = (command: string, value?: string) => {
     document.execCommand(command, false, value);
     editorRef.current?.focus();
-    setTimeout(() => handleInput(), 100); // Pequeno delay para garantir que o DOM seja atualizado
+    // Não chamar handleInput aqui para evitar auto-save
   };
 
   const isCommandActive = (command: string): boolean => {
@@ -51,26 +55,41 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
 
   const insertHTML = (html: string) => {
     if (editorRef.current) {
+      editorRef.current.focus();
+      
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         range.deleteContents();
-        const div = document.createElement('div');
-        div.innerHTML = html;
-        const frag = document.createDocumentFragment();
-        let node;
-        while ((node = div.firstChild)) {
-          frag.appendChild(node);
+        
+        // Criar elemento temporário para inserir HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        
+        // Inserir cada elemento
+        while (tempDiv.firstChild) {
+          range.insertNode(tempDiv.firstChild);
+          range.collapse(false);
         }
-        range.insertNode(frag);
-        range.collapse(false);
+        
+        // Reposicionar cursor
+        const newRange = document.createRange();
+        newRange.setStartAfter(range.commonAncestorContainer);
+        newRange.collapse(true);
         selection.removeAllRanges();
-        selection.addRange(range);
+        selection.addRange(newRange);
       } else {
         // Se não há seleção, adiciona no final
-        editorRef.current.innerHTML += html;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        while (tempDiv.firstChild) {
+          editorRef.current.appendChild(tempDiv.firstChild);
+        }
       }
-      handleInput();
+      
+      // Triggerar input event manualmente para detectar mudanças
+      const inputEvent = new Event('input', { bubbles: true });
+      editorRef.current.dispatchEvent(inputEvent);
     }
   };
 
@@ -87,9 +106,44 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
   };
 
   const insertImage = () => {
-    if (imageUrl || previewUrl) {
-      const imgTag = `<p><img src="${imageUrl || previewUrl}" alt="Imagem inserida" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; display: block;" /></p>`;
-      insertHTML(imgTag);
+    const srcUrl = imageUrl || previewUrl;
+    if (srcUrl) {
+      console.log('Inserindo imagem:', srcUrl);
+      
+      // Criar elemento de imagem diretamente
+      const img = document.createElement('img');
+      img.src = srcUrl;
+      img.alt = 'Imagem inserida';
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
+      img.style.borderRadius = '8px';
+      img.style.margin = '10px 0';
+      img.style.display = 'block';
+      
+      const p = document.createElement('p');
+      p.appendChild(img);
+      
+      if (editorRef.current) {
+        editorRef.current.focus();
+        
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          range.deleteContents();
+          range.insertNode(p);
+          range.setStartAfter(p);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        } else {
+          editorRef.current.appendChild(p);
+        }
+        
+        // Triggerar evento de input
+        const inputEvent = new Event('input', { bubbles: true });
+        editorRef.current.dispatchEvent(inputEvent);
+      }
+      
       setImageUrl('');
       setPreviewUrl('');
       setSelectedFile(null);
@@ -99,8 +153,38 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
 
   const insertLink = () => {
     if (linkUrl && linkText) {
-      const linkTag = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="color: hsl(var(--primary)); text-decoration: underline;">${linkText}</a>`;
-      insertHTML(linkTag);
+      console.log('Inserindo link:', linkText, linkUrl);
+      
+      // Criar elemento de link diretamente
+      const a = document.createElement('a');
+      a.href = linkUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.style.color = 'hsl(var(--primary))';
+      a.style.textDecoration = 'underline';
+      a.textContent = linkText;
+      
+      if (editorRef.current) {
+        editorRef.current.focus();
+        
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          range.deleteContents();
+          range.insertNode(a);
+          range.setStartAfter(a);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        } else {
+          editorRef.current.appendChild(a);
+        }
+        
+        // Triggerar evento de input
+        const inputEvent = new Event('input', { bubbles: true });
+        editorRef.current.dispatchEvent(inputEvent);
+      }
+      
       setLinkUrl('');
       setLinkText('');
       setLinkDialogOpen(false);
@@ -116,7 +200,7 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
       if (element && editorRef.current?.contains(element)) {
         // Wrap or replace the current block
         document.execCommand('formatBlock', false, tag);
-        handleInput();
+        // Não chamar handleInput para evitar auto-save
       }
     }
   };
@@ -497,7 +581,8 @@ export function AdvancedEditor({ value, onChange, placeholder }: AdvancedEditorP
           ref={editorRef}
           contentEditable
           onInput={handleInput}
-          className="min-h-[200px] p-4 prose prose-sm max-w-none dark:prose-invert focus:outline-none"
+          onBlur={handleInput} // Salvar quando sair do foco
+          className="min-h-[200px] p-4 prose prose-sm max-w-none dark:prose-invert focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-inset"
           style={{
             color: 'hsl(var(--foreground))',
             backgroundColor: 'hsl(var(--background))',

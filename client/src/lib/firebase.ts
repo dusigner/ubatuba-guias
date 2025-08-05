@@ -11,14 +11,30 @@ const firebaseConfig = {
   measurementId: "G-6MHBRY7G3K"
 };
 
-// Initialize Firebase
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+// Initialize Firebase with better error handling
+let app;
+try {
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  console.log('Firebase app inicializado com sucesso');
+} catch (error) {
+  console.error('Erro ao inicializar Firebase:', error);
+  throw error;
+}
+
 export const auth = getAuth(app);
 
-// Google Auth Provider
+// Set auth language to Portuguese
+auth.languageCode = 'pt';
+
+// Google Auth Provider with custom parameters
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
+
+// Keep provider simple to avoid auth/internal-error
+// googleProvider.setCustomParameters({
+//   'login_hint': 'user@example.com'
+// });
 
 // Auth functions
 export const signInWithGoogle = async () => {
@@ -26,19 +42,31 @@ export const signInWithGoogle = async () => {
     console.log("Tentando login Google via popup...");
     
     // Verificar se Firebase está configurado corretamente
-    if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_PROJECT_ID || !import.meta.env.VITE_FIREBASE_APP_ID) {
+    if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_APP_ID) {
       console.error('Configuração Firebase:', {
         apiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
-        projectId: !!import.meta.env.VITE_FIREBASE_PROJECT_ID,
         appId: !!import.meta.env.VITE_FIREBASE_APP_ID
       });
       throw new Error('Firebase não está configurado corretamente. Verifique as variáveis de ambiente.');
+    }
+    
+    // Verificar se o auth está inicializado
+    if (!auth || !auth.app) {
+      throw new Error('Firebase Auth não está inicializado corretamente.');
     }
     
     // Log da configuração (sem expor secrets)
     console.log('Firebase configurado com projeto: ubatuba-guias');
     console.log('Domínio atual:', window.location.hostname);
     console.log('Auth Domain:', firebaseConfig.authDomain);
+    console.log('Firebase App Name:', auth.app.name);
+    console.log('Firebase Auth configurado:', !!auth);
+    
+    // Try to clear any existing auth state first
+    console.log('Estado atual do auth antes do login:', {
+      currentUser: auth.currentUser?.email || 'nenhum',
+      isSignedIn: !!auth.currentUser
+    });
     
     const result = await signInWithPopup(auth, googleProvider);
     console.log("Login Google realizado com sucesso:", result.user.email);

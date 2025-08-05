@@ -155,8 +155,9 @@ export function setupSecurity(app: Express) {
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Necessário para Vite
-        connectSrc: ["'self'", "https:", "wss:"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://apis.google.com", "https://www.gstatic.com"], // Necessário para Vite e Firebase
+        connectSrc: ["'self'", "https:", "wss:", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "https://accounts.google.com"],
+        frameSrc: ["'self'", "https://accounts.google.com", "https://ubatuba-guias.firebaseapp.com"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: [],
       },

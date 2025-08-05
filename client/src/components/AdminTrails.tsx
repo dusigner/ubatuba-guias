@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Edit, Trash2, Plus, Mountain } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Edit, Trash2, Plus, Mountain, Image, Upload } from "lucide-react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import type { Trail, InsertTrail } from "@shared/schema";
 
 export default function AdminTrails() {
@@ -17,19 +19,21 @@ export default function AdminTrails() {
   const queryClient = useQueryClient();
   const [editingTrail, setEditingTrail] = useState<Trail | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<Partial<InsertTrail>>({
     name: "",
     description: "",
     difficulty: "easy",
     distance: "",
-    duration: "",
-    elevation: "",
+    duration: 0,
+    elevation: 0,
     rating: "0",
     reviewCount: 0,
     imageUrl: "",
   });
 
-  const { data: trails = [], isLoading } = useQuery({
+  const { data: trails = [], isLoading } = useQuery<Trail[]>({
     queryKey: ["/api/trails"],
   });
 
@@ -77,8 +81,8 @@ export default function AdminTrails() {
       description: "",
       difficulty: "easy",
       distance: "",
-      duration: "",
-      elevation: "",
+      duration: 0,
+      elevation: 0,
       rating: "0",
       reviewCount: 0,
       imageUrl: "",
@@ -92,13 +96,53 @@ export default function AdminTrails() {
       description: trail.description,
       difficulty: trail.difficulty,
       distance: trail.distance,
-      duration: trail.duration,
-      elevation: trail.elevation,
+      duration: parseInt(trail.duration?.toString() || "0") || 0,
+      elevation: parseInt(trail.elevation?.toString() || "0") || 0,
       rating: trail.rating,
-      reviewCount: trail.reviewCount,
+      reviewCount: trail.reviewCount || 0,
       imageUrl: trail.imageUrl || "",
     });
     setIsDialogOpen(true);
+  };
+
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+    
+    setIsUploadingImage(true);
+    try {
+      // Para este exemplo, vou converter para base64
+      // Em produção, usar serviço como Cloudinary, AWS S3, etc.
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setFormData({ ...formData, imageUrl: result });
+        setIsUploadingImage(false);
+        toast({ title: "Imagem carregada com sucesso!" });
+      };
+      reader.onerror = () => {
+        setIsUploadingImage(false);
+        toast({ 
+          title: "Erro ao carregar imagem", 
+          description: "Tente novamente com uma imagem menor.",
+          variant: "destructive" 
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      setIsUploadingImage(false);
+      toast({ 
+        title: "Erro ao carregar imagem", 
+        description: "Tente novamente com uma imagem menor.",
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -109,10 +153,10 @@ export default function AdminTrails() {
       description: formData.description!,
       difficulty: formData.difficulty!,
       distance: formData.distance!,
-      duration: Number(formData.duration),
-      elevation: Number(formData.elevation),
+      duration: formData.duration!.toString(),
+      elevation: formData.elevation!.toString(),
       rating: formData.rating!,
-      reviewCount: Number(formData.reviewCount),
+      reviewCount: formData.reviewCount!,
       imageUrl: formData.imageUrl,
     };
 
@@ -132,6 +176,32 @@ export default function AdminTrails() {
     }
   };
 
+  const getDifficultyLabel = (difficulty: string) => {
+    switch (difficulty) {
+      case "easy": return "Fácil";
+      case "moderate": return "Moderado";
+      case "difficult": return "Difícil";
+      default: return difficulty;
+    }
+  };
+
+  // Configuração do editor de texto rico
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  const quillFormats = [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'color', 'background', 'link'
+  ];
+
   if (isLoading) {
     return <div className="flex justify-center p-8">Carregando trilhas...</div>;
   }
@@ -139,35 +209,36 @@ export default function AdminTrails() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold flex items-center">
-          <Mountain className="mr-2" />
-          Gerenciar Trilhas ({trails.length})
+        <h2 className="text-2xl font-bold flex items-center gap-2">
+          <Mountain className="h-6 w-6" />
+          Gestão de Trilhas
         </h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => { resetForm(); setEditingTrail(null); }}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" />
               Nova Trilha
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingTrail ? "Editar Trilha" : "Nova Trilha"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Nome</label>
+                  <Label htmlFor="name">Nome da Trilha</Label>
                   <Input
-                    value={formData.name}
+                    id="name"
+                    value={formData.name || ""}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Dificuldade</label>
+                  <Label htmlFor="difficulty">Dificuldade</Label>
                   <Select
                     value={formData.difficulty}
                     onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
@@ -185,41 +256,49 @@ export default function AdminTrails() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Descrição</label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  required
-                />
+                <Label htmlFor="description">Descrição Completa</Label>
+                <div className="mt-2">
+                  <ReactQuill
+                    theme="snow"
+                    value={formData.description || ""}
+                    onChange={(value) => setFormData({ ...formData, description: value })}
+                    modules={quillModules}
+                    formats={quillFormats}
+                    style={{ height: '200px', marginBottom: '50px' }}
+                    placeholder="Descreva a trilha, suas características, pontos de interesse, dificuldades e dicas..."
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Distância (km)</label>
+                  <Label htmlFor="distance">Distância (km)</Label>
                   <Input
-                    value={formData.distance}
+                    id="distance"
+                    value={formData.distance || ""}
                     onChange={(e) => setFormData({ ...formData, distance: e.target.value })}
                     placeholder="5.2"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Duração (min)</label>
+                  <Label htmlFor="duration">Duração (min)</Label>
                   <Input
+                    id="duration"
                     type="number"
-                    value={formData.duration}
-                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                    value={formData.duration || ""}
+                    onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 0 })}
                     placeholder="180"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Elevação (m)</label>
+                  <Label htmlFor="elevation">Elevação (m)</Label>
                   <Input
+                    id="elevation"
                     type="number"
-                    value={formData.elevation}
-                    onChange={(e) => setFormData({ ...formData, elevation: e.target.value })}
+                    value={formData.elevation || ""}
+                    onChange={(e) => setFormData({ ...formData, elevation: parseInt(e.target.value) || 0 })}
                     placeholder="550"
                     required
                   />
@@ -228,34 +307,75 @@ export default function AdminTrails() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Avaliação</label>
+                  <Label htmlFor="rating">Avaliação</Label>
                   <Input
-                    value={formData.rating}
+                    id="rating"
+                    value={formData.rating || ""}
                     onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
                     placeholder="4.5"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Nº Reviews</label>
+                  <Label htmlFor="reviewCount">Número de Reviews</Label>
                   <Input
+                    id="reviewCount"
                     type="number"
-                    value={formData.reviewCount}
-                    onChange={(e) => setFormData({ ...formData, reviewCount: Number(e.target.value) })}
+                    value={formData.reviewCount || ""}
+                    onChange={(e) => setFormData({ ...formData, reviewCount: parseInt(e.target.value) || 0 })}
                     placeholder="45"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">URL da Imagem</label>
-                <Input
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://..."
-                />
+                <Label>Imagem de Capa</Label>
+                <div className="mt-2 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingImage}
+                      className="flex items-center gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      {isUploadingImage ? "Carregando..." : "Escolher Imagem"}
+                    </Button>
+                    <span className="text-sm text-gray-500">
+                      Ou cole uma URL abaixo
+                    </span>
+                  </div>
+                  
+                  <Input
+                    value={formData.imageUrl || ""}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    placeholder="https://exemplo.com/imagem.jpg"
+                  />
+                  
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  
+                  {formData.imageUrl && (
+                    <div className="mt-2">
+                      <img 
+                        src={formData.imageUrl} 
+                        alt="Preview" 
+                        className="w-full h-48 object-cover rounded-lg border"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder-trail.jpg";
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-2 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
@@ -272,42 +392,59 @@ export default function AdminTrails() {
       </div>
 
       <div className="grid gap-4">
-        {trails.map((trail: Trail) => (
+        {trails.map((trail) => (
           <Card key={trail.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    {trail.name}
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-semibold">{trail.name}</h3>
                     <Badge className={getDifficultyColor(trail.difficulty)}>
-                      {trail.difficulty === "easy" ? "Fácil" : 
-                       trail.difficulty === "moderate" ? "Moderado" : "Difícil"}
+                      {getDifficultyLabel(trail.difficulty)}
                     </Badge>
-                  </CardTitle>
-                  <div className="text-sm text-gray-600 mt-1">
-                    {trail.distance}km • {trail.duration}min • {trail.elevation}m elevação
+                  </div>
+                  
+                  <div className="text-sm text-gray-600 mb-3">
+                    <div dangerouslySetInnerHTML={{ __html: trail.description }} />
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <span>📏 {trail.distance} km</span>
+                    <span>⏱️ {trail.duration} min</span>
+                    <span>📈 {trail.elevation} m</span>
+                    <span>⭐ {trail.rating} ({trail.reviewCount} reviews)</span>
                   </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(trail)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm" 
-                    onClick={() => deleteMutation.mutate(trail.id)}
-                    disabled={deleteMutation.isPending}
+                
+                {trail.imageUrl && (
+                  <div className="ml-4">
+                    <img 
+                      src={trail.imageUrl} 
+                      alt={trail.name}
+                      className="w-24 h-24 object-cover rounded-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder-trail.jpg";
+                      }}
+                    />
+                  </div>
+                )}
+                
+                <div className="flex gap-2 ml-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(trail)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => deleteMutation.mutate(trail.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 mb-2">{trail.description}</p>
-              <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>⭐ {trail.rating} ({trail.reviewCount} avaliações)</span>
-                <span>ID: {trail.id.slice(0, 8)}...</span>
               </div>
             </CardContent>
           </Card>

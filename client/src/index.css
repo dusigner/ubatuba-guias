@@ -268,3 +268,37 @@
     -webkit-line-clamp: 3;
   }
 }
+
+/* Quill Editor Styles */
+.ql-editor {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  color: hsl(var(--foreground));
+}
+
+.ql-toolbar {
+  border: 1px solid hsl(var(--border));
+  border-bottom: none;
+  border-radius: 0.375rem 0.375rem 0 0;
+  background: hsl(var(--background));
+}
+
+.ql-container {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0 0 0.375rem 0.375rem;
+  background: hsl(var(--background));
+}
+
+.ql-editor.ql-blank::before {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+.ql-snow .ql-tooltip {
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--popover-foreground));
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}

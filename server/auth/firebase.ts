@@ -5,9 +5,13 @@ import { eq } from 'drizzle-orm';
 import session from 'express-session';
 import MemoryStore from 'memorystore';
 import '../types.js';
+import * as admin from 'firebase-admin'; // Import Firebase Admin SDK
+
+// TODO: Initialize Firebase Admin SDK here or in your server's entry point
+// Example: admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 
 const MemStore = MemoryStore(session);
-
+ 
 export function setupFirebaseAuth(app: Express) {
   // Configure session middleware with memory storage
   const sessionConfig = {

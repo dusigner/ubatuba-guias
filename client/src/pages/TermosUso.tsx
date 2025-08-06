@@ -15,7 +15,7 @@ export default function TermosUso() {
             Termos de Uso
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl">
-            Leia nossos termos de uso para entender como utilizar nossa plataforma
+            Leia nossos termos de uso para entender como utilizar nossa plataforma.
           </p>
         </div>
       </section>

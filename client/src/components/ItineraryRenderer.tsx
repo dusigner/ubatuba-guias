@@ -25,7 +25,7 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
     return sections.map((section, index) => {
       if (section.trim().startsWith('## Dia')) {
         return renderDaySection(section, index);
-      } else if (section.includes('Contatos') || section.includes('Dicas') || section.includes('Sugestões')) {
+      } else if (section.includes('Dicas') || section.includes('Sugestões')) {
         return renderInfoSection(section, index);
       }
       return null;
@@ -162,9 +162,6 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
               <Calendar className="h-7 w-7 text-ocean" />
               {dayTitle}
             </CardTitle>
-            <Badge variant="secondary" className="bg-ocean/10 text-ocean">
-              Dia {index + 1}
-            </Badge>
           </div>
         </CardHeader>
         <CardContent className="p-8">
@@ -379,33 +376,33 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
               if (!cleanLine) return null;
               
               // Se é uma seção de contatos e contém nome de guia
-              if (sectionTitle.includes('Contatos') && cleanLine.includes(':')) {
-                const [guideName, contact] = cleanLine.split(':').map(s => s.trim());
-                return (
-                  <div key={lIndex} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                          {guideName}
-                        </h4>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-300">
-                            <Phone className="h-4 w-4" />
-                            <span className="text-sm">{contact}</span>
-                          </div>
-                          <a 
-                            href="/guides" 
-                            className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
-                          >
-                            <Users className="h-3 w-3" />
-                            Ver perfil completo
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
+              // if (sectionTitle.includes('Contatos') && cleanLine.includes(':')) {
+              //   const [guideName, contact] = cleanLine.split(':').map(s => s.trim());
+              //   return (
+              //     <div key={lIndex} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              //       <div className="flex items-start justify-between gap-4">
+              //         <div className="flex-1">
+              //           <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
+              //             {guideName}
+              //           </h4>
+              //           <div className="space-y-1">
+              //             <div className="flex items-center gap-2 text-blue-600 dark:text-blue-300">
+              //               <Phone className="h-4 w-4" />
+              //               <span className="text-sm">{contact}</span>
+              //             </div>
+              //             <a 
+              //               href="/guides" 
+              //               className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
+              //             >
+              //               <Users className="h-3 w-3" />
+              //               Ver perfil completo
+              //             </a>
+              //           </div>
+              //         </div>
+              //       </div>
+              //     </div>
+              //   );
+              // }
               
               // Para dicas gerais
               if (sectionTitle.includes('Dicas')) {

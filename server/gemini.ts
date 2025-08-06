@@ -105,9 +105,6 @@ ${guides.map(guide =>
 
 Continue este formato para todos os dias...
 
-## Contatos dos Guias Sugeridos
-[Liste os guias mencionados com suas informações de contato reais]
-
 ## Dicas Gerais
 - [Dicas baseadas nos dados reais cadastrados]
 - [Informações sobre os eventos disponíveis nas datas]

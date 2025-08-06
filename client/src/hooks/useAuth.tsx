@@ -46,18 +46,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('AuthProvider inicializando...');
     
     // Handle redirect result on page load (only check, don't rely on it for popup flow)
-    handleRedirectResult()
-      .then(async (result) => {
-        console.log('Resultado do redirect:', result);
-        if (result?.user) {
-          console.log('Usuário retornou do redirect:', result.user.email);
-          await syncUserWithBackend(result.user);
-          refetchUser();
-        }
-      })
-      .catch((error) => {
-        console.log('Nenhum redirect result disponível (normal para popup flow)');
-      });
+    // handleRedirectResult()
+    //   .then(async (result) => {
+    //     console.log('Resultado do redirect:', result);
+    //     if (result?.user) {
+    //       console.log('Usuário retornou do redirect:', result.user.email);
+    //       await syncUserWithBackend(result.user);
+    //       refetchUser();
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log('Nenhum redirect result disponível (normal para popup flow)');
+    //   });
 
     // Listen for auth state changes
     const unsubscribe = onAuthStateChange((firebaseUser) => {

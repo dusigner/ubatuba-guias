@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { populateSampleData } from "./sampleData";
 import { setupSecurity } from "./security";
+import 'dotenv/config';
 
 const app = express();
 

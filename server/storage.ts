@@ -221,24 +221,8 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users).orderBy(desc(users.createdAt));
-  }
-
   async getUsersByType(userType: string): Promise<User[]> {
     return await db.select().from(users).where(eq(users.userType, userType as any)).orderBy(desc(users.createdAt));
-  }
-
-  async adminUpdateUser(id: string, data: Partial<User>): Promise<User> {
-    const [user] = await db
-      .update(users)
-      .set({
-        ...data,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, id))
-      .returning();
-    return user;
   }
 
   // Trails
@@ -290,10 +274,7 @@ export class DatabaseStorage implements IStorage {
     return beach;
   }
 
-  async getBeachById(id: string): Promise<Beach | undefined> {
-    const [beach] = await db.select().from(beaches).where(eq(beaches.id, id));
-    return beach;
-  }
+
 
   async getBeachByIdOrSlug(identifier: string): Promise<Beach | undefined> {
     const [beach] = await db.select().from(beaches).where(
@@ -605,19 +586,9 @@ export class DatabaseStorage implements IStorage {
     return updatedGuide;
   }
 
-  async getTrailById(id: string): Promise<Trail | undefined> {
-    const [trail] = await db.select().from(trails).where(eq(trails.id, id));
-    return trail;
-  }
-
   async getBeachById(id: string): Promise<Beach | undefined> {
     const [beach] = await db.select().from(beaches).where(eq(beaches.id, id));
     return beach;
-  }
-
-  async getBoatTourById(id: string): Promise<BoatTour | undefined> {
-    const [tour] = await db.select().from(boatTours).where(eq(boatTours.id, id));
-    return tour;
   }
 
   async getGuideByUserId(userId: string): Promise<any | undefined> {
@@ -716,6 +687,10 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // async getAllUsers(): Promise<User[]> {
+  //   return await db.select().from(users).orderBy(desc(users.createdAt));
+  // }
+
   async adminUpdateUser(userId: string, userData: Partial<UpsertUser>): Promise<User> {
     try {
       const [updatedUser] = await db.update(users)
@@ -731,6 +706,18 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
+  // async adminUpdateUser(id: string, data: Partial<User>): Promise<User> {
+  //   const [user] = await db
+  //     .update(users)
+  //     .set({
+  //       ...data,
+  //       updatedAt: new Date(),
+  //     })
+  //     .where(eq(users.id, id))
+  //     .returning();
+  //   return user;
+  // }
 
   async deleteUser(userId: string): Promise<void> {
     try {

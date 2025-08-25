@@ -69,7 +69,8 @@ export const signInWithGoogle = async () => {
     });
     
     const result = await signInWithPopup(auth, googleProvider);
-    console.log("Login Google realizado com sucesso:", result.user.email);
+    console.log("Login Google realizado com sucesso1:", result.user.email);
+    console.log('result', result)
     return result;
   } catch (error: any) {
     console.error("Erro no login Google:", error);

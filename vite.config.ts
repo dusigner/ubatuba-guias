@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
-  plugins: [react(),],
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -15,9 +15,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // rollupOptions: { // Adicionado para especificar o ponto de entrada
+    //   input: {
+    //     main: path.resolve(import.meta.dirname, 'client/index.html'), // Ponto de entrada HTML
+    //   }
+    // }
   },
   server: {
-    port: 5173,
+    port: 5000,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',

@@ -1,18 +1,25 @@
 {
-  "compileOnSave": true,
-  "include": [
-    "src"
-  ],
   "compilerOptions": {
-    "module": "NodeNext",
-    "noImplicitReturns": true,
-    "outDir": "lib",
-    "sourceMap": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "strict": true,
-    "target": "es2017",
-    "skipLibCheck": true,
+    "noEmit": true,
     "esModuleInterop": true,
-    "moduleResolution": "nodenext",
-    "noUnusedLocals": true
-  }
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["../client/src/*"],
+      "@shared/*": ["../shared/*"],
+      "@assets/*": ["../attached_assets/*"]
+    }
+  },
+  "include": ["../server/**/*.ts"],
+  "exclude": ["node_modules", "lib", "dist"]
 }

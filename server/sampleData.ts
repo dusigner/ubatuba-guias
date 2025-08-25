@@ -589,7 +589,7 @@ export async function populateSampleData() {
     }
 
     for (const guide of guides) {
-      await storage.createGuide(guide);
+      await storage.createGuide('someUserId', guide);
     }
 
     console.log("Sample data populated successfully!");

@@ -68,6 +68,7 @@ npm run db:studio   # Interface visual do banco
 - Validação de entrada (Zod)
 - Autenticação Firebase
 - Monitoramento de ataques
+npm run dev
 
 ## 📂 Estrutura do Projeto
 

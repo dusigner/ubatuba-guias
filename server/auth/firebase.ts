@@ -5,10 +5,7 @@ import { eq } from 'drizzle-orm';
 import session from 'express-session';
 import MemoryStore from 'memorystore';
 import '../types.js';
-import * as admin from 'firebase-admin'; // Import Firebase Admin SDK
-
-// TODO: Initialize Firebase Admin SDK here or in your server's entry point
-// Example: admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+import { getAuth, FirebaseAuthError } from 'firebase-admin/auth'; // Specific imports for Auth and Error type
 
 const MemStore = MemoryStore(session);
  
@@ -38,22 +35,23 @@ export function setupFirebaseAuth(app: Express) {
   console.log('✅ Firebase Auth e Sessions configurados com MemoryStore');
 }
 
-// Firebase Admin SDK would be ideal here, but for simplicity we'll validate tokens client-side
-// and trust the frontend authentication state for this demo
-
-interface FirebaseUser {
-  uid: string;
-  email: string;
-  displayName: string;
-  photoURL?: string;
+interface FirebaseUserToken {
+  idToken: string;
 }
 
 export async function handleFirebaseLogin(req: Request, res: Response) {
   try {
-    const { uid, email, displayName, photoURL } = req.body as FirebaseUser;
+    const { idToken } = req.body as FirebaseUserToken;
+
+    if (!idToken) {
+      return res.status(400).json({ error: 'Missing Firebase ID token' });
+    }
+
+    const decodedToken = await getAuth().verifyIdToken(idToken);
+    const { uid, email, name, picture } = decodedToken;
 
     if (!uid || !email) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: 'Invalid Firebase ID token: Missing UID or email' });
     }
 
     // Check if user exists
@@ -65,7 +63,7 @@ export async function handleFirebaseLogin(req: Request, res: Response) {
     let user;
     if (existingUser.length === 0) {
       // Create new user
-      const [firstName, ...lastNameParts] = (displayName || 'Usuário').split(' ');
+      const [firstName, ...lastNameParts] = (name || 'Usuário').split(' ');
       const lastName = lastNameParts.join(' ') || '';
 
       const [newUser] = await db.insert(users)
@@ -74,7 +72,7 @@ export async function handleFirebaseLogin(req: Request, res: Response) {
           email: email,
           firstName: firstName,
           lastName: lastName,
-          profileImageUrl: photoURL || null,
+          profileImageUrl: picture || null,
           userType: null, // No default type - force profile selection
           isProfileComplete: false
         })
@@ -84,11 +82,11 @@ export async function handleFirebaseLogin(req: Request, res: Response) {
       user = existingUser[0];
       
       // Update user info if needed
-      if (user.profileImageUrl !== photoURL) {
+      if (user.profileImageUrl !== (picture || null)) {
         await db.update(users)
-          .set({ profileImageUrl: photoURL || null })
+          .set({ profileImageUrl: picture || null })
           .where(eq(users.id, user.id));
-        user.profileImageUrl = photoURL || null;
+        user.profileImageUrl = picture || null;
       }
     }
 
@@ -112,6 +110,15 @@ export async function handleFirebaseLogin(req: Request, res: Response) {
     });
   } catch (error) {
     console.error('❌ Erro no login Firebase:', error);
+    // Specific handling for Firebase Admin SDK errors
+    if (error instanceof FirebaseAuthError) {
+      console.error('Firebase Auth Error Code:', error.code);
+      if (error.code === 'auth/id-token-expired') {
+        return res.status(401).json({ error: 'Firebase ID token expired. Please re-authenticate.' });
+      } else if (error.code === 'auth/invalid-id-token') {
+        return res.status(401).json({ error: 'Invalid Firebase ID token. Please re-authenticate.' });
+      }
+    }
     res.status(500).json({ error: 'Erro no login' });
   }
 }

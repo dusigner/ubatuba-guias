@@ -15,14 +15,9 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    // rollupOptions: { // Adicionado para especificar o ponto de entrada
-    //   input: {
-    //     main: path.resolve(import.meta.dirname, 'client/index.html'), // Ponto de entrada HTML
-    //   }
-    // }
   },
   server: {
-    port: 5000,
+    // Removido: port: 5000,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',

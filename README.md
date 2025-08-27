@@ -1,4 +1,4 @@
-# 🏖️ UbatubaIA - Plataforma de Turismo Inteligente
+# 🏖️ Ubatuba Guias - Plataforma de Turismo Inteligente
 
 Sistema completo de turismo para Ubatuba/SP com geração de roteiros personalizados via IA, autenticação Firebase, e gestão de conteúdo para guias locais.
 

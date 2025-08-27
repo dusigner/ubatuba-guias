@@ -1,4 +1,4 @@
-# ✅ Checklist para Download - UbatubaIA
+# ✅ Checklist para Download - Ubatuba Guias
 
 ## 📦 Projeto Pronto para Download
 

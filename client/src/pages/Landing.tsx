@@ -86,7 +86,7 @@ export default function Landing() {
             <div className="flex items-center space-x-2">
               <Compass className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold text-foreground">
-                UbatubaIA
+                Ubatuba Guias
               </span>
             </div>
 
@@ -219,7 +219,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-4">
-              Por que escolher UbatubaIA?
+              Por que escolher Ubatuba Guias?
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               A primeira plataforma de turismo inteligente para Ubatuba, criada
@@ -956,7 +956,7 @@ export default function Landing() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Compass className="h-8 w-8 text-ocean" />
-                <span className="text-2xl font-bold">UbatubaIA</span>
+                <span className="text-2xl font-bold">Ubatuba Guias</span>
               </div>
               <p className="text-slate-400 mb-4">
                 Sua plataforma inteligente para descobrir o melhor de Ubatuba
@@ -1081,7 +1081,7 @@ export default function Landing() {
 
           <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400">
             <p>
-              &copy; 2025 UbatubaIA. Todos os direitos reservados. Desenvolvido
+              &copy; 2025 Ubatuba Guias. Todos os direitos reservados. Desenvolvido
               com <Heart className="inline h-4 w-4 text-red-500" /> para
               Ubatuba.
             </p>

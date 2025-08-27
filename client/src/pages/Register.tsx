@@ -189,7 +189,7 @@ export default function Register() {
           <div className="text-center mb-12">
             <div className="flex items-center justify-center space-x-2 mb-6">
               <Compass className="h-10 w-10 text-ocean" />
-              <span className="text-3xl font-bold text-slate-800">UbatubaIA</span>
+              <span className="text-3xl font-bold text-slate-800">Ubatuba Guias</span>
             </div>
             <h1 className="text-4xl font-bold text-slate-800 mb-4">
               Complete seu Cadastro
@@ -251,7 +251,7 @@ export default function Register() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center space-x-2 mb-6">
               <Compass className="h-8 w-8 text-ocean" />
-              <span className="text-2xl font-bold text-slate-800">UbatubaIA</span>
+              <span className="text-2xl font-bold text-slate-800">Ubatuba Guias</span>
             </div>
             <Badge className={`${selectedUserType?.color.replace('text-', 'bg-').replace('-600', '-100')} ${selectedUserType?.color} border mb-4`}>
               {selectedUserType?.title}

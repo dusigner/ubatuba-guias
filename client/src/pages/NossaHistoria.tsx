@@ -27,7 +27,7 @@ export default function NossaHistoria() {
             <div className="mb-16">
               <h2 className="text-3xl font-bold mb-8">O Início da Jornada</h2>
               <p className="text-lg text-muted-foreground mb-6">
-                UbatubaIA nasceu da paixão por essa região única do litoral paulista e da visão de que a tecnologia 
+                Ubatuba Guias nasceu da paixão por essa região única do litoral paulista e da visão de que a tecnologia 
                 pode aproximar pessoas dos lugares mais incríveis de forma inteligente e personalizada.
               </p>
               <p className="text-lg text-muted-foreground mb-6">
@@ -90,7 +90,7 @@ export default function NossaHistoria() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
-                      Lançamento da UbatubaIA com foco em roteiros personalizados por inteligência artificial. 
+                      Lançamento da Ubatuba Guias com foco em roteiros personalizados por inteligência artificial. 
                       Início das parcerias com guias locais e estabelecimentos da região.
                     </p>
                   </CardContent>

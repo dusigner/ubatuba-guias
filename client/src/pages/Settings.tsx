@@ -117,7 +117,7 @@ export default function Settings() {
             Configurações
           </h1>
           <p className="text-muted-foreground">
-            Personalize sua experiência no UbatubaIA
+            Personalize sua experiência no Ubatuba Guias
           </p>
         </div>
 
@@ -354,7 +354,7 @@ export default function Settings() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium">UbatubaIA</p>
+                <p className="text-sm font-medium">Ubatuba Guias</p>
                 <p className="text-sm text-muted-foreground">Versão 1.0.0</p>
               </div>
               <Badge variant="secondary">Beta</Badge>

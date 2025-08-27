@@ -12,12 +12,19 @@ export async function apiRequest(
   method: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  const headers: HeadersInit = {
+    "Cache-Control": "no-cache"
+  };
+
+  const hasBodyMethod = ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase());
+
+  if (hasBodyMethod) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(url, {
     method,
-    headers: { 
-      ...(data ? { "Content-Type": "application/json" } : {}),
-      "Cache-Control": "no-cache"
-    },
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });

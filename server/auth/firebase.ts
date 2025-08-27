@@ -1,129 +1,263 @@
-import { Request, Response, NextFunction, Express } from 'express';
-import { db } from '../db.js'; 
-import { users } from '../../shared/schema.js';
-import { eq } from 'drizzle-orm';
+// auth-and-session.ts
+import express, { Request, Response, NextFunction } from 'express';
 import session from 'express-session';
-import ConnectPgSimple from 'connect-pg-simple';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import MemoryStore from 'memorystore';
+import PgSimple from 'connect-pg-simple';
 import { Pool } from 'pg';
-import '../types.js';
-import { getAuth, FirebaseAuthError } from 'firebase-admin/auth';
+import { storage } from '../storage';
 
-const PgStore = ConnectPgSimple(session);
+// ───────────────────────────────────────────────────────────
+// Tipagem da sessão (remove necessidade de @ts-ignore)
+// ───────────────────────────────────────────────────────────
+declare module 'express-session' {
+  interface SessionData {
+    userId?: string;
+  }
+}
 
-const sessionPool = new Pool({
+const MemStore = MemoryStore(session);
+const PgSession = PgSimple(session);
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+// ───────────────────────────────────────────────────────────
+// Utils de env
+// ───────────────────────────────────────────────────────────
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Environment variable ${name} is required`);
+  }
+  return value;
+}
+
+function getOptionalJson<T = any>(raw?: string): T | undefined {
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw) as T;
+  } catch (e) {
+    console.error(`[CRITICAL] Invalid JSON for env variable:`, e);
+    return undefined;
+  }
+}
+
+// ───────────────────────────────────────────────────────────
+// Firebase Admin init
+// ───────────────────────────────────────────────────────────
+if (getApps().length === 0) {
+  if (isProduction) {
+    // Em produção, usa ADC (GOOGLE_APPLICATION_CREDENTIALS) ou credenciais padrão do ambiente.
+    initializeApp();
+  } else {
+    const serviceAccount = getOptionalJson<Record<string, any>>(process.env.FIREBASE_SERVICE_ACCOUNT);
+    if (serviceAccount) {
+      initializeApp({ credential: cert(serviceAccount) });
+    } else {
+      // Permite rodar localmente com emulador/ADC sem travar
+      console.warn('[WARN] FIREBASE_SERVICE_ACCOUNT not provided for dev — initializing with default credentials.');
+      initializeApp();
+    }
+  }
+}
+
+export const adminAuth = getAuth();
+
+// ───────────────────────────────────────────────────────────
+// Pool Postgres para sessões (produção)
+// ───────────────────────────────────────────────────────────
+const pgPool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: isProduction ? { rejectUnauthorized: false } : undefined,
 });
 
-export function setupFirebaseAuth(app: Express) {
-  const isProduction = process.env.NODE_ENV === 'production';
+pgPool.on('error', (err) => {
+  console.error('[CRITICAL] PostgreSQL Pool Error:', err);
+});
 
-  const sessionStore = isProduction
-    ? new PgStore({
-        pool: sessionPool,
-        tableName: 'user_sessions',
-        createTableIfMissing: false, 
+// Encerramento gracioso do pool (PM2, Docker, etc.)
+['SIGINT', 'SIGTERM'].forEach((sig) => {
+  process.on(sig as NodeJS.Signals, async () => {
+    try {
+      await pgPool.end();
+      console.log('[INFO] PostgreSQL pool closed');
+    } catch (e) {
+      console.error('[ERROR] Closing PostgreSQL pool:', e);
+    } finally {
+      process.exit(0);
+    }
+  });
+});
+
+// ───────────────────────────────────────────────────────────
+// Setup de sessão
+// ───────────────────────────────────────────────────────────
+type SetupSessionOptions = {
+  /**
+   * Caso esteja atrás de proxy/load balancer (Heroku, Render, Cloud Run, etc.)
+   * ative para que cookies `secure` funcionem corretamente.
+   */
+  trustProxy?: boolean;
+  /**
+   * Renovar o cookie a cada request autenticada (default: true).
+   */
+  rolling?: boolean;
+};
+
+export function setupSession(app: express.Express, options: SetupSessionOptions = {}) {
+  if (options.trustProxy ?? isProduction) {
+    // Necessário quando `cookie.secure = true` atrás de proxy (X-Forwarded-Proto)
+    app.set('trust proxy', 1);
+  }
+
+  const usePgStore = isProduction && !!process.env.DATABASE_URL;
+  const store = usePgStore
+    ? new PgSession({
+        pool: pgPool,
+        tableName: 'session', // garanta que a tabela exista; vide docs do connect-pg-simple
+        // pruneSessionInterval: 60, // opcional
       })
-    : undefined; 
+    : new MemStore({ checkPeriod: 24 * 60 * 60 * 1000 });
 
-  const sessionConfig = {
-    store: sessionStore,
-    secret: process.env.SESSION_SECRET || 'fallback-secret-key-for-dev',
+  if (typeof store.on === 'function') {
+    // @ts-ignore
+    store.on('error', (error: unknown) => {
+      console.error('[CRITICAL] Session Store Error:', error);
+    });
+  }
+
+  const sessionSecret = process.env.SESSION_SECRET ?? (() => {
+    if (isProduction) {
+      throw new Error('SESSION_SECRET is required in production');
+    }
+    console.warn('[WARN] Using an ephemeral development SESSION_SECRET');
+    return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  })();
+
+  const sessionConfig: session.SessionOptions = {
+    store,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     name: 'sessionId',
+    rolling: options.rolling ?? true,
     cookie: {
-      secure: isProduction, 
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 * 14, // 14 days
-      sameSite: isProduction ? ('none' as const) : ('lax' as const),
-      // THE FINAL FIX: Explicitly set the domain for the production cookie.
-      // This tells the browser exactly which domain the cookie belongs to,
-      // resolving the cross-site cookie rejection issue.
-      domain: isProduction ? 'ubatuba-guias.web.app' : undefined,
+      secure: isProduction,              // exige HTTPS em produção
+      httpOnly: true,                    // não acessível via JS
+      sameSite: isProduction ? 'none' : 'lax', // necessário para cross-site em produção (ex.: SPA em domínio distinto)
+      maxAge: 14 * 24 * 60 * 60 * 1000,  // 14 dias
     },
   };
 
   app.use(session(sessionConfig));
 }
 
-// ... (o restante do arquivo permanece o mesmo) ...
-interface FirebaseUserToken {
-  idToken: string;
+// ───────────────────────────────────────────────────────────
+// Helpers
+// ───────────────────────────────────────────────────────────
+function getSessionUserId(req: Request): string | undefined {
+  return req.session?.userId;
 }
 
-export async function handleFirebaseLogin(req: Request, res: Response) {
+async function findOrCreateUser(uid: string) {
+  // Assumindo storage com getUser/upsertUser
+  let user = await storage.getUser(uid);
+  if (user) return { user, isNewUser: false };
+
+  const firebaseUser = await adminAuth.getUser(uid);
+  const displayName = firebaseUser.displayName ?? '';
+  const [firstName, ...rest] = displayName.split(' ').filter(Boolean);
+
+  user = await storage.upsertUser({
+    id: uid,
+    email: firebaseUser.email ?? '',
+    name: displayName,
+    photoURL: firebaseUser.photoURL ?? '',
+    firstName: firstName ?? '',
+    lastName: rest.join(' ') ?? '',
+  });
+
+  return { user, isNewUser: true };
+}
+
+// ───────────────────────────────────────────────────────────
+// Handlers de rota
+// ───────────────────────────────────────────────────────────
+export const handleFirebaseLogin = async (req: Request, res: Response) => {
+  const { idToken } = req.body ?? {};
+  if (!idToken || typeof idToken !== 'string') {
+    return res.status(400).json({ message: 'idToken is required' });
+  }
+
   try {
-    const { idToken } = req.body as FirebaseUserToken;
-    if (!idToken) return res.status(400).json({ error: 'Missing Firebase ID token' });
+    const decoded = await adminAuth.verifyIdToken(idToken);
+    const uid = decoded.uid;
 
-    const decodedToken = await getAuth().verifyIdToken(idToken);
-    const { uid, email, name, picture } = decodedToken;
-    if (!uid || !email) return res.status(400).json({ error: 'Invalid Firebase ID token' });
+    // persiste o usuário na sessão
+    req.session.userId = uid;
 
-    let [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    const { user, isNewUser } = await findOrCreateUser(uid);
 
-    if (!user) {
-      const [firstName, ...lastNameParts] = (name || 'Usuário').split(' ');
-      const lastName = lastNameParts.join(' ') || '';
-      [user] = await db.insert(users).values({ id: uid, email, firstName, lastName, profileImageUrl: picture || null, userType: null, isProfileComplete: false }).returning();
-    } else if (user.profileImageUrl !== (picture || null)) {
-      [user] = await db.update(users).set({ profileImageUrl: picture || null }).where(eq(users.id, user.id)).returning();
-    }
-
-    req.session.userId = user.id;
-    req.session.user = user;
-
+    // Salva sessão explicitamente antes de responder (evita race em ambientes serverless)
     req.session.save((err) => {
       if (err) {
-        console.error('❌ DATABASE SESSION SAVE ERROR:', err);
-        if ('nativeError' in err) console.error('❌ NATIVE DB ERROR:', err.nativeError);
-        res.status(500).json({ error: 'Erro ao salvar sessão' });
-      } else {
-        res.json(user);
+        console.warn('[WARN] Session save failed, proceeding anyway:', err);
       }
+      return res.status(isNewUser ? 201 : 200).json({ user, isNewUser });
     });
-  } catch (error) {
-    console.error('❌ Erro no login Firebase:', error);
-    if (error instanceof FirebaseAuthError) {
-      if (error.code === 'auth/id-token-expired' || error.code === 'auth/invalid-id-token') {
-        return res.status(401).json({ error: 'Token inválido ou expirado. Por favor, faça login novamente.' });
-      }
-    }
-    res.status(500).json({ error: 'Erro no login' });
+  } catch (error: any) {
+    console.error('[CRITICAL] Error in handleFirebaseLogin:', error);
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
-}
+};
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  if (!req.session.userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-  next();
-}
-
-export async function getCurrentUser(req: Request, res: Response) {
-  if (!req.session.userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-  try {
-    const [user] = await db.select().from(users).where(eq(users.id, req.session.userId)).limit(1);
-    if (!user) {
-      req.session.destroy(() => {});
-      return res.status(401).json({ message: 'User not found' });
-    }
-    res.json(user);
-  } catch (error) {
-    console.error('❌ Erro ao buscar usuário:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
-  }
-}
-
-export function handleLogout(req: Request, res: Response) {
+export const handleLogout = (req: Request, res: Response) => {
   req.session.destroy((err) => {
     if (err) {
-      console.error('❌ Erro ao fazer logout:', err);
-      return res.status(500).json({ error: 'Erro ao fazer logout' });
+      console.error('[ERROR] Session destroy failed:', err);
+      return res.status(500).json({ message: 'Could not log out, please try again.' });
     }
-    res.json({ message: 'Logout realizado com sucesso' });
+    res.clearCookie('sessionId');
+    return res.status(200).json({ message: 'Logged out successfully' });
   });
-}
+};
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  const userId = getSessionUserId(req);
+  if (!userId) return res.status(401).json({ message: 'Not authenticated' });
+
+  try {
+    const user = await storage.getUser(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.json({ user });
+  } catch (error) {
+    console.error('[ERROR] Error fetching current user:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// ───────────────────────────────────────────────────────────
+// Middlewares
+// ───────────────────────────────────────────────────────────
+export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+  const userId = getSessionUserId(req);
+  if (userId) return next();
+  return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+};
+
+export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = getSessionUserId(req);
+  if (!userId) return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+
+  try {
+    const user = await storage.getUser(userId);
+    if (!user?.isAdmin) {
+      return res.status(403).json({ message: 'Forbidden. Admin access required.' });
+    }
+    return next();
+  } catch (error) {
+    console.error('[ERROR] Error verifying admin role:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};

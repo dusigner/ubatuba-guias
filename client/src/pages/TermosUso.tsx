@@ -39,7 +39,7 @@ export default function TermosUso() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  Ao acessar e usar a plataforma UbatubaIA, você concorda em cumprir e estar vinculado a estes 
+                  Ao acessar e usar a plataforma Ubatuba Guias, você concorda em cumprir e estar vinculado a estes 
                   Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve usar nossos serviços.
                 </p>
                 <p className="text-muted-foreground">
@@ -55,7 +55,7 @@ export default function TermosUso() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  A UbatubaIA é uma plataforma digital que oferece:
+                  A Ubatuba Guias é uma plataforma digital que oferece:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                   <li>Geração de roteiros turísticos personalizados por inteligência artificial</li>
@@ -130,7 +130,7 @@ export default function TermosUso() {
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                     <li>Garante que possui os direitos necessários sobre o conteúdo</li>
-                    <li>Concede à UbatubaIA licença para usar, exibir e distribuir o conteúdo</li>
+                    <li>Concede à Ubatuba Guias licença para usar, exibir e distribuir o conteúdo</li>
                     <li>Aceita que o conteúdo deve ser verdadeiro e não violar direitos de terceiros</li>
                     <li>Entende que podemos remover conteúdo inadequado a nosso critério</li>
                   </ul>
@@ -153,7 +153,7 @@ export default function TermosUso() {
                 </div>
                 <div className="space-y-4">
                   <p className="text-muted-foreground">
-                    A UbatubaIA atua como intermediária entre usuários e prestadores de serviços. Não somos 
+                    A Ubatuba Guias atua como intermediária entre usuários e prestadores de serviços. Não somos 
                     responsáveis por:
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -189,7 +189,7 @@ export default function TermosUso() {
                   Para dúvidas sobre estes Termos de Uso, entre em contato:
                 </p>
                 <div className="space-y-2 text-muted-foreground">
-                  <p><strong>Email:</strong> legal@ubatubaIA.com.br</p>
+                  <p><strong>Email:</strong> legal@Ubatuba Guias.com.br</p>
                   <p><strong>Telefone:</strong> (12) 99999-0000</p>
                   <p><strong>Endereço:</strong> Rua das Palmeiras, 123 - Centro, Ubatuba/SP</p>
                 </div>

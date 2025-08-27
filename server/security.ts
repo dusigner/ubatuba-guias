@@ -21,8 +21,6 @@ export function setupSecurity(app: Express) {
   const cloudWorkstationUrl = 'https://5173-firebase-ubatuba-guias-1754437939577.cluster-duylic2g3fbzerqpzxxbw6helm.cloudworkstations.dev';
 
   app.use(helmet({
-    // THE FIX: Disable COOP to allow Firebase Auth popups to work.
-    // The browser's default is safer than 'same-origin' for this auth flow.
     crossOriginOpenerPolicy: false,
     crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: {
@@ -51,7 +49,13 @@ export function setupSecurity(app: Express) {
       ];
       
   app.use(cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
@@ -59,7 +63,7 @@ export function setupSecurity(app: Express) {
 
   app.use('/api', speedLimiter);
   app.use('/api', generalLimiter);
-  app.use('/api/auth', authLimiter);
+  // app.use('/api/auth', authLimiter); // TEMPORARIAMENTE DESABILITADO PARA DIAGNÓSTICO
   app.use('/api/ai', heavyOperationsLimiter);
   app.use('/api/itinerary', heavyOperationsLimiter);
 

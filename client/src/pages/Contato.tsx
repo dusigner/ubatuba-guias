@@ -83,11 +83,11 @@ export default function Contato() {
                       <p className="text-muted-foreground mb-2">
                         Para dúvidas gerais e suporte:
                       </p>
-                      <p className="font-semibold">contato@ubatubaIA.com.br</p>
+                      <p className="font-semibold">contato@Ubatuba Guias.com.br</p>
                       <p className="text-muted-foreground mt-2">
                         Para parcerias comerciais:
                       </p>
-                      <p className="font-semibold">parcerias@ubatubaIA.com.br</p>
+                      <p className="font-semibold">parcerias@Ubatuba Guias.com.br</p>
                     </CardContent>
                   </Card>
 

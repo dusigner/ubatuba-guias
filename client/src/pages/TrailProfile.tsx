@@ -145,7 +145,7 @@ export default function TrailProfile() {
                 onClick={() => setLocation("/")}
                 className="text-sm text-foreground hover:text-foreground"
               >
-                UbatubaIA
+                Ubatuba Guias
               </Button>
             </div>
           </div>

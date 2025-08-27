@@ -6,5 +6,5 @@ import * as schema from '@shared/schema';
 const connectionString = process.env.DATABASE_URL!;
 
 // Create the client and the database instance for Drizzle
-const client = postgres(connectionString, { prepare: false });
+export const client = postgres(connectionString, { prepare: false }); // Exportando o cliente
 export const db = drizzle(client, { schema });

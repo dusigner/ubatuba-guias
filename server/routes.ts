@@ -29,35 +29,14 @@ export async function createApiRouter(app: Express): Promise<Router> {
   console.log("NODE_ENV:", process.env.NODE_ENV);
 
   // Usar Firebase Auth - A configuração de middleware (sessão) ainda precisa do 'app'
-  const { setupFirebaseAuth, requireAuth, getCurrentUser, handleLogout, handleFirebaseLogin } = await import("./auth/firebase");
-  setupFirebaseAuth(app);
+  const { setupSession, requireAuth, getCurrentUser, handleLogout, handleFirebaseLogin } = await import("./auth/firebase");
+  setupSession(app, { trustProxy: true });
   const authMiddleware = requireAuth;
 
   // Firebase Auth routes
   router.post("/auth/firebase-login", handleFirebaseLogin);
   router.get("/auth/user", getCurrentUser);
   router.post("/auth/logout", handleLogout);
-
-  // Legacy auth route handling for both systems
-  router.get("/auth/user-legacy", authMiddleware, async (req: any, res) => {
-    try {
-      let user = await storage.getUserByEmail(req.user.claims.email);
-      if (!user && req.user.claims) {
-        user = await storage.upsertUser({
-          email: req.user.claims.email,
-          firstName: req.user.claims.first_name,
-          lastName: req.user.claims.last_name,
-          profileImageUrl: req.user.claims.profile_image_url,
-          userType: "tourist",
-          isProfileComplete: false,
-        });
-      }
-      res.json(user);
-    } catch (error) {
-      console.error("Erro ao buscar usuário:", error);
-      res.status(500).json({ message: "Falha ao buscar usuário" });
-    }
-  });
 
   // User profile routes
   router.put("/auth/user", authMiddleware, async (req: any, res) => {
@@ -387,10 +366,9 @@ export async function createApiRouter(app: Express): Promise<Router> {
 
   router.put("/boat-tours/:id", authMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
 
-      // Get user and tour to check ownership
-      const user = await storage.getUserByEmail(req.user.claims.email);
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
       const tour = await storage.getBoatTour(req.params.id);
 
       if (!user || !tour) {
@@ -415,10 +393,8 @@ export async function createApiRouter(app: Express): Promise<Router> {
 
   router.delete("/boat-tours/:id", authMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-
-      // Get user and tour to check ownership
-      const user = await storage.getUserByEmail(req.user.claims.email);
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
       const tour = await storage.getBoatTour(req.params.id);
 
       if (!user || !tour) {
@@ -451,7 +427,8 @@ export async function createApiRouter(app: Express): Promise<Router> {
       }
       
       // Get user to check if they are the producer
-      let user = await storage.getUserByEmail(req.user.claims.email);
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
@@ -496,7 +473,8 @@ export async function createApiRouter(app: Express): Promise<Router> {
       }
 
       // Get user to check if they are the producer
-      let user = await storage.getUserByEmail(req.user.claims.email);
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }

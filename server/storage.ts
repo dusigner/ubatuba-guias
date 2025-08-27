@@ -394,7 +394,6 @@ export class DatabaseStorage implements IStorage {
     await db.delete(events).where(eq(events.id, id));
   }
 
-  // Guides
   // Guides  
   async getGuides(): Promise<any[]> {
     try {
@@ -409,12 +408,14 @@ export class DatabaseStorage implements IStorage {
         FROM guides 
         ORDER BY created_at DESC
       `);
+
+      const rows = Array.isArray(result) ? result : (result as any)?.rows ?? [];
       
-      console.log('Guides encontrados na tabela:', result.rows.length);
-      console.log('Dados dos primeiros guides:', result.rows.slice(0, 2));
+      console.log('Guides encontrados na tabela:', rows.length);
+      console.log('Dados dos primeiros guides:', rows.slice(0, 2));
       
       // Mapear os dados corretamente usando os nomes das colunas
-      const formattedGuides = result.rows.map((guide: any) => ({
+      const formattedGuides = rows.map((guide: any) => ({
         id: guide.id,
         userId: guide.user_id,
         name: guide.name || 'Nome não informado',
@@ -435,7 +436,6 @@ export class DatabaseStorage implements IStorage {
       }));
       
       console.log('Guides formatados e retornados:', formattedGuides.length);
-      console.log('IDs dos guias:', formattedGuides.map(g => g.id));
       
       return formattedGuides;
       
@@ -489,12 +489,14 @@ export class DatabaseStorage implements IStorage {
         FROM guides 
         WHERE id = ${identifier} OR slug = ${identifier}
       `);
+
+      const rows = Array.isArray(result) ? result : (result as any)?.rows ?? [];
       
-      if (result.rows.length === 0) {
+      if (rows.length === 0) {
         return undefined;
       }
       
-      const guide = result.rows[0] as any;
+      const guide = rows[0] as any;
       
       return {
         id: guide.id,
@@ -743,10 +745,12 @@ export class DatabaseStorage implements IStorage {
         ORDER BY rating DESC, tours_completed DESC
         LIMIT 6
       `);
+
+      const rows = Array.isArray(result) ? result : (result as any)?.rows ?? [];
       
-      console.log('Guias em destaque encontrados:', result.rows.length);
+      console.log('Guias em destaque encontrados:', rows.length);
       
-      const formattedGuides = result.rows.map((guide: any) => ({
+      const formattedGuides = rows.map((guide: any) => ({
         id: guide.id,
         userId: guide.user_id,
         name: guide.name || 'Nome não informado',

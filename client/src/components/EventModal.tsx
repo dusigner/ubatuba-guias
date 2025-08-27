@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -59,6 +59,7 @@ export default function EventModal({ isOpen, onClose, event, isEditing = false }
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
+    mode: "onChange", // Valida enquanto o usuário digita
     defaultValues: {
       title: event?.title || "",
       description: event?.description || "",
@@ -77,6 +78,31 @@ export default function EventModal({ isOpen, onClose, event, isEditing = false }
     },
   });
 
+  // Resetar o formulário APENAS quando o modal fecha
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+    } else if (isEditing) {
+      // Quando o modal abre em modo de edição, preencher os valores
+      form.reset({
+        title: event?.title || "",
+        description: event?.description || "",
+        startDate: event?.startDate ? new Date(event.startDate).toISOString().split('T')[0] : "",
+        endDate: event?.endDate ? new Date(event.endDate).toISOString().split('T')[0] : "",
+        location: event?.location || "",
+        startTime: event?.startTime || "",
+        endTime: event?.endTime || "",
+        ticketPrice: event?.ticketPrice || "",
+        ticketLink: event?.ticketLink || "",
+        imageUrl: event?.imageUrl || "",
+        category: event?.category || "",
+        producerName: event?.producerName || (user?.firstName && user?.lastName 
+          ? `${user.firstName} ${user.lastName}`
+          : user?.email || ""),
+      });
+    }
+  }, [isOpen, event, user, form, isEditing]);
+
   const eventMutation = useMutation({
     mutationFn: async (eventData: EventFormData) => {
       const url = isEditing ? `/api/events/${event.id}` : '/api/events';
@@ -93,10 +119,10 @@ export default function EventModal({ isOpen, onClose, event, isEditing = false }
         title: isEditing ? "Evento atualizado com sucesso!" : "Evento criado com sucesso!",
         description: isEditing ? "As alterações foram salvas." : "Seu evento foi cadastrado e já está visível para os turistas.",
       });
-      form.reset();
+      // Não reseta o form aqui para dar tempo dos erros serem exibidos (se houver)
       onClose();
     },
-    onError: (error) => {
+    onError: async (error) => {
       if (isUnauthorizedError(error as Error)) {
         toast({
           title: "Não autorizado",
@@ -109,33 +135,72 @@ export default function EventModal({ isOpen, onClose, event, isEditing = false }
         }, 500);
         return;
       }
+
+      form.clearErrors();
+
+      let errorMessage = isEditing ? "Houve um problema ao salvar as alterações. Tente novamente." : "Houve um problema ao cadastrar seu evento. Tente novamente.";
+      
+      if (error instanceof Error) {
+        try {
+          const errorText = error.message.split(': ')[1]; // Assume formato "status: JSON_STRING"
+          const errorJson = JSON.parse(errorText);
+          
+          // ZodError do backend
+          if (errorJson.error === 'Dados inválidos' && errorJson.details && Array.isArray(errorJson.details)) {
+            errorJson.details.forEach((err: { field: string, message: string }) => {
+              // Mapear erros da API para campos do formulário
+              if (err.field in form.control._fields) { // Verifica se o campo existe no form
+                 form.setError(err.field as keyof EventFormData, {
+                   type: "server",
+                   message: err.message,
+                 });
+              } else {
+                errorMessage = err.message;
+              }
+            });
+            // Se houver erros específicos, não exibir o toast genérico, pois já está no campo
+            if (errorJson.details.length > 0) {
+              errorMessage = "Por favor, corrija os erros nos campos indicados.";
+            }
+          } else if (errorJson.message) {
+            errorMessage = errorJson.message;
+          } else {
+             errorMessage = error.message;
+          }
+        } catch (parseError) {
+          console.error("Falha ao parsear resposta de erro da API:", parseError);
+          errorMessage = error.message; 
+        }
+      }
+      
       toast({
         title: isEditing ? "Erro ao atualizar evento" : "Erro ao criar evento",
-        description: isEditing ? "Houve um problema ao salvar as alterações. Tente novamente." : "Houve um problema ao cadastrar seu evento. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: EventFormData) => {
-    // Validate dates
+    // Validação de datas antes de enviar para a API
     const startDate = new Date(data.startDate);
     const endDate = new Date(data.endDate);
     
     if (endDate < startDate) {
+      form.setError("endDate", { type: "manual", message: "A data de fim deve ser posterior à data de início." });
       toast({
         title: "Datas inválidas",
         description: "A data de fim deve ser posterior à data de início.",
         variant: "destructive",
       });
-      return;
+      return; // Impede a submissão se houver erro de data
     }
 
     eventMutation.mutate(data);
   };
 
   const handleClose = () => {
-    form.reset();
+    form.reset(); // Reseta o formulário e os erros ao fechar
     onClose();
   };
 
@@ -387,10 +452,10 @@ export default function EventModal({ isOpen, onClose, event, isEditing = false }
               </Button>
               <Button 
                 type="submit" 
-                disabled={eventMutation.isPending}
+                disabled={eventMutation.isPending || form.formState.isSubmitting}
                 className="bg-gradient-to-r from-sunset to-ocean text-white hover:opacity-90"
               >
-                {eventMutation.isPending ? (
+                {eventMutation.isPending || form.formState.isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     {isEditing ? "Salvando..." : "Cadastrando..."}

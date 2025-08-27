@@ -46,7 +46,7 @@ export function LandingLayout({ children }: LandingLayoutProps) {
             <Link href="/">
               <div className="flex items-center space-x-2 cursor-pointer">
                 <Compass className="h-8 w-8 text-primary" />
-                <span className="text-2xl font-bold text-foreground">UbatubaIA</span>
+                <span className="text-2xl font-bold text-foreground">Ubatuba Guias</span>
               </div>
             </Link>
             
@@ -106,7 +106,7 @@ export function LandingLayout({ children }: LandingLayoutProps) {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Compass className="h-8 w-8 text-ocean" />
-                <span className="text-2xl font-bold">UbatubaIA</span>
+                <span className="text-2xl font-bold">Ubatuba Guias</span>
               </div>
               <p className="text-slate-400 mb-4">
                 Sua plataforma inteligente para descobrir o melhor de Ubatuba com roteiros personalizados por IA.
@@ -145,7 +145,7 @@ export function LandingLayout({ children }: LandingLayoutProps) {
           </div>
           
           <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400">
-            <p>&copy; 2025 UbatubaIA. Todos os direitos reservados. Desenvolvido com <Heart className="inline h-4 w-4 text-red-500" /> para Ubatuba.</p>
+            <p>&copy; 2025 Ubatuba Guias. Todos os direitos reservados. Desenvolvido com <Heart className="inline h-4 w-4 text-red-500" /> para Ubatuba.</p>
           </div>
         </div>
       </footer>

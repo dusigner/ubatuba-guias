@@ -43,7 +43,7 @@ export default function CentralAjuda() {
             Central de Ajuda
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl">
-            Encontre respostas para suas dúvidas sobre a plataforma UbatubaIA
+            Encontre respostas para suas dúvidas sobre a plataforma Ubatuba Guias
           </p>
         </div>
       </section>

@@ -63,7 +63,7 @@ export default function Admin() {
               Painel Administrativo
             </h1>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Gerencie todo o conteúdo da plataforma UbatubaIA
+              Gerencie todo o conteúdo da plataforma Ubatuba Guias
             </p>
           </div>
         </div>

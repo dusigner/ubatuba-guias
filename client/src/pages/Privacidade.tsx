@@ -225,7 +225,7 @@ export default function Privacidade() {
                   Para exercer seus direitos ou esclarecer dúvidas sobre privacidade:
                 </p>
                 <div className="space-y-2 text-muted-foreground">
-                  <p><strong>Email:</strong> privacidade@ubatubaIA.com.br</p>
+                  <p><strong>Email:</strong> privacidade@Ubatuba Guias.com.br</p>
                   <p><strong>Telefone:</strong> (12) 99999-0000</p>
                   <p><strong>Endereço:</strong> Rua das Palmeiras, 123 - Centro, Ubatuba/SP</p>
                 </div>

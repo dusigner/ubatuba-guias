@@ -169,7 +169,7 @@ export default function RegisterNew() {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Perfil criado com sucesso!",
-        description: "Bem-vindo ao UbatubaIA!",
+        description: "Bem-vindo ao Ubatuba Guias!",
       });
       navigate("/");
     },
@@ -244,8 +244,8 @@ export default function RegisterNew() {
           </CardTitle>
           <CardDescription>
             {authMode === "register" 
-              ? "Junte-se à comunidade UbatubaIA" 
-              : "Acesse sua conta UbatubaIA"
+              ? "Junte-se à comunidade Ubatuba Guias" 
+              : "Acesse sua conta Ubatuba Guias"
             }
           </CardDescription>
         </CardHeader>
@@ -350,7 +350,7 @@ export default function RegisterNew() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4">Escolha seu tipo de perfil</h1>
           <p className="text-lg text-muted-foreground">
-            Selecione como você quer usar o UbatubaIA
+            Selecione como você quer usar o Ubatuba Guias
           </p>
         </div>
 

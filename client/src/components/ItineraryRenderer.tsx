@@ -258,7 +258,7 @@ export default function ItineraryRenderer({ content, title, duration }: Itinerar
                     size="sm" 
                     className="h-8 text-xs bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => {
-                      const message = encodeURIComponent(`Olá ${guideName}! Vi sua recomendação no roteiro do UbatubaIA e gostaria de conversar sobre seus serviços.`);
+                      const message = encodeURIComponent(`Olá ${guideName}! Vi sua recomendação no roteiro do Ubatuba Guias e gostaria de conversar sobre seus serviços.`);
                       window.open(`https://wa.me/5512999990006?text=${message}`, '_blank');
                     }}
                   >

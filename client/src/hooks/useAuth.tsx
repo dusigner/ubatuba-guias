@@ -1,149 +1,174 @@
-import { useState, useEffect, useCallback, createContext, useContext } from 'react';
-import { User } from 'firebase/auth';
+
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { User as DbUser } from '@shared/schema';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from '../hooks/use-toast';
+import { apiRequest } from '../lib/queryClient';
 
-// Interface do Contexto de Autenticação
+// --- Tipos e Interfaces ---
 interface AuthContextType {
-  firebaseUser: User | null;
   dbUser: DbUser | null;
-  loading: boolean;
+  user: DbUser | null; // Alias para dbUser para consistência
+  isLoading: boolean;
   isAuthenticated: boolean;
+  isProfileComplete: boolean;
   isAdmin: boolean;
   isGuide: boolean;
   isOperator: boolean;
-  isProfileComplete: boolean;
+  login: (idToken: string) => Promise<any>;
   logout: () => Promise<void>;
-  refreshDbUser: () => Promise<void>;
-  user: DbUser | null;
-  isLoading: boolean;
+  isLoggingIn: boolean;
+  isLoggingOut: boolean;
 }
 
+// --- Contexto ---
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
-  // Novo estado para rastrear a verificação inicial do Firebase
-  const [authCheckCompleted, setAuthCheckCompleted] = useState(false);
+// --- Componente Provedor ---
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = useQueryClient();
+  const syncAttemptedForUid = useRef<string | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [isFirebaseLoading, setIsFirebaseLoading] = useState(true);
 
-  // Query para buscar dados do usuário do backend
-  const { 
-    data: dbUser, 
-    isLoading: isLoadingDbUser, 
-    refetch: refetchDbUser, 
-    error: dbUserError,
-    isError,
-  } = useQuery<DbUser, Error>({
-    queryKey: ['dbUser', firebaseUser?.uid],
-    queryFn: async () => {
-      if (!firebaseUser?.uid) throw new Error('No Firebase user UID');
-      const response = await fetch('/api/auth/user', { credentials: 'include' });
-      if (!response.ok) {
-        if (response.status === 401) throw new Error('No backend session');
-        throw new Error('Failed to fetch user from backend');
-      }
-      return response.json();
-    },
-    enabled: !!firebaseUser?.uid, // Só executa se houver um usuário do Firebase
-    staleTime: 5 * 60 * 1000,
-    retry: false,
-  });
-
-  // Função para sincronizar o usuário do Firebase com o backend
-  const syncUserWithBackend = useCallback(async (userToSync: User) => {
-    try {
-      const idToken = await userToSync.getIdToken(true); // Força a renovação do token
-      const response = await fetch('/api/auth/firebase-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ idToken })
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Falha ao sincronizar' }));
-        throw new Error(errorData.error);
-      }
-      const syncedUser: DbUser = await response.json();
-      // Atualiza o cache do TanStack Query com os dados do novo usuário
-      queryClient.setQueryData(['dbUser', userToSync.uid], syncedUser);
-    } catch (error: any) {
-      console.error('❌ Erro na sincronização com backend:', error.message);
-      toast({ variant: "destructive", title: "Erro de autenticação", description: "Falha ao sincronizar com o servidor." });
-      // Invalida a query para permitir uma nova tentativa se o usuário recarregar
-      queryClient.invalidateQueries({ queryKey: ['dbUser', userToSync.uid] });
-    }
-  }, [queryClient]);
-
-  // Efeito principal: Ouve o estado de autenticação do Firebase
+  // Efeito para obter o estado do usuário do Firebase (diretamente)
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
-      setAuthCheckCompleted(true); // Marca que a verificação inicial do Firebase foi concluída
-      if (!user) {
-        queryClient.removeQueries({ queryKey: ['dbUser'] });
-      }
+      setIsFirebaseLoading(false);
+      // Quando o estado do Firebase Auth muda (e um usuário aparece/desaparece),
+      // forçamos a invalidação do dbUser para re-avaliar a sessão do backend.
+      queryClient.invalidateQueries({ queryKey: ['dbUser'] });
     });
     return () => unsubscribe();
-  }, [queryClient]);
+  }, [queryClient]); // Dependência em queryClient para garantir que é estável
 
-  // Efeito para sincronizar com o backend apenas quando necessário
+  // Query principal para buscar o usuário do nosso backend
+  const { 
+    data: dbUser, 
+    isLoading: isLoadingDbUser,
+    isFetching: isFetchingDbUser,
+  } = useQuery<DbUser | null>({
+    queryKey: ['dbUser'],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest('/api/auth/user', 'GET');
+        const data = await response.json();
+        return data.user;
+      } catch (e: any) {
+        if (e.message.startsWith('401')) {
+          return null;
+        }
+        throw e;
+      }
+    },
+    enabled: !!firebaseUser && !isFirebaseLoading, 
+    staleTime: 30 * 60 * 1000,
+    retry: false,
+  });
+  
+  // Mutação para fazer o login (sincronizar com o backend)
+  const { mutateAsync: login, isPending: isLoggingIn } = useMutation({
+    mutationFn: (idToken: string) => apiRequest('/api/auth/firebase-login', 'POST', { idToken }),
+    onSuccess: () => {
+      return queryClient.invalidateQueries({ queryKey: ['dbUser'] });
+    },
+    onError: (error) => {
+      console.error("Erro na mutação de login:", error);
+      toast({ variant: "destructive", title: "Erro de Login", description: "Não foi possível sincronizar a sessão." });
+      // Removido auth.signOut() daqui para evitar loop. O useEffect lida com falhas de sincronização.
+    },
+  });
+
+  // Efeito para sincronizar a sessão do backend de forma segura
   useEffect(() => {
-    // A condição para sincronizar é estrita para evitar loops:
-    const shouldSync = firebaseUser && isError && dbUserError?.message === 'No backend session';
-    if (shouldSync) {
-      syncUserWithBackend(firebaseUser);
-    }
-  }, [firebaseUser, isError, dbUserError, syncUserWithBackend]);
-  
-  // Função de logout
-  const logout = useCallback(async () => {
-    try {
-      await auth.signOut();
-      // onAuthStateChanged cuidará da limpeza do estado
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-    }
-  }, []);
-  
-  const refreshDbUser = useCallback(async () => {
-    await refetchDbUser();
-  }, [refetchDbUser]);
+    const isUserLoggedInFirebase = !!firebaseUser;
+    const isUserLoggedInBackend = !!dbUser;
 
-  // Lógica de Carregamento Robusta e Derivada
-  const loading = !authCheckCompleted || (!!firebaseUser && isLoadingDbUser);
+    // Se o Firebase diz que estamos logados, mas o backend não tem sessão,
+    // E a query do dbUser não está em progresso ou carregando (para evitar corrida),
+    // E o login via mutação não está em progresso,
+    // E a sincronização ainda não foi tentada para este UID.
+    if (
+      isUserLoggedInFirebase && 
+      !isUserLoggedInBackend && 
+      !isFetchingDbUser && 
+      !isLoadingDbUser && 
+      !isLoggingIn &&
+      firebaseUser.uid && 
+      syncAttemptedForUid.current !== firebaseUser.uid
+    ) {
+      console.log(`Auth Sync: Initializing sync for UID: ${firebaseUser.uid}`);
+      syncAttemptedForUid.current = firebaseUser.uid; // Marca este UID como tentativa de sincronização
+      
+      const syncSession = async () => {
+        try {
+          const idToken = await firebaseUser.getIdToken(true); // Força token atualizado
+          await login(idToken); // Chama a mutação de login
+          console.log("Auth Sync: Sincronização bem-sucedida.");
+        } catch (error) {
+          console.error("Auth Sync: Sync failed. Signing out to prevent loop.", error);
+          auth.signOut(); // Desloga do Firebase em caso de falha de sincronização para quebrar o ciclo
+        }
+      };
+      syncSession();
+    }
+
+    // Resetar a trava se o usuário do Firebase sumir
+    if (!isUserLoggedInFirebase && syncAttemptedForUid.current) {
+        syncAttemptedForUid.current = null;
+    }
+  }, [firebaseUser, dbUser, isLoadingDbUser, isFetchingDbUser, isLoggingIn, login, queryClient]);
+
+  // Mutação para fazer o logout
+  const { mutateAsync: logout, isPending: isLoggingOut } = useMutation({
+    mutationFn: async () => {
+      await apiRequest('/api/auth/logout', 'POST');
+      await auth.signOut();
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(['dbUser'], null);
+      setFirebaseUser(null); 
+      queryClient.removeQueries();
+    },
+    onError: (error) => console.error("Erro no logout:", error),
+  });
   
-  // Derivação dos estados para o contexto
-  const isAuthenticated = !!firebaseUser && !!dbUser?.isProfileComplete;
-  const isAdmin = dbUser?.isAdmin || dbUser?.userType === 'admin';
+  // --- Estados Derivados ---
+  const isLoading = isFirebaseLoading || isLoadingDbUser || isFetchingDbUser || (!!firebaseUser && !dbUser && !isLoggingIn); 
+  const isProfileComplete = dbUser?.isProfileComplete ?? false;
+  const isAuthenticated = !!dbUser && isProfileComplete;
+  const isAdmin = dbUser?.isAdmin ?? false;
   const isGuide = dbUser?.userType === 'guide';
   const isOperator = dbUser?.userType === 'boat_tour_operator';
-  const isProfileComplete = dbUser?.isProfileComplete || false;
 
-  const value = {
-    firebaseUser,
-    dbUser,
-    loading,
+  const value = useMemo(() => ({
+    dbUser: dbUser ?? null,
+    user: dbUser ?? null,
+    isLoading,
     isAuthenticated,
+    isProfileComplete,
     isAdmin,
     isGuide,
     isOperator,
-    isProfileComplete,
+    login,
     logout,
-    refreshDbUser,
-    user: dbUser,
-    isLoading: loading,
-  };
+    isLoggingIn,
+    isLoggingOut,
+  }), [dbUser, isLoading, isAuthenticated, isProfileComplete, isAdmin, isGuide, isOperator, login, logout, isLoggingIn, isLoggingOut]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// --- Hook Customizado ---
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
 };
+
+export default AuthProvider;

@@ -28,7 +28,7 @@ export default function ParaEmpresas() {
           <div className="max-w-6xl mx-auto">
             {/* Benefícios */}
             <div className="mb-16">
-              <h2 className="text-3xl font-bold text-center mb-12">Por que Escolher a UbatubaIA?</h2>
+              <h2 className="text-3xl font-bold text-center mb-12">Por que Escolher a Ubatuba Guias?</h2>
               <div className="grid md:grid-cols-3 gap-8">
                 <Card className="text-center">
                   <CardHeader>
@@ -223,7 +223,7 @@ export default function ParaEmpresas() {
               <h2 className="text-3xl font-bold text-center mb-12">Transforme seu Negócio Hoje</h2>
               <div className="grid lg:grid-cols-2 gap-12">
                 <div>
-                  <h3 className="text-xl font-bold mb-6">Por que Parceiros Escolhem a UbatubaIA</h3>
+                  <h3 className="text-xl font-bold mb-6">Por que Parceiros Escolhem a Ubatuba Guias</h3>
                   <div className="space-y-4">
                     <div className="flex items-start">
                       <BarChart className="h-5 w-5 text-tropical mr-3 mt-1" />

@@ -9,20 +9,21 @@ import {
   integer,
   decimal,
   boolean,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table (required for Replit Auth)
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
+// Session table for connect-pg-simple
+export const session = pgTable("session", {
+  sid: varchar("sid").notNull(),
+  sess: jsonb("sess").notNull(),
+  expire: timestamp("expire", { mode: 'date' }).notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.sid] }),
+  }
+});
 
 // User storage table (required for Replit Auth)
 export const users = pgTable("users", {

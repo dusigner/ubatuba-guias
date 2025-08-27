@@ -95,7 +95,7 @@ export default function ProfileSelection() {
               <Compass className="h-5 w-5 text-white" />
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-ocean to-sunset bg-clip-text text-transparent">
-              UbatubaIA
+              Ubatuba Guias
             </h1>
           </div>
           <p className="text-gray-600 dark:text-gray-300">

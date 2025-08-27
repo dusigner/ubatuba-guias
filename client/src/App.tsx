@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator 
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth, AuthProvider } from "@/hooks/useAuth";
+import AuthProvider, { useAuth } from "@/hooks/useAuth"; // Importação corrigida
 import { 
   User, 
   Settings as SettingsIcon, 
@@ -73,6 +73,7 @@ function LoadingFallback() {
 
 function Navigation() {
   const { dbUser, logout } = useAuth();
+  console.log('dbUser', dbUser)
   const [location] = useLocation();
 
   const navItems = [
@@ -91,7 +92,7 @@ function Navigation() {
           <Link href="/">
             <div className="flex items-center space-x-2">
               <MapPin className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">UbatubaIA</span>
+              <span className="text-xl font-bold">Ubatuba Guias</span>
             </div>
           </Link>
 
@@ -147,14 +148,14 @@ function Navigation() {
 }
 
 function Router() {
-  const { firebaseUser, dbUser, loading } = useAuth();
-  
-  if (loading) {
+  const { isAuthenticated, dbUser, isLoading } = useAuth();
+
+  if (isLoading) {
     return <LoadingFallback />;
   }
 
   // Estado 1: Usuário Deslogado
-  if (!firebaseUser) {
+  if (!isAuthenticated) {
     return (
       <main>
         <Switch>
@@ -175,7 +176,7 @@ function Router() {
   }
 
   // Estado 2: Usuário Logado, Perfil Incompleto
-  if (firebaseUser && !dbUser?.isProfileComplete) {
+  if (isAuthenticated && !dbUser?.isProfileComplete) {
     return (
       <main>
         <Switch>

@@ -83,7 +83,7 @@ export default function GuidesNew() {
   };
 
   const handleWhatsApp = (phone: string, guideName: string) => {
-    const message = encodeURIComponent(`Olá ${guideName}! Vi seu perfil no UbatubaIA e gostaria de conversar sobre seus serviços de guia.`);
+    const message = encodeURIComponent(`Olá ${guideName}! Vi seu perfil no Ubatuba Guias e gostaria de conversar sobre seus serviços de guia.`);
     window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${message}`, '_blank');
   };
 

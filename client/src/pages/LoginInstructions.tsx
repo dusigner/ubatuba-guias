@@ -47,7 +47,7 @@ export default function LoginInstructions() {
             <LogIn className="h-8 w-8 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Entrar no UbatubaIA</h1>
+            <h1 className="text-3xl font-bold text-foreground">Entrar no Ubatuba Guias</h1>
             <p className="text-lg text-muted-foreground mt-2">
               Seu guia inteligente para turismo em Ubatuba
             </p>
@@ -84,7 +84,7 @@ export default function LoginInstructions() {
                   <div className="w-6 h-6 bg-ocean rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
                   <div>
                     <p className="font-medium">Clique em "Authorize" ou "Allow"</p>
-                    <p className="text-sm text-muted-foreground">Autorize o UbatubaIA a acessar suas informações básicas do Replit</p>
+                    <p className="text-sm text-muted-foreground">Autorize o Ubatuba Guias a acessar suas informações básicas do Replit</p>
                   </div>
                 </div>
 
@@ -102,7 +102,7 @@ export default function LoginInstructions() {
                   </div>
                   <div>
                     <p className="font-medium">Retorno automático</p>
-                    <p className="text-sm text-muted-foreground">Você será redirecionado automaticamente de volta para o UbatubaIA</p>
+                    <p className="text-sm text-muted-foreground">Você será redirecionado automaticamente de volta para o Ubatuba Guias</p>
                   </div>
                 </div>
               </div>
@@ -169,7 +169,7 @@ export default function LoginInstructions() {
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            Primeira vez no UbatubaIA? Após o login, você poderá criar seu perfil personalizado
+            Primeira vez no Ubatuba Guias? Após o login, você poderá criar seu perfil personalizado
           </p>
         </div>
       </div>

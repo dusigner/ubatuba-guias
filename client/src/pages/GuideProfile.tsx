@@ -152,7 +152,7 @@ export default function GuideProfile() {
   const sendQuoteMessage = (method: 'whatsapp' | 'email' | 'copy') => {
     const fullMessage = `Olá ${guide.name},
 
-Encontrei seu perfil no UbatubaIA e gostaria de solicitar um orçamento para um tour personalizado.
+Encontrei seu perfil no Ubatuba Guias e gostaria de solicitar um orçamento para um tour personalizado.
 
 Detalhes da solicitação:
 📅 Datas pretendidas: ${selectedDates || 'A definir'}
@@ -163,7 +163,7 @@ ${quoteMessage || 'Gostaria de mais informações sobre seus tours e valores.'}
 
 Aguardo seu contato!
 
-Via UbatubaIA - ${window.location.href}`;
+Via Ubatuba Guias - ${window.location.href}`;
 
     switch (method) {
       case 'whatsapp':
@@ -174,7 +174,7 @@ Via UbatubaIA - ${window.location.href}`;
         }
         break;
       case 'email':
-        const subject = `Solicitação de Orçamento - Tour em Ubatuba via UbatubaIA`;
+        const subject = `Solicitação de Orçamento - Tour em Ubatuba via Ubatuba Guias`;
         const emailUrl = `mailto:${guide.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
         window.location.href = emailUrl;
         break;
@@ -214,7 +214,7 @@ Via UbatubaIA - ${window.location.href}`;
                 onClick={() => setLocation("/")}
                 className="text-sm text-foreground hover:text-foreground"
               >
-                UbatubaIA
+                Ubatuba Guias
               </Button>
             </div>
           </div>
@@ -449,7 +449,7 @@ Via UbatubaIA - ${window.location.href}`;
 
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <p className="text-xs text-blue-700">
-                    💡 <strong>Dica:</strong> Mencione que encontrou {guide.name} através do UbatubaIA para um atendimento personalizado!
+                    💡 <strong>Dica:</strong> Mencione que encontrou {guide.name} através do Ubatuba Guias para um atendimento personalizado!
                   </p>
                 </div>
               </CardContent>
@@ -561,7 +561,7 @@ Via UbatubaIA - ${window.location.href}`;
 
               <div className="bg-blue-50 p-3 rounded-lg mt-3">
                 <p className="text-xs text-blue-700">
-                  💡 Sua mensagem incluirá informações sobre como você encontrou o guia através do UbatubaIA
+                  💡 Sua mensagem incluirá informações sobre como você encontrou o guia através do Ubatuba Guias
                 </p>
               </div>
             </div>

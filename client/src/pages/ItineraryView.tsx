@@ -73,7 +73,7 @@ Criado em: ${new Date(itinerary.createdAt).toLocaleDateString('pt-BR')}
 ${itinerary.content}
 
 ---
-Roteiro criado pelo UbatubaIA - Sua plataforma de turismo inteligente
+Roteiro criado pelo Ubatuba Guias - Sua plataforma de turismo inteligente
     `.trim();
 
     const blob = new Blob([content], { type: 'text/plain' });

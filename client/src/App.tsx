@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Switch, Route, Link, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -27,36 +28,48 @@ import {
   Shield,
   Home as HomeIcon
 } from "lucide-react";
-
-// Pages
-import Landing from "@/pages/Landing";
-import Home from "@/pages/Home";
-import Trails from "@/pages/Trails";
-import Beaches from "@/pages/Beaches";
-import BoatTours from "@/pages/BoatTours";
-import Events from "@/pages/Events";
-import Guides from "@/pages/Guides";
-import GuideProfile from "@/pages/GuideProfile";
-import TrailProfile from "@/pages/TrailProfile";
-import BeachProfile from "@/pages/BeachProfile";
-import BoatTourProfile from "@/pages/BoatTourProfile";
-import EventProfile from "@/pages/EventProfile";
-import Admin from "@/pages/Admin";
-import Profile from "@/pages/Profile";
-import RegisterNew from "@/pages/RegisterNew";
-import Settings from "@/pages/Settings";
-import CreateProfile from "@/pages/CreateProfile";
-import ComoFunciona from "@/pages/ComoFunciona";
-import NossaHistoria from "@/pages/NossaHistoria";
-import Parcerias from "@/pages/Parcerias";
-import Contato from "@/pages/Contato";
-import CentralAjuda from "@/pages/CentralAjuda";
-import TermosUso from "@/pages/TermosUso";
-import Privacidade from "@/pages/Privacidade";
-import ParaEmpresas from "@/pages/ParaEmpresas";
-import NotFound from "@/pages/not-found";
-import ItineraryView from "@/pages/ItineraryView";
 import { DevDebugPanel } from "@/components/DevDebugPanel";
+
+// Lazy load pages for code splitting
+const Landing = lazy(() => import("@/pages/Landing"));
+const Home = lazy(() => import("@/pages/Home"));
+const Trails = lazy(() => import("@/pages/Trails"));
+const Beaches = lazy(() => import("@/pages/Beaches"));
+const BoatTours = lazy(() => import("@/pages/BoatTours"));
+const Events = lazy(() => import("@/pages/Events"));
+const Guides = lazy(() => import("@/pages/Guides"));
+const GuideProfile = lazy(() => import("@/pages/GuideProfile"));
+const TrailProfile = lazy(() => import("@/pages/TrailProfile"));
+const BeachProfile = lazy(() => import("@/pages/BeachProfile"));
+const BoatTourProfile = lazy(() => import("@/pages/BoatTourProfile"));
+const EventProfile = lazy(() => import("@/pages/EventProfile"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const RegisterNew = lazy(() => import("@/pages/RegisterNew"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const CreateProfile = lazy(() => import("@/pages/CreateProfile"));
+const ProfileSelection = lazy(() => import("@/pages/ProfileSelection"));
+const ComoFunciona = lazy(() => import("@/pages/ComoFunciona"));
+const NossaHistoria = lazy(() => import("@/pages/NossaHistoria"));
+const Parcerias = lazy(() => import("@/pages/Parcerias"));
+const Contato = lazy(() => import("@/pages/Contato"));
+const CentralAjuda = lazy(() => import("@/pages/CentralAjuda"));
+const TermosUso = lazy(() => import("@/pages/TermosUso"));
+const Privacidade = lazy(() => import("@/pages/Privacidade"));
+const ParaEmpresas = lazy(() => import("@/pages/ParaEmpresas"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+const ItineraryView = lazy(() => import("@/pages/ItineraryView"));
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-2 text-muted-foreground">Carregando...</p>
+      </div>
+    </div>
+  );
+}
 
 function Navigation() {
   const { dbUser, logout } = useAuth();
@@ -137,14 +150,7 @@ function Router() {
   const { firebaseUser, dbUser, loading } = useAuth();
   
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Carregando...</p>
-        </div>
-      </div>
-    );
+    return <LoadingFallback />;
   }
 
   // Estado 1: Usuário Deslogado
@@ -173,10 +179,9 @@ function Router() {
     return (
       <main>
         <Switch>
-          <Route path="/" component={CreateProfile} />
-          <Route path="/create-profile" component={CreateProfile} />
           <Route path="/create-profile/:type" component={CreateProfile} />
-          <Route component={CreateProfile} />
+          <Route path="/profile-selection" component={ProfileSelection} />
+          <Route component={ProfileSelection} />
         </Switch>
       </main>
     );
@@ -216,7 +221,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
-          <Router />
+          <Suspense fallback={<LoadingFallback />}>
+            <Router />
+          </Suspense>
           <Toaster />
         </TooltipProvider>
       </AuthProvider>

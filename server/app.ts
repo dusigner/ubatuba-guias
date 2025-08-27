@@ -9,24 +9,26 @@ function initializeFirebase(): App {
     return getApp();
   } catch (error) {
     const serviceAccountKey = process.env.SERVICE_ACCOUNT_KEY;
-    // In production, Firebase provides default credentials.
-    // In dev, we use the key from the .env file.
     if (process.env.NODE_ENV === 'development' && serviceAccountKey) {
       try {
         const credentials = cert(JSON.parse(serviceAccountKey));
         return initializeApp({ credential: credentials });
       } catch (parseError) {
         console.error("Failed to parse SERVICE_ACCOUNT_KEY:", parseError);
-        return initializeApp(); // Fallback for dev
+        return initializeApp();
       }
     }
-    return initializeApp(); // For production
+    return initializeApp();
   }
 }
 
 export async function createApp() {
   initializeFirebase();
   const app = express();
+
+  // THE FIX: Trust the proxy. This is essential for secure cookies to work in production.
+  app.set('trust proxy', 1);
+
   setupSecurity(app);
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: false, limit: "1mb" }));

@@ -4,7 +4,8 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      ".env"
     ],
     "rewrites": [
       {
@@ -21,7 +22,12 @@
     ]
   },
   "functions": {
-    "source": "functions"
+    "source": "functions",
+    "ignore": [
+      "**/node_modules/**",
+      "**/.*",
+      ".env"
+    ]
   },
   "emulators": {
     "apphosting": {

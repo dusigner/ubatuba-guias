@@ -15,12 +15,24 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // A simple and robust chunking strategy:
+        // 1. All code from node_modules goes into a single 'vendor' chunk.
+        // 2. All other code (your application code) is split by Vite automatically.
+        // This prevents the React loading errors seen in production.
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
   },
   server: {
-    // Removido: port: 5000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:8080',
         changeOrigin: true
       }
     }

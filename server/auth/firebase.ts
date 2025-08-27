@@ -27,12 +27,7 @@ export function setupFirebaseAuth(app: Express) {
     },
   };
 
-  console.log('Configurando sessões para ambiente:', process.env.NODE_ENV);
-  console.log('Domain:', process.env.REPLIT_DOMAINS);
-  
   app.use(session(sessionConfig));
-
-  console.log('✅ Firebase Auth e Sessions configurados com MemoryStore');
 }
 
 interface FirebaseUserToken {

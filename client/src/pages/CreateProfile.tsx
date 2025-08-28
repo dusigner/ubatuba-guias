@@ -3,7 +3,7 @@ import { useRoute, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery  } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -244,17 +244,28 @@ export default function CreateProfile() {
         isProfileComplete: true,
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Perfil criado com sucesso!",
         description:
           "Você pode agora explorar todas as funcionalidades da plataforma.",
       });
+
+
       console.log("Perfil criado, redirecionando para home");
-      
-      // Force refresh user data then redirect
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      
+
+      await queryClient.invalidateQueries({ queryKey: ['user'] });
+
+      const updatedUser = await queryClient.ensureQueryData({
+        queryKey: ['user'],
+        queryFn: async () => {
+          const data = await apiRequest<{ user: any }>('/api/auth/user', 'GET');
+          return data.user;
+        }
+      });
+
+      console.log('usuário atualizado', updatedUser);
+
       // Wait a bit for queries to update then redirect to home
       setTimeout(() => {
         console.log("Redirecionando para home após perfil completo");

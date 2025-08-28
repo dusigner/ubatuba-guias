@@ -22,9 +22,10 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 
 export default function GuideProfile() {
   const params = useParams();
+  console.log('params', params)
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { isFavorite, toggleFavorite, isToggling } = useFavorites(user?.id);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [quoteMessage, setQuoteMessage] = useState("");
@@ -32,13 +33,17 @@ export default function GuideProfile() {
   const [groupSize, setGroupSize] = useState("");
   const guideId = params.identifier;
 
+  console.log('guideId', guideId)
+
   // Perfis de guias são públicos - não precisa estar logado para ver
 
   const { data: guide, isLoading: guideLoading, error } = useQuery<any>({
-    queryKey: ["/api/guides", guideId],
+    queryKey: [`/api/guides/${guideId}`],
     retry: false,
     enabled: !!guideId, // Não precisa estar autenticado para ver perfis de guias
   });
+
+  console.log('guide', guide)
 
   if (error && isUnauthorizedError(error as Error)) {
     toast({

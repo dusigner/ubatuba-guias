@@ -60,6 +60,7 @@ export default function AdminUsers() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to update user');
       return response.json();

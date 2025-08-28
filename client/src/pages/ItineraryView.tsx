@@ -15,7 +15,7 @@ export default function ItineraryView() {
   const itineraryId = params.id;
 
   const { data: itinerary, isLoading, error } = useQuery<any>({
-    queryKey: ["/api/itineraries", itineraryId],
+    queryKey: [`/api/itineraries/${itineraryId}`, ],
     enabled: !!itineraryId,
   });
 

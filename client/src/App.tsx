@@ -4,30 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-  DropdownMenuSeparator 
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Navigation from "@/components/Navigation";
 import AuthProvider, { useAuth } from "@/hooks/useAuth"; // Importação corrigida
-import { 
-  User, 
-  Settings as SettingsIcon, 
-  LogOut, 
-  Waves,
-  Mountain,
-  Ship,
-  Calendar,
-  Users,
-  MapPin,
-  Shield,
-  Home as HomeIcon
-} from "lucide-react";
 import { DevDebugPanel } from "@/components/DevDebugPanel";
 
 // Lazy load pages for code splitting
@@ -60,6 +38,7 @@ const ParaEmpresas = lazy(() => import("@/pages/ParaEmpresas"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const ItineraryView = lazy(() => import("@/pages/ItineraryView"));
 
+
 function LoadingFallback() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -71,84 +50,12 @@ function LoadingFallback() {
   );
 }
 
-function Navigation() {
-  const { dbUser, logout } = useAuth();
-  console.log('dbUser', dbUser)
-  const [location] = useLocation();
-
-  const navItems = [
-    { path: "/", label: "Início", icon: HomeIcon },
-    { path: "/trails", label: "Trilhas", icon: Mountain },
-    { path: "/beaches", label: "Praias", icon: Waves },
-    { path: "/boat-tours", label: "Passeios", icon: Ship },
-    { path: "/events", label: "Eventos", icon: Calendar },
-    { path: "/guides", label: "Guias", icon: Users },
-  ];
-
-  return (
-    <nav className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border sticky top-0 z-40">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <Link href="/">
-            <div className="flex items-center space-x-2">
-              <MapPin className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Ubatuba Guias</span>
-            </div>
-          </Link>
-
-          <div className="hidden md:flex items-center space-x-6">
-            {navItems.map((item) => (
-              <Link key={item.path} href={item.path}>
-                <Button
-                  variant={location === item.path ? "default" : "ghost"}
-                  size="sm"
-                  className="flex items-center space-x-2"
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                </Button>
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <ThemeToggle />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={dbUser?.profileImageUrl || undefined} />
-                    <AvatarFallback>
-                      {dbUser?.firstName?.[0]}{dbUser?.lastName?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <div className="p-2">
-                  <p className="font-medium">{dbUser?.firstName} {dbUser?.lastName}</p>
-                  <p className="text-xs text-muted-foreground">{dbUser?.email}</p>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/profile"><User className="mr-2 h-4 w-4" /><span>Perfil</span></Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/settings"><SettingsIcon className="mr-2 h-4 w-4" /><span>Configurações</span></Link></DropdownMenuItem>
-                {dbUser?.isAdmin && (<>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link href="/admin"><Shield className="mr-2 h-4 w-4" /><span>Administração</span></Link></DropdownMenuItem>
-                </>)}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="text-red-600 dark:text-red-400"><LogOut className="mr-2 h-4 w-4" /><span>Sair</span></DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
 function Router() {
-  const { isAuthenticated, dbUser, isLoading } = useAuth();
+  const { isAuthenticated, isProfileComplete, user, isLoading } = useAuth();
+
+  console.log('Router-isAuthenticated', isAuthenticated)
+  console.log('Router-user', user)
+  console.log('Router-isLoading', isLoading)
 
   if (isLoading) {
     return <LoadingFallback />;
@@ -176,7 +83,7 @@ function Router() {
   }
 
   // Estado 2: Usuário Logado, Perfil Incompleto
-  if (isAuthenticated && !dbUser?.isProfileComplete) {
+  if (isAuthenticated && !isProfileComplete) {
     return (
       <main>
         <Switch>
@@ -208,11 +115,11 @@ function Router() {
           <Route path="/profile" component={Profile} />
           <Route path="/settings" component={Settings} />
           <Route path="/itinerary/:id" component={ItineraryView} />
-          {dbUser?.isAdmin && <Route path="/admin" component={Admin} />}
+          {user?.isAdmin && <Route path="/admin" component={Admin} />}
           <Route component={NotFound} />
         </Switch>
       </main>
-      {dbUser && <DevDebugPanel />}
+      {user && <DevDebugPanel />}
     </div>
   );
 }

@@ -65,7 +65,7 @@ export default function EventProfile() {
   // A autenticação só é necessária para ações como favoritar, criar booking, etc.
 
   const { data: event, isLoading: eventLoading, error } = useQuery<any>({
-    queryKey: ["/api/events", eventId],
+    queryKey: [`/api/events/${eventId}`, ],
     retry: false,
     enabled: !!eventId, // Remover condição de autenticação pois a rota é pública
   });

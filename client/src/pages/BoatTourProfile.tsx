@@ -80,7 +80,7 @@ export default function BoatTourProfile() {
   // A autenticação só é necessária para ações como favoritar, criar booking, etc.
 
   const { data: tour, isLoading: tourLoading, error } = useQuery<any>({
-    queryKey: ["/api/boat-tours", tourId],
+    queryKey: [`/api/boat-tours/${tourId}`],
     retry: false,
     enabled: !!tourId, // Remover condição de autenticação pois a rota é pública
   });
@@ -132,7 +132,6 @@ export default function BoatTourProfile() {
   if (!tour) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Passeio não encontrado</h1>
           <Button onClick={() => setLocation("/boat-tours")}>

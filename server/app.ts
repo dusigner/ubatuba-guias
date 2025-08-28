@@ -26,13 +26,22 @@ export async function createApp() {
   initializeFirebase();
   const app = express();
 
-  // THE FIX: Trust the proxy. This is essential for secure cookies to work in production.
-  app.set('trust proxy', 1);
-
+  // Configurar segurança primeiro (inclui CORS)
   setupSecurity(app);
+  
+  // Configurar body parsers
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: false, limit: "1mb" }));
+  
+  // Adicionar cookie parser para debug
+  if (process.env.NODE_ENV === 'production') {
+    const cookieParser = await import('cookie-parser');
+    app.use(cookieParser.default());
+  }
+  
+  // Criar rotas (setupSession será chamado dentro de createApiRouter)
   const apiRouter = await createApiRouter(app);
   app.use("/api", apiRouter);
+  
   return app;
 }

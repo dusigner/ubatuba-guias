@@ -48,7 +48,8 @@ export function useFirebaseAuth() {
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL
-        })
+        }),
+        credentials: 'include', // <<< ESSENCIAL: Envia cookies para a API
       });
 
       if (!response.ok) {
@@ -64,7 +65,10 @@ export function useFirebaseAuth() {
       const { signOutUser } = await import('@/lib/firebase');
       await signOutUser();
       // Also clear backend session
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include', // <<< ESSENCIAL: Envia cookies para a API
+      });
     } catch (error) {
       console.error('Error signing out:', error);
     }

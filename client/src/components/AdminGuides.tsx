@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Edit, Trash2, Plus, Users, Star } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Guide, InsertGuide } from "@shared/schema";
 
 export default function AdminGuides() {
   const { toast } = useToast();
@@ -33,7 +34,7 @@ export default function AdminGuides() {
     userId: "local-test-user",
   });
 
-  const { data: guides = [], isLoading } = useQuery({
+  const { data: guides = [], isLoading } = useQuery<Guide[]>({
     queryKey: ["/api/guides"],
   });
 

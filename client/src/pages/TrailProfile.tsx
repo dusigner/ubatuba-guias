@@ -28,7 +28,7 @@ export default function TrailProfile() {
   // A autenticação só é necessária para ações como favoritar, etc.
 
   const { data: trail, isLoading: trailLoading, error } = useQuery<any>({
-    queryKey: ["/api/trails", trailId],
+    queryKey: [`/api/trails/${trailId}`],
     retry: false,
     enabled: !!trailId, // Remover condição de autenticação pois a rota é pública
   });

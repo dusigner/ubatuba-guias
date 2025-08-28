@@ -29,7 +29,7 @@ export default function BeachProfile() {
   // A autenticação só é necessária para ações como favoritar, etc.
 
   const { data: beach, isLoading: beachLoading, error } = useQuery<any>({
-    queryKey: ["/api/beaches", beachId],
+    queryKey: beachId ? [`/api/beaches/${beachId}`] : [],
     retry: false,
     enabled: !!beachId, // Remover condição de autenticação pois a rota é pública
   });
@@ -62,7 +62,7 @@ export default function BeachProfile() {
     );
   }
 
-  if (!beach) {
+  if (!beachId) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />

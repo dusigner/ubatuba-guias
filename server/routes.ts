@@ -26,8 +26,7 @@ export async function createApiRouter(app: Express): Promise<Router> {
   const router = Router();
 
   console.log("Configurando autenticação: Firebase");
-  console.log("NODE_ENV:", process.env.NODE_ENV);
-
+  
   // Usar Firebase Auth - A configuração de middleware (sessão) ainda precisa do 'app'
   const { setupSession, requireAuth, getCurrentUser, handleLogout, handleFirebaseLogin } = await import("./auth/firebase");
   setupSession(app, { trustProxy: true });
@@ -40,6 +39,7 @@ export async function createApiRouter(app: Express): Promise<Router> {
 
   // User profile routes
   router.put("/auth/user", authMiddleware, async (req: any, res) => {
+    console.log('============== /auth/user =================')
     try {
       const userId = req.session.userId;
       if (!userId) {
@@ -184,7 +184,9 @@ export async function createApiRouter(app: Express): Promise<Router> {
     }
   });
 
-  // Boat tours routes
+  /**
+   * Boat Routes
+   */
   router.get("/boat-tours", async (req, res) => {
     try {
       const tours = await storage.getBoatTours();
@@ -254,7 +256,11 @@ export async function createApiRouter(app: Express): Promise<Router> {
     }
   });
 
-  // Guides routes
+  /**
+   * Guides routes
+   */ 
+
+  // Guides routes - busca dados da tabela guides
   router.get("/guides", async (req, res) => {
     try {
       const guides = await storage.getGuides();
@@ -265,6 +271,7 @@ export async function createApiRouter(app: Express): Promise<Router> {
     }
   });
 
+  // Get featured guides for landing page (MUST be before :identifier route)
   router.get("/guides/featured", async (req, res) => {
     try {
       const featuredGuides = await storage.getFeaturedGuides();
@@ -288,6 +295,7 @@ export async function createApiRouter(app: Express): Promise<Router> {
     }
   });
   
+  // Editar perfil de guia (apenas o próprio usuário pode editar)
   router.put("/guides/:id", authMiddleware, async (req: any, res) => {
     try {
       const userId = req.session.userId;
@@ -318,6 +326,53 @@ export async function createApiRouter(app: Express): Promise<Router> {
     } catch (error) {
       console.error("Error updating guide profile:", error);
       res.status(500).json({ message: "Falha ao atualizar perfil de guia" });
+    }
+  });
+
+  router.delete("/guides/:id", authMiddleware, async (req, res) => {
+    try {
+      await storage.deleteGuide(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao deletar guia:", error);
+      res.status(500).json({ message: "Falha ao deletar guia" });
+    }
+  });
+
+  // Criar perfil de guia (separado dos dados do usuário)
+  router.post("/guides", authMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+
+      // Verificar se o usuário é do tipo guide
+      const user = await storage.getUser(userId);
+      if (!user || user.userType !== "guide") {
+        return res
+          .status(403)
+          .json({
+            message:
+              "Apenas usuários do tipo 'guide' podem criar perfis de guia",
+          });
+      }
+
+      // Verificar se já tem perfil de guia
+      const existingGuide = await storage.getGuideByUserId(userId);
+      if (existingGuide) {
+        return res
+          .status(400)
+          .json({ message: "Usuário já possui perfil de guia" });
+      }
+
+      // Criar perfil de guia na tabela guides
+      const newGuide = await storage.createGuide(userId, req.body);
+
+      // Marcar perfil do usuário como completo
+      await storage.updateUser(userId, { isProfileComplete: true });
+
+      res.status(201).json(newGuide);
+    } catch (error) {
+      console.error("Error creating guide profile:", error);
+      res.status(500).json({ message: "Falha ao criar perfil de guia" });
     }
   });
 
@@ -507,15 +562,7 @@ export async function createApiRouter(app: Express): Promise<Router> {
     }
   });
 
-  router.delete("/guides/:id", authMiddleware, async (req, res) => {
-    try {
-      await storage.deleteGuide(req.params.id);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Erro ao deletar guia:", error);
-      res.status(500).json({ message: "Falha ao deletar guia" });
-    }
-  });
+  
 
   // Admin user management
   router.get("/admin/users", authMiddleware, async (req: any, res) => {

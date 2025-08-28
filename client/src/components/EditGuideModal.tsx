@@ -69,6 +69,8 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
 
   const form = useForm<EditGuideFormData>({
     resolver: zodResolver(editGuideSchema),
+    mode: "onChange",
+    reValidateMode: "onBlur",
     defaultValues: {
       bio: guide.bio || "",
       experience: guide.experience || "",
@@ -128,13 +130,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
   });
 
   const onSubmit = (data: EditGuideFormData) => {
-    console.log("=== EDIT GUIDE MODAL SUBMIT ===");
-    console.log("Form data:", data);
-    console.log("Selected specialties:", selectedSpecialties);
-    console.log("Selected languages:", selectedLanguages);
-    console.log("Guide ID:", guide.id);
-    console.log("Mutation pending:", mutation.isPending);
-    
+    console.log("=== SUBMITTING FORM ===", data);
     mutation.mutate(data);
   };
 
@@ -168,7 +164,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
             <FormField
               control={form.control}
               name="bio"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>Biografia</FormLabel>
                   <FormControl>
@@ -176,9 +172,13 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
                       placeholder="Conte sobre você, sua experiência e paixão por Ubatuba..."
                       className="min-h-[100px]"
                       {...field}
+                      onBlur={() => form.trigger("bio")}
                     />
                   </FormControl>
                   <FormMessage />
+                  {fieldState.error && (
+                    <p className="text-red-500 text-sm mt-1">{fieldState.error.message}</p>
+                  )}
                 </FormItem>
               )}
             />
@@ -326,19 +326,6 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
                 type="submit" 
                 disabled={mutation.isPending}
                 className="flex-1 bg-ocean hover:bg-ocean/90"
-                onClick={(e) => {
-                  console.log("=== BOTÃO SALVAR CLICADO ===");
-                  console.log("Form valid:", form.formState.isValid);
-                  console.log("Form errors:", form.formState.errors);
-                  console.log("Form values:", form.getValues());
-                  console.log("Mutation pending:", mutation.isPending);
-                  
-                  // Força validação
-                  form.trigger().then((isValid) => {
-                    console.log("Form válido após trigger:", isValid);
-                    console.log("Erros após trigger:", form.formState.errors);
-                  });
-                }}
               >
                 {mutation.isPending ? "Salvando..." : "Salvar Alterações"}
               </Button>

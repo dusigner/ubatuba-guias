@@ -1,70 +1,100 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { QueryClient } from '@tanstack/react-query';
+import type { QueryFunctionContext } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-async function throwIfResNotOk(res: Response) {
-  if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
-  }
-}
+// --- Configuração da URL da API ---
 
-export async function apiRequest(
-  url: string,
-  method: string,
-  data?: unknown | undefined,
-): Promise<Response> {
-  const headers: HeadersInit = {
-    "Cache-Control": "no-cache"
-  };
+// Pega a URL base da API das variáveis de ambiente.
+// Em desenvolvimento, será uma string vazia, e as requisições usarão o proxy do Vite.
+// Em produção, deve ser a URL completa do seu backend (ex: https://api.seusite.com).
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-  const hasBodyMethod = ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase());
 
-  if (hasBodyMethod) {
-    headers["Content-Type"] = "application/json";
-  }
+// --- Funções Auxiliares ---
 
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
-
-  await throwIfResNotOk(res);
-  return res;
-}
-
-type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
-  on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
-      credentials: "include",
-      headers: {
-        "Cache-Control": "no-cache"
-      }
-    });
-
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+async function getErrorMessage(response: Response): Promise<string> {
+  try {
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return 'Operação bem-sucedida sem retorno de conteúdo.';
     }
+    const errorData = await response.json();
+    return errorData.message || errorData.error || 'Ocorreu um erro desconhecido.';
+  } catch {
+    return `Erro no servidor: ${response.status} ${response.statusText}`;
+  }
+}
 
-    await throwIfResNotOk(res);
-    return await res.json();
+
+// --- Função Principal de Requisição ---
+
+export async function apiRequest<T>(
+  path: string, // Espera um caminho como '/api/auth/user'
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+  body?: unknown
+): Promise<T> {
+  // Constrói a URL final. Em produção, isso adicionará o prefixo do domínio da API.
+  const url = `${API_BASE_URL}${path}`;
+
+  const options: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    credentials: 'include', // ESSENCIAL para enviar cookies entre domínios
   };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  console.log(`[apiRequest] Fazendo requisição: ${method} ${url}`);
+
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    const errorMessage = await getErrorMessage(response);
+    console.error(`[apiRequest] Erro em ${method} ${url}:`, {
+      status: response.status,
+      statusText: response.statusText,
+      message: errorMessage,
+    });
+    throw new Error(errorMessage);
+  }
+
+  if (response.status === 204) {
+    return Promise.resolve() as Promise<T>;
+  }
+
+  return response.json() as Promise<T>;
+}
+
+
+// --- Configuração do Query Client ---
+
+const defaultQueryFn = async ({ queryKey }: QueryFunctionContext) => {
+  const path = queryKey[0] as string;
+  return apiRequest<unknown>(path, 'GET');
+};
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
+      queryFn: defaultQueryFn,
+      staleTime: 1000 * 60 * 5, // 5 minutos
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      retry: (failureCount, error: any) => {
+        // Não tenta novamente em erros de cliente (4xx)
+        if (error.status >= 400 && error.status < 500) {
+          return false;
+        }
+        return failureCount < 2;
+      },
     },
     mutations: {
-      retry: false,
+      onError: (error: any) => {
+        toast.error(error.message || 'Ocorreu um erro ao processar sua solicitação.');
+      },
     },
   },
 });

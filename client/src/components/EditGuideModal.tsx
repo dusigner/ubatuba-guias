@@ -164,7 +164,7 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
             <FormField
               control={form.control}
               name="bio"
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Biografia</FormLabel>
                   <FormControl>
@@ -172,13 +172,13 @@ export default function EditGuideModal({ isOpen, onClose, guide }: EditGuideModa
                       placeholder="Conte sobre você, sua experiência e paixão por Ubatuba..."
                       className="min-h-[100px]"
                       {...field}
-                      onBlur={() => form.trigger("bio")}
+                      onBlur={() => {
+                        field.onBlur();
+                        form.trigger("bio");
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
-                  {fieldState.error && (
-                    <p className="text-red-500 text-sm mt-1">{fieldState.error.message}</p>
-                  )}
                 </FormItem>
               )}
             />
